@@ -1,0 +1,24 @@
+Pod::Spec.new do |s|
+  s.name         = "NuimoSwift"
+  s.version      = "0.0.1"
+  s.summary      = "Swift library for connecting and communicating with Senic's Nuimo controllers"
+
+  s.description  = <<-DESC
+                   Swift library for connecting and communicating with Senic's Nuimo controllers
+
+                   * Discover and connect Nuimo controllers via bluetooth low energy or websockets
+                   * Receive user gestures from Nuimo controllers
+                   * Send LED matrices to Nuimo controllers
+                   DESC
+
+  s.homepage     = "http://senic.com"
+  s.license      = { :type => "MIT", :file => "LICENSE" }
+
+  s.author             = { "Lars Blumberg" => "lars@senic.com" }
+  s.social_media_url   = "http://twitter.com/heysenic"
+  s.ios.deployment_target = "8.0"
+
+  s.source       = { :git => "https://github.com/getSenic/nuimo-swift.git", :tag => "0.0.1" }
+  s.source_files  = "SDK"
+  s.dependency "SwiftWebSocket"
+end
