@@ -8,7 +8,6 @@
 //  This software may be modified and distributed under the terms
 //  of the MIT license.  See the LICENSE file for details.
 
-import UIKit
 import CoreBluetooth
 
 private let NuimoControllerName = "Nuimo"
@@ -75,11 +74,14 @@ public class NuimoDiscoveryManager: NSObject, CBCentralManagerDelegate {
     //MARK: - CBCentralManagerDelegate
     
     public func centralManager(central: CBCentralManager, willRestoreState state: [String : AnyObject]) {
+        //TODO: Should work on OSX as well. http://stackoverflow.com/q/33210078/543875
+        #if os(iOS)
         if let peripherals = state[CBCentralManagerRestoredStatePeripheralsKey] as? [CBPeripheral] {
             for peripheral in peripherals {
                 centralManager(central, didDiscoverPeripheral: peripheral, advertisementData: [CBAdvertisementDataLocalNameKey: NuimoControllerName], RSSI: 0)
             }
         }
+        #endif
     }
     
     public func centralManagerDidUpdateState(central: CBCentralManager) {

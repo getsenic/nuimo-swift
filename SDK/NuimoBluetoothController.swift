@@ -189,12 +189,20 @@ private let shouldClearMatrixAfterTimeout = false
 
 private extension CBPeripheralState {
     var nuimoConnectionState: NuimoConnectionState {
+        #if os(iOS)
         switch self {
         case .Connecting:    return .Connecting
         case .Connected:     return .Connected
         case .Disconnecting: return .Disconnecting
         case .Disconnected:  return .Disconnected
         }
+        #elseif os(OSX)
+        switch self {
+        case .Connecting:    return .Connecting
+        case .Connected:     return .Connected
+        case .Disconnected:  return .Disconnected
+        }
+        #endif
     }
 }
 
