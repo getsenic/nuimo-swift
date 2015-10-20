@@ -22,6 +22,7 @@ public class NuimoDiscoveryManager: NSObject, CBCentralManagerDelegate {
     public var detectUnreachableControllers: Bool = false
     
     private var isDiscovering = false
+    private var shouldStartDiscoveryWhenPowerStateTurnsOn = false
     // List of discovered nuimo peripherals
     private var controllerForPeripheral = [CBPeripheral : NuimoBluetoothController]()
     private lazy var unreachableDevicesDetector: UnreachableDevicesDetector = UnreachableDevicesDetector(discoveryManager: self)
@@ -42,6 +43,7 @@ public class NuimoDiscoveryManager: NSObject, CBCentralManagerDelegate {
         #endif
         
         // Discover bluetooth controllers
+        shouldStartDiscoveryWhenPowerStateTurnsOn = true
         guard let centralManager = self.centralManager where centralManager.state == .PoweredOn else {
             return
         }
@@ -60,6 +62,7 @@ public class NuimoDiscoveryManager: NSObject, CBCentralManagerDelegate {
         unreachableDevicesDetector.stop()
         centralManager?.stopScan()
         isDiscovering = false
+        shouldStartDiscoveryWhenPowerStateTurnsOn = false
     }
     
     private func invalidateController(controller: NuimoBluetoothController) {
@@ -86,7 +89,7 @@ public class NuimoDiscoveryManager: NSObject, CBCentralManagerDelegate {
     
     public func centralManagerDidUpdateState(central: CBCentralManager) {
         // If bluetooth turned on and discovery start had already been triggered before, start discovery now
-        if central.state == .PoweredOn && isDiscovering {
+        if central.state == .PoweredOn && shouldStartDiscoveryWhenPowerStateTurnsOn {
             discoverControllers()
         }
         
