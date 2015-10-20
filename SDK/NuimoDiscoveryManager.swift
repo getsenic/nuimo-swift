@@ -10,7 +10,7 @@
 
 import CoreBluetooth
 
-private let NuimoControllerName = "Nuimo"
+public let NuimoDiscoveryManagerAutoDetectUnreachableControllersKey = "NuimoDiscoveryManagerAutoDetectUnreachableControllers"
 
 // Allows for discovering Nuimo BLE hardware controllers and virtual (websocket) controllers
 public class NuimoDiscoveryManager: NSObject, CBCentralManagerDelegate {
@@ -18,18 +18,20 @@ public class NuimoDiscoveryManager: NSObject, CBCentralManagerDelegate {
     public static let sharedManager = NuimoDiscoveryManager()
     
     public var delegate: NuimoDiscoveryDelegate?
-    public var centralManager: CBCentralManager? { didSet { oldValue?.delegate = nil; centralManager?.delegate = self } }
-    public var detectUnreachableControllers: Bool = false
     
+    private lazy var centralManager: CBCentralManager = CBCentralManager(delegate: self, queue: nil, options: self.options)
+    private var options: [String : AnyObject]
+    private lazy var detectUnreachableControllers: Bool = self.options["NuimoDiscoveryManagerAutoDetectUnreachableControllersKey"] as? Bool ?? false
     private var isDiscovering = false
     private var shouldStartDiscoveryWhenPowerStateTurnsOn = false
     // List of discovered nuimo peripherals
     private var controllerForPeripheral = [CBPeripheral : NuimoBluetoothController]()
     private lazy var unreachableDevicesDetector: UnreachableDevicesDetector = UnreachableDevicesDetector(discoveryManager: self)
     
-    public convenience init(centralManager: CBCentralManager) {
-        self.init()
-        self.centralManager = centralManager
+    public init(delegate: NuimoDiscoveryDelegate? = nil, options: [String : AnyObject] = [:]) {
+        self.delegate = delegate
+        self.options = options
+        super.init()
     }
     
     public func discoverControllers() {
@@ -44,7 +46,7 @@ public class NuimoDiscoveryManager: NSObject, CBCentralManagerDelegate {
         
         // Discover bluetooth controllers
         shouldStartDiscoveryWhenPowerStateTurnsOn = true
-        guard let centralManager = self.centralManager where centralManager.state == .PoweredOn else {
+        if centralManager.state != .PoweredOn {
             return
         }
         isDiscovering = true
@@ -60,7 +62,7 @@ public class NuimoDiscoveryManager: NSObject, CBCentralManagerDelegate {
     
     public func stopDiscovery() {
         unreachableDevicesDetector.stop()
-        centralManager?.stopScan()
+        centralManager.stopScan()
         isDiscovering = false
         shouldStartDiscoveryWhenPowerStateTurnsOn = false
     }
@@ -150,6 +152,8 @@ public class NuimoDiscoveryManager: NSObject, CBCentralManagerDelegate {
     optional func nuimoDiscoveryManager(discovery: NuimoDiscoveryManager, didInvalidateController controller: NuimoController)
 }
 
+private let NuimoControllerName = "Nuimo"
+
 private class UnreachableDevicesDetector {
     // Minimum interval to wait before a device is considered to be unreachable
     private let minUnreachableDevicesDetectionInterval: NSTimeInterval = 5.0
@@ -194,7 +198,7 @@ private class UnreachableDevicesDetector {
         // Rescan peripherals
         previouslyDiscoveredControllers = currentlyDiscoveredControllers
         currentlyDiscoveredControllers = Set()
-        discoveryManager.centralManager?.scanForPeripheralsWithServices(nuimoServiceUUIDs, options: nil)
+        discoveryManager.centralManager.scanForPeripheralsWithServices(nuimoServiceUUIDs, options: nil)
     }
     
     func didFindController(controller: NuimoBluetoothController) {
