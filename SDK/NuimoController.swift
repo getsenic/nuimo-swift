@@ -33,12 +33,12 @@
 }
 
 @objc public protocol NuimoControllerDelegate {
-    func nuimoControllerDidStartConnecting(controller: NuimoController)
-    func nuimoControllerDidConnect(controller: NuimoController)
-    func nuimoControllerDidFailToConnect(controller: NuimoController)
-    func nuimoControllerDidDisconnect(controller: NuimoController)
-    func nuimoControllerDidInvalidate(controller: NuimoController)
-    func nuimoControllerDidDiscoverMatrixService(controller: NuimoController)
-    func nuimoController(controller: NuimoController, didUpdateBatteryLevel bateryLevel: Int)
-    func nuimoController(controller: NuimoController, didReceiveGestureEvent gestureEvent: NuimoGestureEvent)
+    optional func nuimoControllerDidStartConnecting(controller: NuimoController)
+    optional func nuimoControllerDidConnect(controller: NuimoController)
+    optional func nuimoControllerDidFailToConnect(controller: NuimoController)
+    optional func nuimoControllerDidDisconnect(controller: NuimoController)
+    optional func nuimoControllerDidInvalidate(controller: NuimoController)
+    optional func nuimoControllerDidDiscoverMatrixService(controller: NuimoController)
+    optional func nuimoController(controller: NuimoController, didUpdateBatteryLevel bateryLevel: Int)
+    optional func nuimoController(controller: NuimoController, didReceiveGestureEvent gestureEvent: NuimoGestureEvent)
 }

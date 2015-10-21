@@ -17,7 +17,7 @@ public class NuimoWebSocketController : NSObject, NuimoController {
     public var uuid: String { get { return url } }
     
     public var state: NuimoConnectionState { return connectionStateForWebSocketReadyState[self.webSocket?.readyState ?? .Closed] ?? .Disconnected }
-    public var batteryLevel: Int = -1 { didSet { if self.batteryLevel != oldValue { delegate?.nuimoController(self, didUpdateBatteryLevel: self.batteryLevel) } } }
+    public var batteryLevel: Int = -1 { didSet { if self.batteryLevel != oldValue { delegate?.nuimoController?(self, didUpdateBatteryLevel: self.batteryLevel) } } }
     
     private var webSocket: WebSocket?
     
@@ -31,19 +31,19 @@ public class NuimoWebSocketController : NSObject, NuimoController {
         webSocket = {
             let webSocket = WebSocket(url)
             webSocket.event.open = {
-                self.delegate?.nuimoControllerDidConnect(self)
+                self.delegate?.nuimoControllerDidConnect?(self)
             }
             webSocket.event.close = { _ in
                 self.webSocket = nil
-                self.delegate?.nuimoControllerDidDisconnect(self)
+                self.delegate?.nuimoControllerDidDisconnect?(self)
             }
             webSocket.event.end = { _ in
                 self.webSocket = nil
-                self.delegate?.nuimoControllerDidDisconnect(self)
+                self.delegate?.nuimoControllerDidDisconnect?(self)
             }
             webSocket.event.error = { error in
                 //TODO: Figure out which error occurred and eventually call adeguate delegate methode
-                self.delegate?.nuimoControllerDidFailToConnect(self)
+                self.delegate?.nuimoControllerDidFailToConnect?(self)
             }
             webSocket.event.message = { message in
                 if let text = message as? String {
@@ -69,7 +69,7 @@ public class NuimoWebSocketController : NSObject, NuimoController {
     private func handleMessage(message: String) -> Bool {
         guard let gesture = try? NuimoGesture(identifier: message) else { return false }
         //TODO: Set value
-        delegate?.nuimoController(self, didReceiveGestureEvent: NuimoGestureEvent(gesture: gesture, value: 0))
+        delegate?.nuimoController?(self, didReceiveGestureEvent: NuimoGestureEvent(gesture: gesture, value: 0))
         return true
     }
 }

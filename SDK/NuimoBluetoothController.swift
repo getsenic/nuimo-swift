@@ -16,7 +16,7 @@ public class NuimoBluetoothController: NSObject, NuimoController, CBPeripheralDe
     public var delegate: NuimoControllerDelegate?
     
     public var state: NuimoConnectionState { get{ return self.peripheral.state.nuimoConnectionState } }
-    public var batteryLevel: Int = -1 { didSet { if self.batteryLevel != oldValue { delegate?.nuimoController(self, didUpdateBatteryLevel: self.batteryLevel) } } }
+    public var batteryLevel: Int = -1 { didSet { if self.batteryLevel != oldValue { delegate?.nuimoController?(self, didUpdateBatteryLevel: self.batteryLevel) } } }
     
     private let peripheral: CBPeripheral
     private let centralManager: CBCentralManager
@@ -38,7 +38,7 @@ public class NuimoBluetoothController: NSObject, NuimoController, CBPeripheralDe
     public func connect() {
         if peripheral.state == .Disconnected {
             centralManager.connectPeripheral(peripheral, options: nil)
-            delegate?.nuimoControllerDidStartConnecting(self)
+            delegate?.nuimoControllerDidStartConnecting?(self)
         }
     }
     
@@ -47,11 +47,11 @@ public class NuimoBluetoothController: NSObject, NuimoController, CBPeripheralDe
         writeMatrixOnWriteResponseReceived = false
         // Discover bluetooth services
         peripheral.discoverServices(nuimoServiceUUIDs)
-        delegate?.nuimoControllerDidConnect(self)
+        delegate?.nuimoControllerDidConnect?(self)
     }
     
     internal func didFailToConnect() {
-        delegate?.nuimoControllerDidFailToConnect(self)
+        delegate?.nuimoControllerDidFailToConnect?(self)
     }
     
     public func disconnect() {
@@ -64,12 +64,12 @@ public class NuimoBluetoothController: NSObject, NuimoController, CBPeripheralDe
     internal func didDisconnect() {
         peripheral.delegate = nil
         ledMatrixCharacteristic = nil
-        delegate?.nuimoControllerDidDisconnect(self)
+        delegate?.nuimoControllerDidDisconnect?(self)
     }
     
     internal func invalidate() {
         peripheral.delegate = nil
-        delegate?.nuimoControllerDidInvalidate(self)
+        delegate?.nuimoControllerDidInvalidate?(self)
     }
     
     //MARK: - CBPeripheralDelegate
@@ -87,7 +87,7 @@ public class NuimoBluetoothController: NSObject, NuimoController, CBPeripheralDe
                 peripheral.readValueForCharacteristic(characteristic)
             case kLEDMatrixCharacteristicUUID:
                 ledMatrixCharacteristic = characteristic
-                delegate?.nuimoControllerDidDiscoverMatrixService(self)
+                delegate?.nuimoControllerDidDiscoverMatrixService?(self)
             default:
                 break
             }
@@ -107,7 +107,7 @@ public class NuimoBluetoothController: NSObject, NuimoController, CBPeripheralDe
             batteryLevel = Int(UnsafePointer<UInt8>(data.bytes).memory)
         default:
             if let event = characteristic.nuimoGestureEvent() {
-                delegate?.nuimoController(self, didReceiveGestureEvent: event)
+                delegate?.nuimoController?(self, didReceiveGestureEvent: event)
             }
         }
     }
