@@ -17,6 +17,7 @@ Pod::Spec.new do |s|
   s.author             = { "Lars Blumberg" => "lars@senic.com" }
   s.social_media_url   = "http://twitter.com/heysenic"
   s.ios.deployment_target = "8.0"
+  s.osx.deployment_target = "10.9"
 
   s.source       = { :git => "https://github.com/getSenic/nuimo-swift.git", :tag => "0.0.1" }
   s.source_files  = "SDK"
