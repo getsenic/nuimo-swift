@@ -18,18 +18,19 @@ Pod::Spec.new do |s|
   s.osx.deployment_target = "10.9"
 
   s.source       = { :git => "https://github.com/getSenic/nuimo-swift.git", :tag => "0.1.0" }
-  s.source_files = "SDK/*.swift"
   s.framework    = 'CoreBluetooth'
   s.default_subspec = 'Core'
 
   s.subspec 'Core' do |c|
     # Default sub spec for users who don't need the WebSockets feature
+    c.source_files = "SDK/*.swift"
   end
 
   s.subspec 'WebSockets' do |ws|
     ws.osx.deployment_target = "10.10"
     ws.source_files = "SDK/WebSocket/*.swift"
     ws.xcconfig = { 'OTHER_SWIFT_FLAGS' => '$(inherited) -DNUIMO_USE_WEBSOCKETS' }
+    ws.dependency 'NuimoSwift/Core'
     ws.dependency "SwiftWebSocket"
   end
 end
