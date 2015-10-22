@@ -27,7 +27,8 @@ Pod::Spec.new do |s|
   end
 
   s.subspec 'WebSockets' do |ws|
-    ws.osx.deployment_target = "10.10"
+    ws.ios.deployment_target = "8.0"
+    ws.osx.deployment_target = "10.10" # SwiftWebSocket pod doesn't work w/ MacOS 10.9
     ws.source_files = "SDK/WebSocket/*.swift"
     ws.xcconfig = { 'OTHER_SWIFT_FLAGS' => '$(inherited) -DNUIMO_USE_WEBSOCKETS' }
     ws.dependency 'NuimoSwift/Core'
