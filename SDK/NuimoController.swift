@@ -40,5 +40,5 @@
     optional func nuimoControllerDidInvalidate(controller: NuimoController)
     optional func nuimoControllerDidDiscoverMatrixService(controller: NuimoController)
     optional func nuimoController(controller: NuimoController, didUpdateBatteryLevel bateryLevel: Int)
-    optional func nuimoController(controller: NuimoController, didReceiveGestureEvent gestureEvent: NuimoGestureEvent)
+    optional func nuimoController(controller: NuimoController, didReceiveGestureEvent event: NuimoGestureEvent)
 }
