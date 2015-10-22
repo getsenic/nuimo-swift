@@ -36,7 +36,7 @@ public class NuimoDiscoveryManager: NSObject, CBCentralManagerDelegate {
         super.init()
     }
     
-    public func discoverControllers() {
+    public func startDiscovery() {
         // Discover websocket controllers
         webSocketControllerURLs.forEach {
             delegate?.nuimoDiscoveryManager(self, didDiscoverNuimoController: NuimoWebSocketController(url: $0))
@@ -90,7 +90,7 @@ public class NuimoDiscoveryManager: NSObject, CBCentralManagerDelegate {
     public func centralManagerDidUpdateState(central: CBCentralManager) {
         // If bluetooth turned on and discovery start had already been triggered before, start discovery now
         if central.state == .PoweredOn && shouldStartDiscoveryWhenPowerStateTurnsOn {
-            discoverControllers()
+            startDiscovery()
         }
         
         // Invalidate all connections when state moves below .PoweredOff as they are then invalid
