@@ -124,6 +124,7 @@ public class NuimoBluetoothController: NSObject, NuimoController, CBPeripheralDe
     
     //MARK: - LED matrix writing
     
+    //TODO: Allow for writing custom matrices
     public func writeMatrix(matrixName: String) {
         // Do not send same matrix again if already shown
         if matrixName == currentMatrixName {
@@ -185,40 +186,11 @@ public class NuimoBluetoothController: NSObject, NuimoController, CBPeripheralDe
     }
 }
 
+//MARK: - Private constants
+
 private let shouldClearMatrixAfterTimeout = false
 
-private extension CBPeripheralState {
-    var nuimoConnectionState: NuimoConnectionState {
-        #if os(iOS)
-        switch self {
-        case .Connecting:    return .Connecting
-        case .Connected:     return .Connected
-        case .Disconnecting: return .Disconnecting
-        case .Disconnected:  return .Disconnected
-        }
-        #elseif os(OSX)
-        switch self {
-        case .Connecting:    return .Connecting
-        case .Connected:     return .Connected
-        case .Disconnected:  return .Disconnected
-        }
-        #endif
-    }
-}
-
-private extension CBCharacteristic {
-    func nuimoGestureEvent() -> NuimoGestureEvent? {
-        guard let data = value else { return nil }
-        
-        switch UUID {
-        case kSensorFlyCharacteristicUUID:      return NuimoGestureEvent(gattFlyData: data)
-        case kSensorTouchCharacteristicUUID:    return NuimoGestureEvent(gattTouchData: data)
-        case kSensorRotationCharacteristicUUID: return NuimoGestureEvent(gattRotationData: data)
-        case kSensorButtonCharacteristicUUID:   return NuimoGestureEvent(gattButtonData: data)
-        default: return nil
-        }
-    }
-}
+//MARK: Nuimo BLE GATT service and characteristic UUIDs
 
 private let kBatteryServiceUUID                  = CBUUID(string: "180F")
 private let kBatteryCharacteristicUUID           = CBUUID(string: "2A19")
@@ -258,3 +230,80 @@ private let characteristicNotificationUUIDs = [
     kSensorRotationCharacteristicUUID,
     kSensorButtonCharacteristicUUID
 ]
+
+//MARK: - Private extensions
+
+//MARK: Initializers for NuimoGestureEvents from BLE GATT data
+
+private extension NuimoGestureEvent {
+    convenience init(gattFlyData data: NSData) {
+        //TODO: Evaluate fly events
+        self.init(gesture: .Undefined, value: nil)
+    }
+    
+    convenience init(gattTouchData data: NSData) {
+        let bytes = UnsafePointer<Int16>(data.bytes)
+        let buttonByte = bytes.memory
+        let eventByte = bytes.advancedBy(1).memory
+        for i: Int16 in 0...7 where (1 << i) & buttonByte != 0 {
+            let touchDownGesture: NuimoGesture = [.TouchLeftDown, .TouchTopDown, .TouchRightDown, .TouchBottomDown][Int(i / 2)]
+            if let eventGesture: NuimoGesture = {
+                    switch eventByte {
+                    case 1:  return touchDownGesture.self
+                    case 2:  return touchDownGesture.touchUpGesture
+                    case 3:  return nil //TODO: Do we need to handle double touch gestures here as well?
+                    case 4:  return touchDownGesture.swipeGesture
+                    default: return nil}}() {
+                self.init(gesture: eventGesture, value: Int(i))
+                return
+            }
+        }
+        self.init(gesture: .Undefined, value: nil)
+    }
+    
+    convenience init(gattRotationData data: NSData) {
+        let value = Int(UnsafePointer<Int16>(data.bytes).memory)
+        self.init(gesture: value < 0 ? .RotateLeft : .RotateRight, value: value)
+    }
+    
+    convenience init(gattButtonData data: NSData) {
+        let value = Int(UnsafePointer<UInt8>(data.bytes).memory)
+        //TODO: Evaluate double press events
+        self.init(gesture: value == 1 ? .ButtonPress : .ButtonRelease, value: value)
+    }
+}
+
+//MARK: Extension methods for CoreBluetooth
+
+private extension CBPeripheralState {
+    var nuimoConnectionState: NuimoConnectionState {
+        #if os(iOS)
+            switch self {
+            case .Connecting:    return .Connecting
+            case .Connected:     return .Connected
+            case .Disconnecting: return .Disconnecting
+            case .Disconnected:  return .Disconnected
+            }
+        #elseif os(OSX)
+            switch self {
+            case .Connecting:    return .Connecting
+            case .Connected:     return .Connected
+            case .Disconnected:  return .Disconnected
+            }
+        #endif
+    }
+}
+
+private extension CBCharacteristic {
+    func nuimoGestureEvent() -> NuimoGestureEvent? {
+        guard let data = value else { return nil }
+        
+        switch UUID {
+        case kSensorFlyCharacteristicUUID:      return NuimoGestureEvent(gattFlyData: data)
+        case kSensorTouchCharacteristicUUID:    return NuimoGestureEvent(gattTouchData: data)
+        case kSensorRotationCharacteristicUUID: return NuimoGestureEvent(gattRotationData: data)
+        case kSensorButtonCharacteristicUUID:   return NuimoGestureEvent(gattButtonData: data)
+        default: return nil
+        }
+    }
+}
