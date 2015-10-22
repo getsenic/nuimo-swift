@@ -14,12 +14,24 @@ Pod::Spec.new do |s|
   s.homepage     = "http://senic.com"
   s.license      = { :type => "MIT", :file => "LICENSE" }
 
-  s.author             = { "Lars Blumberg" => "lars@senic.com" }
+  s.author             = { "Lars Blumberg (Senic GmbH)" => "lars@senic.com" }
   s.social_media_url   = "http://twitter.com/heysenic"
   s.ios.deployment_target = "8.0"
   s.osx.deployment_target = "10.9"
 
   s.source       = { :git => "https://github.com/getSenic/nuimo-swift.git", :tag => "0.0.1" }
-  s.source_files  = "SDK"
-  s.dependency "SwiftWebSocket"
+  s.source_files = "SDK/*.swift"
+  s.framework    = 'CoreBluetooth'
+  s.default_subspec = 'Core'
+
+  s.subspec 'Core' do |c|
+    # Default sub spec for users who don't need the WebSockets feature
+  end
+
+  s.subspec 'WebSockets' do |ws|
+    ws.osx.deployment_target = "10.10"
+    ws.source_files = "SDK/WebSocket/*.swift"
+    ws.xcconfig = { 'OTHER_SWIFT_FLAGS' => '$(inherited) -DNUIMO_USE_WEBSOCKETS' }
+    ws.dependency "SwiftWebSocket"
+  end
 end

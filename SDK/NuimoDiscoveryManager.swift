@@ -38,9 +38,11 @@ public class NuimoDiscoveryManager: NSObject, CBCentralManagerDelegate {
     
     public func startDiscovery() {
         // Discover websocket controllers
+        #if NUIMO_USE_WEBSOCKETS
         webSocketControllerURLs.forEach {
             delegate?.nuimoDiscoveryManager(self, didDiscoverNuimoController: NuimoWebSocketController(url: $0))
         }
+        #endif
         
         // Discover bluetooth controllers
         shouldStartDiscoveryWhenPowerStateTurnsOn = true
