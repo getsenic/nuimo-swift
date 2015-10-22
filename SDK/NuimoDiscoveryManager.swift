@@ -11,6 +11,7 @@
 import CoreBluetooth
 
 public let NuimoDiscoveryManagerAutoDetectUnreachableControllersKey = "NuimoDiscoveryManagerAutoDetectUnreachableControllers"
+public let NuimoDiscoveryManagerWebSocketControllerURLsKey = "NuimoDiscoveryManagerWebSocketControllerURLs"
 
 // Allows for discovering Nuimo BLE hardware controllers and virtual (websocket) controllers
 public class NuimoDiscoveryManager: NSObject, CBCentralManagerDelegate {
@@ -18,10 +19,11 @@ public class NuimoDiscoveryManager: NSObject, CBCentralManagerDelegate {
     public static let sharedManager = NuimoDiscoveryManager()
     
     public var delegate: NuimoDiscoveryDelegate?
+    public lazy var webSocketControllerURLs: [String] = self.options[NuimoDiscoveryManagerWebSocketControllerURLsKey] as? [String] ?? []
     
     private lazy var centralManager: CBCentralManager = CBCentralManager(delegate: self, queue: nil, options: self.options)
     private var options: [String : AnyObject]
-    private lazy var detectUnreachableControllers: Bool = self.options["NuimoDiscoveryManagerAutoDetectUnreachableControllersKey"] as? Bool ?? false
+    private lazy var detectUnreachableControllers: Bool = self.options[NuimoDiscoveryManagerAutoDetectUnreachableControllersKey] as? Bool ?? false
     private var isDiscovering = false
     private var shouldStartDiscoveryWhenPowerStateTurnsOn = false
     // List of discovered nuimo peripherals
@@ -36,13 +38,9 @@ public class NuimoDiscoveryManager: NSObject, CBCentralManagerDelegate {
     
     public func discoverControllers() {
         // Discover websocket controllers
-        #if (arch(i386) || arch(x86_64)) && os(iOS) // Simulator
-            let controller = NuimoWebSocketController(url: "ws://localhost:9999")
-            delegate?.nuimoDiscoveryManager(self, didDiscoverNuimoController: controller)
-        #else
-            //TODO: Read possible URLs addresses from a property
-            //let websocketAddress = "ws://192.168.1.112:9999"
-        #endif
+        webSocketControllerURLs.forEach {
+            delegate?.nuimoDiscoveryManager(self, didDiscoverNuimoController: NuimoWebSocketController(url: $0))
+        }
         
         // Discover bluetooth controllers
         shouldStartDiscoveryWhenPowerStateTurnsOn = true
