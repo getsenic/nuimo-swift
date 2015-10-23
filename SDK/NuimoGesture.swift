@@ -9,7 +9,6 @@
 //  of the MIT license.  See the LICENSE file for details.
 
 @objc public enum NuimoGesture : Int {
-    // TODO: Clarify events w/ Philip
     case
     Undefined = 0, // TODO: Do we really need this enum value? We don't need to handle an "undefined" gesture
     ButtonPress,
@@ -34,13 +33,7 @@
     FlyTowards,
     FlyAway,
     FlyUp,
-    FlyDown,
-    Program1,
-    Program2,
-    Program3,
-    Program4,
-    Program5,
-    Program6
+    FlyDown
     
     public init(identifier: String) throws {
         guard let gesture = gestureForIdentifier[identifier] else { throw NuimoGestureError.InvalidIdentifier }
