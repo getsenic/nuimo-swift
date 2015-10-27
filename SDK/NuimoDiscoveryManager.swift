@@ -49,6 +49,7 @@ public class NuimoDiscoveryManager: NSObject, CBCentralManagerDelegate {
         if centralManager.state != .PoweredOn {
             return
         }
+        //TODO: Synthesize with centralManager.isScanning
         isDiscovering = true
         
         centralManager.scanForPeripheralsWithServices(nuimoServiceUUIDs, options: nil)
