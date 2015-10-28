@@ -240,8 +240,11 @@ private let characteristicNotificationUUIDs = [
 
 private extension NuimoGestureEvent {
     convenience init(gattFlyData data: NSData) {
-        //TODO: Evaluate fly events
-        self.init(gesture: .Undefined, value: nil)
+        let bytes = UnsafePointer<UInt8>(data.bytes)
+        let directionByte = bytes.memory
+        let gesture = flyGestureForDirectionByte[directionByte] ?? .Undefined
+        //TODO: Support fly up/down events
+        self.init(gesture: gesture, value: nil)
     }
     
     convenience init(gattTouchData data: NSData) {
@@ -275,6 +278,8 @@ private extension NuimoGestureEvent {
         self.init(gesture: value == 1 ? .ButtonPress : .ButtonRelease, value: value)
     }
 }
+
+private let flyGestureForDirectionByte: [UInt8 : NuimoGesture] = [1 : .FlyLeft, 2 : .FlyRight, 3 : .FlyAway, 4 : .FlyTowards]
 
 //MARK: Extension methods for CoreBluetooth
 
