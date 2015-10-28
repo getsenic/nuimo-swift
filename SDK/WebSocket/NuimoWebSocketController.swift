@@ -58,7 +58,7 @@ public class NuimoWebSocketController : NSObject, NuimoController {
         self.webSocket?.close()
     }
     
-    public func writeMatrix(name: String) {
+    public func writeMatrix(matrix: String?) {
         //TODO: Send matrix to websocket
     }
     

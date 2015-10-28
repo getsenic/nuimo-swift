@@ -19,7 +19,7 @@
     
     func disconnect()
     
-    func writeMatrix(name: String)
+    func writeMatrix(matrix: String?)
     
     func writeBarMatrix(percent: Int)
 }
