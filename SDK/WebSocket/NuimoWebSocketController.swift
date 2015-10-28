@@ -67,9 +67,10 @@ public class NuimoWebSocketController : NSObject, NuimoController {
     }
     
     private func handleMessage(message: String) -> Bool {
-        guard let gesture = try? NuimoGesture(identifier: message) else { return false }
-        //TODO: Set value
-        delegate?.nuimoController?(self, didReceiveGestureEvent: NuimoGestureEvent(gesture: gesture, value: 0))
+        let event = message.characters.split{$0 == ","}.map(String.init)
+        guard let gesture = try? NuimoGesture(identifier: event[0]) else { return false }
+        let eventValue = (event.count > 1 ? Int(event[1]) : nil) ?? 0
+        delegate?.nuimoController?(self, didReceiveGestureEvent: NuimoGestureEvent(gesture: gesture, value: eventValue))
         return true
     }
 }
