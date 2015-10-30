@@ -17,6 +17,7 @@ public class NuimoBluetoothController: NSObject, NuimoController, CBPeripheralDe
     
     public var state: NuimoConnectionState { get{ return self.peripheral.state.nuimoConnectionState } }
     public var batteryLevel: Int = -1 { didSet { if self.batteryLevel != oldValue { delegate?.nuimoController?(self, didUpdateBatteryLevel: self.batteryLevel) } } }
+    public var firmwareVersion = 0.0
     
     private let peripheral: CBPeripheral
     private let centralManager: CBCentralManager
@@ -156,8 +157,10 @@ public class NuimoBluetoothController: NSObject, NuimoController, CBPeripheralDe
         
         // Write matrix
         let matrixData = NSMutableData(bytes: matrixBytes, length: matrixBytes.count)
-        let matrixAdditionalBytes: [UInt8] = [0xff /* Highest brightness */, 10 /* Display timeout */]
-        matrixData.appendBytes(matrixAdditionalBytes, length: matrixAdditionalBytes.count)
+        if firmwareVersion >= 0.1 {
+            let matrixAdditionalBytes: [UInt8] = [0xff /* Highest brightness */, 10 /* Display timeout */]
+            matrixData.appendBytes(matrixAdditionalBytes, length: matrixAdditionalBytes.count)
+        }
         peripheral.writeValue(matrixData, forCharacteristic: ledMatrixCharacteristic, type: .WithResponse)
         isWaitingForLedMatrixWriteResponse = true
         
