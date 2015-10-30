@@ -17,12 +17,15 @@ public class NuimoBluetoothController: NSObject, NuimoController, CBPeripheralDe
     
     public var state: NuimoConnectionState { get{ return self.peripheral.state.nuimoConnectionState } }
     public var batteryLevel: Int = -1 { didSet { if self.batteryLevel != oldValue { delegate?.nuimoController?(self, didUpdateBatteryLevel: self.batteryLevel) } } }
+    public var matrixDisplayTimeout: NSTimeInterval = 1.0
+    public var matrixBrightness: UInt8 = 0xff
     public var firmwareVersion = 0.0
     
     private let peripheral: CBPeripheral
     private let centralManager: CBCentralManager
     private var ledMatrixCharacteristic: CBCharacteristic?
     private var currentMatrix: String?
+    private var lastWriteMatrixDate: NSDate?
     private var isWaitingForLedMatrixWriteResponse: Bool = false
     private var writeMatrixOnWriteResponseReceived: Bool = false
     private var writeMatrixResponseTimeoutTimer: NSTimer?
@@ -126,10 +129,9 @@ public class NuimoBluetoothController: NSObject, NuimoController, CBPeripheralDe
     
     //TODO: Allow for writing custom matrices
     public func writeMatrix(matrix: String?) {
-        // Do not send same matrix again if already shown
-        if matrix == currentMatrix {
-            return
-        }
+        // Do not write same matrix again that is already shown unless the display interval has timed out
+        guard matrix != currentMatrix || NSDate().timeIntervalSinceDate(lastWriteMatrixDate ?? NSDate()) >= matrixDisplayTimeout else {return}
+        
         currentMatrix = matrix
         
         // Send matrix later when the write response from previous write request is not yet received
@@ -147,9 +149,7 @@ public class NuimoBluetoothController: NSObject, NuimoController, CBPeripheralDe
     
     private func writeMatrixNow(matrix: String?) {
         assert(!isWaitingForLedMatrixWriteResponse, "Cannot write matrix now, response from previous write request not yet received")
-        guard let ledMatrixCharacteristic = ledMatrixCharacteristic else {
-            return
-        }
+        guard let ledMatrixCharacteristic = ledMatrixCharacteristic else { return }
         
         // Convert matrix string representation into byte representation
         let matrixBytes = NuimoLEDMatrix.matrixBytesForString(matrix ?? "")
@@ -157,10 +157,11 @@ public class NuimoBluetoothController: NSObject, NuimoController, CBPeripheralDe
         // Write matrix
         let matrixData = NSMutableData(bytes: matrixBytes, length: matrixBytes.count)
         if firmwareVersion >= 0.1 {
-            let matrixAdditionalBytes: [UInt8] = [0xff /* Highest brightness */, 10 /* Display timeout */]
+            let matrixAdditionalBytes: [UInt8] = [UInt8(matrixBrightness), UInt8(matrixDisplayTimeout * 0.1)]
             matrixData.appendBytes(matrixAdditionalBytes, length: matrixAdditionalBytes.count)
         }
         peripheral.writeValue(matrixData, forCharacteristic: ledMatrixCharacteristic, type: .WithResponse)
+        lastWriteMatrixDate = NSDate()
         isWaitingForLedMatrixWriteResponse = true
         
         // When the matrix write response is not retrieved within 100ms we assume the response to have timed out
