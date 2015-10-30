@@ -26,7 +26,6 @@ public class NuimoBluetoothController: NSObject, NuimoController, CBPeripheralDe
     private var isWaitingForLedMatrixWriteResponse: Bool = false
     private var writeMatrixOnWriteResponseReceived: Bool = false
     private var writeMatrixResponseTimeoutTimer: NSTimer?
-    private var clearMatrixTimer: NSTimer?
     
     public init(centralManager: CBCentralManager, uuid: String, peripheral: CBPeripheral) {
         self.centralManager = centralManager
@@ -167,12 +166,6 @@ public class NuimoBluetoothController: NSObject, NuimoController, CBPeripheralDe
         // When the matrix write response is not retrieved within 100ms we assume the response to have timed out
         writeMatrixResponseTimeoutTimer?.invalidate()
         writeMatrixResponseTimeoutTimer = NSTimer.scheduledTimerWithTimeInterval(0.1, target: self, selector: "didRetrieveMatrixWriteResponse", userInfo: nil, repeats: false)
-        
-        // Clear the matrix after a timeout
-        clearMatrixTimer?.invalidate()
-        if shouldClearMatrixAfterTimeout && (matrixBytes.filter{$0 > 0}).count == 0 {
-            clearMatrixTimer = NSTimer.scheduledTimerWithTimeInterval(3.0, target: self, selector: "clearMatrix", userInfo: nil, repeats: false)
-        }
     }
     
     func didRetrieveMatrixWriteResponse() {
@@ -185,15 +178,7 @@ public class NuimoBluetoothController: NSObject, NuimoController, CBPeripheralDe
             writeMatrixNow(currentMatrix)
         }
     }
-    
-    func clearMatrix() {
-        writeMatrix("empty")
-    }
 }
-
-//MARK: - Private constants
-
-private let shouldClearMatrixAfterTimeout = false
 
 //MARK: Nuimo BLE GATT service and characteristic UUIDs
 
