@@ -2,72 +2,60 @@
 //  NuimoLEDMatrix.swift
 //  Nuimo
 //
-//  Created by je on 9/1/15.
+//  Created by Lars Blumberg on 11/02/15.
 //  Copyright © 2015 Senic. All rights reserved.
 //
 //  This software may be modified and distributed under the terms
 //  of the MIT license.  See the LICENSE file for details.
 
-public enum NuimoLEDMatrix: String {
-    case
-    MusicNote = "music-note",
-    LightBulb = "light-bulb",
-    VerticalBar1 = "vertical-bar1",
-    VerticalBar2 = "vertical-bar2",
-    VerticalBar3 = "vertical-bar3",
-    VerticalBar4 = "vertical-bar4",
-    VerticalBar5 = "vertical-bar5",
-    VerticalBar6 = "vertical-bar6",
-    VerticalBar7 = "vertical-bar7",
-    VerticalBar8 = "vertical-bar8",
-    VerticalBar9 = "vertical-bar9",
-    PowerOn = "power-on",
-    PowerOff = "power-off",
-    Shuffle = "shuffle",
-    LetterB = "B",
-    LetterO = "O",
-    LetterG = "G",
-    LetterW = "W",
-    LetterY = "Y",
-    QuestionMark = "?",
-    Play = "play",
-    Pause = "pause",
-    Next = "next",
-    Previous = "previous"
+public let NuimoLEDMatrixLEDCount = 81
+public let NuimoLEDMatrixLEDOffCharacters: [Character] = [" ", "0"]
+public let NuimoLEDMatrixDefaultLEDOffCharacter = NuimoLEDMatrixLEDOffCharacters[0]
+public let NuimoLEDMatrixDefaultLEDOnCharacter: Character = "."
+
+public class NuimoLEDMatrix: NSObject {
+    public let string: String
     
-    public var stringRepresentation: String { return stringRepresentationForMatrix[self] ?? "" }
-}
+    public init(string: String) {
+        self.string = String(string
+            .substringToIndex(string.startIndex.advancedBy(min(string.characters.count, NuimoLEDMatrixLEDCount))) // Cut off after count of LEDs
+            .stringByPaddingToLength(NuimoLEDMatrixLEDCount, withString: " ", startingAtIndex: 0)                 // Right fill up to count of LEDs
+            .characters
+            .map{NuimoLEDMatrixLEDOffCharacters.contains($0)
+                    ? NuimoLEDMatrixDefaultLEDOffCharacter
+                    : NuimoLEDMatrixDefaultLEDOnCharacter})
+    }
+    
+    public init(progressWithVerticalBar: Double) {
+        //TODO: Compute string for matrix
+        switch progressWithVerticalBar {
+        case -Double.infinity..<(1.0/9.0): self.string = NuimoLEDMatrix.verticalBar1Matrix.string
+        case 1.0/9.0..<2.0/9.0:            self.string = NuimoLEDMatrix.verticalBar2Matrix.string
+        case 2.0/9.0..<3.0/9.0:            self.string = NuimoLEDMatrix.verticalBar3Matrix.string
+        case 3.0/9.0..<4.0/9.0:            self.string = NuimoLEDMatrix.verticalBar4Matrix.string
+        case 4.0/9.0..<5.0/9.0:            self.string = NuimoLEDMatrix.verticalBar5Matrix.string
+        case 5.0/9.0..<6.0/9.0:            self.string = NuimoLEDMatrix.verticalBar6Matrix.string
+        case 6.0/9.0..<7.0/9.0:            self.string = NuimoLEDMatrix.verticalBar7Matrix.string
+        case 7.0/9.0..<8.0/9.0:            self.string = NuimoLEDMatrix.verticalBar8Matrix.string
+        case 8.0/9.0...Double.infinity:    self.string = NuimoLEDMatrix.verticalBar9Matrix.string
+        default:                           self.string = NuimoLEDMatrix.verticalBar9Matrix.string
+        }
+    }
+    
+    //MARK: Predefined matrices
 
-//MARK: - Predefined string representations
+    public static let emptyMatrix = NuimoLEDMatrix(string:
+        "         " +
+        "         " +
+        "         " +
+        "         " +
+        "         " +
+        "         " +
+        "         " +
+        "         " +
+        "         ")
 
-private let stringRepresentationForMatrix: [NuimoLEDMatrix : String] = [
-    .MusicNote: musicNoteMatrix,
-    .LightBulb: lightBulbMatrix,
-    .VerticalBar1: verticalBar1Matrix,
-    .VerticalBar2: verticalBar2Matrix,
-    .VerticalBar3: verticalBar3Matrix,
-    .VerticalBar4: verticalBar4Matrix,
-    .VerticalBar5: verticalBar5Matrix,
-    .VerticalBar6: verticalBar6Matrix,
-    .VerticalBar7: verticalBar7Matrix,
-    .VerticalBar8: verticalBar8Matrix,
-    .VerticalBar9: verticalBar9Matrix,
-    .PowerOn: powerOnMatrix,
-    .PowerOff: powerOffMatrix,
-    .Shuffle: shuffleMatrix,
-    .LetterB: letterBMatrix,
-    .LetterO: letterOMatrix,
-    .LetterG: letterGMatrix,
-    .LetterW: letterWMatrix,
-    .LetterY: letterYMatrix,
-    .QuestionMark: questionMarkMatrix,
-    .Play: playMatrix,
-    .Pause: pauseMatrix,
-    .Next: nextMatrix,
-    .Previous: previousMatrix
-]
-
-let musicNoteMatrix =
+    public static let musicNoteMatrix = NuimoLEDMatrix(string:
         "         " +
         "  .....  " +
         "  .....  " +
@@ -76,8 +64,9 @@ let musicNoteMatrix =
         "  .   .  " +
         " ..  ..  " +
         "... ...  " +
-        " .   .   "
-let lightBulbMatrix =
+        " .   .   ")
+    
+    public static let lightBulbMatrix = NuimoLEDMatrix(string:
         "         " +
         "   ...   " +
         "  .   .  " +
@@ -86,8 +75,9 @@ let lightBulbMatrix =
         "   ...   " +
         "   ...   " +
         "   ...   " +
-        "    .    "
-let verticalBar1Matrix =
+        "    .    ")
+    
+    public static let verticalBar1Matrix = NuimoLEDMatrix(string:
         "         " +
         "         " +
         "         " +
@@ -96,8 +86,9 @@ let verticalBar1Matrix =
         "         " +
         "         " +
         "         " +
-        "    .    "
-let verticalBar2Matrix =
+        "    .    ")
+    
+    public static let verticalBar2Matrix = NuimoLEDMatrix(string:
         "         " +
         "         " +
         "         " +
@@ -106,8 +97,9 @@ let verticalBar2Matrix =
         "         " +
         "         " +
         "    .    " +
-        "    .    "
-let verticalBar3Matrix =
+        "    .    ")
+    
+    public static let verticalBar3Matrix = NuimoLEDMatrix(string:
         "         " +
         "         " +
         "         " +
@@ -116,8 +108,9 @@ let verticalBar3Matrix =
         "         " +
         "    .    " +
         "    .    " +
-        "    .    "
-let verticalBar4Matrix =
+        "    .    ")
+    
+    public static let verticalBar4Matrix = NuimoLEDMatrix(string:
         "         " +
         "         " +
         "         " +
@@ -126,8 +119,9 @@ let verticalBar4Matrix =
         "    .    " +
         "    .    " +
         "    .    " +
-        "    .    "
-let verticalBar5Matrix =
+        "    .    ")
+    
+    public static let verticalBar5Matrix = NuimoLEDMatrix(string:
         "         " +
         "         " +
         "         " +
@@ -136,8 +130,9 @@ let verticalBar5Matrix =
         "    .    " +
         "    .    " +
         "    .    " +
-        "    .    "
-let verticalBar6Matrix =
+        "    .    ")
+    
+    public static let verticalBar6Matrix = NuimoLEDMatrix(string:
         "         " +
         "         " +
         "         " +
@@ -146,8 +141,9 @@ let verticalBar6Matrix =
         "    .    " +
         "    .    " +
         "    .    " +
-        "    .    "
-let verticalBar7Matrix =
+        "    .    ")
+    
+    public static let verticalBar7Matrix = NuimoLEDMatrix(string:
         "         " +
         "         " +
         "    .    " +
@@ -156,8 +152,9 @@ let verticalBar7Matrix =
         "    .    " +
         "    .    " +
         "    .    " +
-        "    .    "
-let verticalBar8Matrix =
+        "    .    ")
+    
+    public static let verticalBar8Matrix = NuimoLEDMatrix(string:
         "         " +
         "    .    " +
         "    .    " +
@@ -166,8 +163,9 @@ let verticalBar8Matrix =
         "    .    " +
         "    .    " +
         "    .    " +
-        "    .    "
-let verticalBar9Matrix =
+        "    .    ")
+    
+    public static let verticalBar9Matrix = NuimoLEDMatrix(string:
         "    .    " +
         "    .    " +
         "    .    " +
@@ -176,8 +174,9 @@ let verticalBar9Matrix =
         "    .    " +
         "    .    " +
         "    .    " +
-        "    .    "
-let powerOnMatrix =
+        "    .    ")
+    
+    public static let powerOnMatrix = NuimoLEDMatrix(string:
         "         " +
         "         " +
         "   ...   " +
@@ -186,8 +185,9 @@ let powerOnMatrix =
         "  .....  " +
         "   ...   " +
         "         " +
-        "         "
-let powerOffMatrix =
+        "         ")
+    
+    public static let powerOffMatrix = NuimoLEDMatrix(string:
         "         " +
         "         " +
         "   ...   " +
@@ -196,8 +196,9 @@ let powerOffMatrix =
         "  .   .  " +
         "   ...   " +
         "         " +
-        "         "
-let shuffleMatrix =
+        "         ")
+    
+    public static let shuffleMatrix = NuimoLEDMatrix(string:
         "         " +
         "         " +
         " ..   .. " +
@@ -206,8 +207,9 @@ let shuffleMatrix =
         "   . .   " +
         " ..   .. " +
         "         " +
-        "         "
-let letterBMatrix =
+        "         ")
+    
+    public static let letterBMatrix = NuimoLEDMatrix(string:
         "         " +
         "   ...   " +
         "   .  .  " +
@@ -216,8 +218,9 @@ let letterBMatrix =
         "   .  .  " +
         "   .  .  " +
         "   ...   " +
-        "         "
-let letterOMatrix =
+        "         ")
+    
+    public static let letterOMatrix = NuimoLEDMatrix(string:
         "         " +
         "   ...   " +
         "  .   .  " +
@@ -226,8 +229,9 @@ let letterOMatrix =
         "  .   .  " +
         "  .   .  " +
         "   ...   " +
-        "         "
-let letterGMatrix =
+        "         ")
+    
+    public static let letterGMatrix = NuimoLEDMatrix(string:
         "         " +
         "   ...   " +
         "  .   .  " +
@@ -236,8 +240,9 @@ let letterGMatrix =
         "  .   .  " +
         "  .   .  " +
         "   ...   " +
-        "         "
-let letterWMatrix =
+        "         ")
+    
+    public static let letterWMatrix = NuimoLEDMatrix(string:
         "         " +
         " .     . " +
         " .     . " +
@@ -246,8 +251,9 @@ let letterWMatrix =
         " .  .  . " +
         " .  .  . " +
         "  .. ..  " +
-        "         "
-let letterYMatrix =
+        "         ")
+    
+    public static let letterYMatrix = NuimoLEDMatrix(string:
         "         " +
         "  .   .  " +
         "  .   .  " +
@@ -256,8 +262,9 @@ let letterYMatrix =
         "    .    " +
         "    .    " +
         "    .    " +
-        "         "
-let playMatrix =
+        "         ")
+    
+    public static let playMatrix = NuimoLEDMatrix(string:
         "         " +
         "   .     " +
         "   ..    " +
@@ -266,8 +273,9 @@ let playMatrix =
         "   ...   " +
         "   ..    " +
         "   .     " +
-        "         "
-let pauseMatrix =
+        "         ")
+    
+    public static let pauseMatrix = NuimoLEDMatrix(string:
         "         " +
         "  .. ..  " +
         "  .. ..  " +
@@ -276,8 +284,9 @@ let pauseMatrix =
         "  .. ..  " +
         "  .. ..  " +
         "  .. ..  " +
-        "         "
-let nextMatrix =
+        "         ")
+    
+    public static let nextMatrix = NuimoLEDMatrix(string:
         "         " +
         "         " +
         "   .  .  " +
@@ -286,8 +295,9 @@ let nextMatrix =
         "   .. .  " +
         "   .  .  " +
         "         " +
-        "         "
-let previousMatrix =
+        "         ")
+    
+    public static let previousMatrix = NuimoLEDMatrix(string:
         "         " +
         "         " +
         "  .  .   " +
@@ -296,8 +306,9 @@ let previousMatrix =
         "  . ..   " +
         "  .  .   " +
         "         " +
-        "         "
-let questionMarkMatrix =
+        "         ")
+    
+    public static let questionMarkMatrix = NuimoLEDMatrix(string:
         "   ...   " +
         "  .   .  " +
         " .     . " +
@@ -306,4 +317,13 @@ let questionMarkMatrix =
         "    .    " +
         "    .    " +
         "         " +
-        "    .    "
+        "    .    ")
+}
+
+public func ==(left: NuimoLEDMatrix, right: NuimoLEDMatrix) -> Bool {
+    return left.string == right.string
+}
+
+public func !=(left: NuimoLEDMatrix, right: NuimoLEDMatrix) -> Bool {
+    return !(left == right)
+}

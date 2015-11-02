@@ -19,9 +19,7 @@
     
     func disconnect()
     
-    func writeMatrix(matrix: String?)
-    
-    func writeBarMatrix(percent: Int)
+    func writeMatrix(matrix: NuimoLEDMatrix)
 }
 
 @objc public enum NuimoConnectionState: Int {

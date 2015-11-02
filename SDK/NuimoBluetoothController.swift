@@ -24,7 +24,7 @@ public class NuimoBluetoothController: NSObject, NuimoController, CBPeripheralDe
     private let peripheral: CBPeripheral
     private let centralManager: CBCentralManager
     private var matrixCharacteristic: CBCharacteristic?
-    private var currentMatrix: String?
+    private var currentMatrix: NuimoLEDMatrix?
     private var lastWriteMatrixDate: NSDate?
     private var isWaitingForMatrixWriteResponse: Bool = false
     private var writeMatrixOnWriteResponseReceived: Bool = false
@@ -128,7 +128,7 @@ public class NuimoBluetoothController: NSObject, NuimoController, CBPeripheralDe
     //MARK: - LED matrix writing
     
     //TODO: Allow for writing custom matrices
-    public func writeMatrix(matrix: String?) {
+    public func writeMatrix(matrix: NuimoLEDMatrix) {
         // Do not write same matrix again that is already shown unless the display interval has timed out
         guard matrix != currentMatrix || NSDate().timeIntervalSinceDate(lastWriteMatrixDate ?? NSDate()) >= matrixDisplayTimeout else {return}
         
@@ -142,17 +142,12 @@ public class NuimoBluetoothController: NSObject, NuimoController, CBPeripheralDe
         }
     }
     
-    public func writeBarMatrix(percent: Int){
-        let suffix = min(max(percent / 10, 1), 9)
-        writeMatrix(NuimoLEDMatrix(rawValue: "vertical-bar\(suffix)")?.stringRepresentation)
-    }
-    
-    private func writeMatrixNow(matrix: String?) {
+    private func writeMatrixNow(matrix: NuimoLEDMatrix) {
         assert(!isWaitingForMatrixWriteResponse, "Cannot write matrix now, response from previous write request not yet received")
         guard let ledMatrixCharacteristic = matrixCharacteristic else { return }
         
         // Convert matrix string representation into byte representation
-        let matrixBytes = NuimoLEDMatrix.matrixBytesForString(matrix ?? "")
+        let matrixBytes = matrix.matrixBytes
         
         // Write matrix
         let matrixData = NSMutableData(bytes: matrixBytes, length: matrixBytes.count)
@@ -174,7 +169,7 @@ public class NuimoBluetoothController: NSObject, NuimoController, CBPeripheralDe
         writeMatrixResponseTimeoutTimer?.invalidate()
         
         // Write next matrix if any
-        if writeMatrixOnWriteResponseReceived {
+        if let currentMatrix = currentMatrix where writeMatrixOnWriteResponseReceived {
             writeMatrixOnWriteResponseReceived = false
             writeMatrixNow(currentMatrix)
         }
@@ -272,15 +267,12 @@ private let flyGestureForDirectionByte: [UInt8 : NuimoGesture] = [1 : .FlyLeft, 
 //MARK: Matrix string to byte array conversion
 
 private extension NuimoLEDMatrix {
-    var matrixBytes: [UInt8] { return NuimoLEDMatrix.matrixBytesForString(self.stringRepresentation) }
-    
     //TODO: Implement a simple FIFO cache that stores the byte representation for the last 256? (< 32 KB) matrices used IF calculating the string representation is significantly slower than a dictionary lookup
-    static func matrixBytesForString(string: String) -> [UInt8] {
-        let ledCount = 81
+    var matrixBytes: [UInt8] {
         let ledOffCharacters = " 0".characters
         return string
-            .substringToIndex(string.startIndex.advancedBy(min(string.characters.count, ledCount))) // Cut off after 81 characters
-            .stringByPaddingToLength(ledCount, withString: " ", startingAtIndex: 0)                 // Right fill up to 81 characters
+            .substringToIndex(string.startIndex.advancedBy(min(string.characters.count, NuimoLEDMatrixLEDCount))) // Cut off after count of LEDs
+            .stringByPaddingToLength(NuimoLEDMatrixLEDCount, withString: " ", startingAtIndex: 0)                 // Right fill up to count of LEDs
             .characters
             .chunk(8)
             .map{ $0
