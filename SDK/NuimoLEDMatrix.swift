@@ -48,9 +48,8 @@ public enum NuimoLEDMatrix: String {
             .characters
             .chunk(8)
             .map{ $0
-                .reverse()
                 .enumerate()
-                .map{(i: Int, c: Character) -> Int in return ledOffCharacters.contains(c) ? 0 : 1 << (7 - i)}
+                .map{(i: Int, c: Character) -> Int in return ledOffCharacters.contains(c) ? 0 : 1 << i}
                 .reduce(UInt8(0), combine: {(s: UInt8, v: Int) -> UInt8 in s + UInt8(v)})
         }
     }
