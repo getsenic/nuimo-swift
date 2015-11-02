@@ -269,6 +269,48 @@ private extension NuimoGestureEvent {
 
 private let flyGestureForDirectionByte: [UInt8 : NuimoGesture] = [1 : .FlyLeft, 2 : .FlyRight, 3 : .FlyAway, 4 : .FlyTowards]
 
+//MARK: Matrix string to byte array conversion
+
+private extension NuimoLEDMatrix {
+    var matrixBytes: [UInt8] { return NuimoLEDMatrix.matrixBytesForString(self.stringRepresentation) }
+    
+    //TODO: Implement a simple FIFO cache that stores the byte representation for the last 256? (< 32 KB) matrices used IF calculating the string representation is significantly slower than a dictionary lookup
+    static func matrixBytesForString(string: String) -> [UInt8] {
+        let ledCount = 81
+        let ledOffCharacters = " 0".characters
+        return string
+            .substringToIndex(string.startIndex.advancedBy(min(string.characters.count, ledCount))) // Cut off after 81 characters
+            .stringByPaddingToLength(ledCount, withString: " ", startingAtIndex: 0)                 // Right fill up to 81 characters
+            .characters
+            .chunk(8)
+            .map{ $0
+                .enumerate()
+                .map{(i: Int, c: Character) -> Int in return ledOffCharacters.contains(c) ? 0 : 1 << i}
+                .reduce(UInt8(0), combine: {(s: UInt8, v: Int) -> UInt8 in s + UInt8(v)})
+        }
+    }
+}
+
+private extension SequenceType {
+    func chunk(n: Int) -> [[Generator.Element]] {
+        var chunks: [[Generator.Element]] = []
+        var chunk: [Generator.Element] = []
+        chunk.reserveCapacity(n)
+        chunks.reserveCapacity(underestimateCount() / n)
+        var i = n
+        self.forEach {
+            chunk.append($0)
+            if --i == 0 {
+                chunks.append(chunk)
+                chunk.removeAll(keepCapacity: true)
+                i = n
+            }
+        }
+        if !chunk.isEmpty { chunks.append(chunk) }
+        return chunks
+    }
+}
+
 //MARK: Extension methods for CoreBluetooth
 
 private extension CBPeripheralState {
