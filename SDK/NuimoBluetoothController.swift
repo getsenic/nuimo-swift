@@ -267,17 +267,12 @@ private let flyGestureForDirectionByte: [UInt8 : NuimoGesture] = [1 : .FlyLeft, 
 //MARK: Matrix string to byte array conversion
 
 private extension NuimoLEDMatrix {
-    //TODO: Implement a simple FIFO cache that stores the byte representation for the last 256? (< 32 KB) matrices used IF calculating the string representation is significantly slower than a dictionary lookup
     var matrixBytes: [UInt8] {
-        let ledOffCharacters = " 0".characters
-        return string
-            .substringToIndex(string.startIndex.advancedBy(min(string.characters.count, NuimoLEDMatrixLEDCount))) // Cut off after count of LEDs
-            .stringByPaddingToLength(NuimoLEDMatrixLEDCount, withString: " ", startingAtIndex: 0)                 // Right fill up to count of LEDs
-            .characters
+        return bits
             .chunk(8)
             .map{ $0
                 .enumerate()
-                .map{(i: Int, c: Character) -> Int in return ledOffCharacters.contains(c) ? 0 : 1 << i}
+                .map{(i: Int, b: Bit) -> Int in return b == Bit.Zero ? 0 : 1 << i}
                 .reduce(UInt8(0), combine: {(s: UInt8, v: Int) -> UInt8 in s + UInt8(v)})
         }
     }

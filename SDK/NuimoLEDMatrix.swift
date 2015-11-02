@@ -14,31 +14,35 @@ public let NuimoLEDMatrixDefaultLEDOffCharacter = NuimoLEDMatrixLEDOffCharacters
 public let NuimoLEDMatrixDefaultLEDOnCharacter: Character = "."
 
 public class NuimoLEDMatrix: NSObject {
-    public let string: String
+    public let bits: [Bit]
+    
+    public init(matrix: NuimoLEDMatrix) {
+        bits = matrix.bits
+    }
     
     public init(string: String) {
-        self.string = String(string
-            .substringToIndex(string.startIndex.advancedBy(min(string.characters.count, NuimoLEDMatrixLEDCount))) // Cut off after count of LEDs
-            .stringByPaddingToLength(NuimoLEDMatrixLEDCount, withString: " ", startingAtIndex: 0)                 // Right fill up to count of LEDs
+        bits = string
+            // Cut off after count of LEDs
+            .substringToIndex(string.startIndex.advancedBy(min(string.characters.count, NuimoLEDMatrixLEDCount)))
+            // Right fill up to count of LEDs
+            .stringByPaddingToLength(NuimoLEDMatrixLEDCount, withString: " ", startingAtIndex: 0)
             .characters
-            .map{NuimoLEDMatrixLEDOffCharacters.contains($0)
-                    ? NuimoLEDMatrixDefaultLEDOffCharacter
-                    : NuimoLEDMatrixDefaultLEDOnCharacter})
+            .map{NuimoLEDMatrixLEDOffCharacters.contains($0) ? Bit.Zero : Bit.One}
     }
     
     public init(progressWithVerticalBar: Double) {
         //TODO: Compute string for matrix
         switch progressWithVerticalBar {
-        case -Double.infinity..<(1.0/9.0): self.string = NuimoLEDMatrix.verticalBar1Matrix.string
-        case 1.0/9.0..<2.0/9.0:            self.string = NuimoLEDMatrix.verticalBar2Matrix.string
-        case 2.0/9.0..<3.0/9.0:            self.string = NuimoLEDMatrix.verticalBar3Matrix.string
-        case 3.0/9.0..<4.0/9.0:            self.string = NuimoLEDMatrix.verticalBar4Matrix.string
-        case 4.0/9.0..<5.0/9.0:            self.string = NuimoLEDMatrix.verticalBar5Matrix.string
-        case 5.0/9.0..<6.0/9.0:            self.string = NuimoLEDMatrix.verticalBar6Matrix.string
-        case 6.0/9.0..<7.0/9.0:            self.string = NuimoLEDMatrix.verticalBar7Matrix.string
-        case 7.0/9.0..<8.0/9.0:            self.string = NuimoLEDMatrix.verticalBar8Matrix.string
-        case 8.0/9.0...Double.infinity:    self.string = NuimoLEDMatrix.verticalBar9Matrix.string
-        default:                           self.string = NuimoLEDMatrix.verticalBar9Matrix.string
+        case -Double.infinity..<(1.0/9.0): self.bits = NuimoLEDMatrix.verticalBar1Matrix.bits
+        case 1.0/9.0..<2.0/9.0:            self.bits = NuimoLEDMatrix.verticalBar2Matrix.bits
+        case 2.0/9.0..<3.0/9.0:            self.bits = NuimoLEDMatrix.verticalBar3Matrix.bits
+        case 3.0/9.0..<4.0/9.0:            self.bits = NuimoLEDMatrix.verticalBar4Matrix.bits
+        case 4.0/9.0..<5.0/9.0:            self.bits = NuimoLEDMatrix.verticalBar5Matrix.bits
+        case 5.0/9.0..<6.0/9.0:            self.bits = NuimoLEDMatrix.verticalBar6Matrix.bits
+        case 6.0/9.0..<7.0/9.0:            self.bits = NuimoLEDMatrix.verticalBar7Matrix.bits
+        case 7.0/9.0..<8.0/9.0:            self.bits = NuimoLEDMatrix.verticalBar8Matrix.bits
+        case 8.0/9.0...Double.infinity:    self.bits = NuimoLEDMatrix.verticalBar9Matrix.bits
+        default:                           self.bits = NuimoLEDMatrix.verticalBar9Matrix.bits
         }
     }
     
@@ -321,7 +325,7 @@ public class NuimoLEDMatrix: NSObject {
 }
 
 public func ==(left: NuimoLEDMatrix, right: NuimoLEDMatrix) -> Bool {
-    return left.string == right.string
+    return left.bits == right.bits
 }
 
 public func !=(left: NuimoLEDMatrix, right: NuimoLEDMatrix) -> Bool {
