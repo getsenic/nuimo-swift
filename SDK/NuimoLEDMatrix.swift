@@ -30,6 +30,7 @@ public class NuimoLEDMatrix: NSObject {
             .map{NuimoLEDMatrixLEDOffCharacters.contains($0) ? Bit.Zero : Bit.One}
     }
     
+    //TODO: Have only one init(progress) method and pass presentation style as 2nd argument
     public convenience init(progressWithVerticalBar progress: Double) {
         let string = (0..<9)
             .reverse()
@@ -38,6 +39,17 @@ public class NuimoLEDMatrix: NSObject {
         self.init(string: string)
     }
     
+    public convenience init(progressWithVolumeBar progress: Double) {
+        let width = Int(ceil(max(0.0, min(1.0, progress)) * 9))
+        let string = (0..<9)
+            .map{String(count: 9 - ($0 + 1), repeatedValue: Character(" ")) + String(count: $0 + 1, repeatedValue: Character("."))}
+            .enumerate()
+            .map{$0.element
+                .substringToIndex($0.element.startIndex.advancedBy(width))
+                .stringByPaddingToLength(9, withString: " ", startingAtIndex: 0)}
+            .reduce(""){(s: String, row: String) in s + row}
+        self.init(string: string)
+    }
 }
 
 public func ==(left: NuimoLEDMatrix, right: NuimoLEDMatrix) -> Bool {
