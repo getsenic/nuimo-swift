@@ -38,183 +38,6 @@ public class NuimoLEDMatrix: NSObject {
         self.init(string: string)
     }
     
-    //MARK: Predefined matrices
-
-    public static let emptyMatrix = NuimoLEDMatrix(string:
-        "         " +
-        "         " +
-        "         " +
-        "         " +
-        "         " +
-        "         " +
-        "         " +
-        "         " +
-        "         ")
-
-    public static let musicNoteMatrix = NuimoLEDMatrix(string:
-        "         " +
-        "  .....  " +
-        "  .....  " +
-        "  .   .  " +
-        "  .   .  " +
-        "  .   .  " +
-        " ..  ..  " +
-        "... ...  " +
-        " .   .   ")
-    
-    public static let lightBulbMatrix = NuimoLEDMatrix(string:
-        "         " +
-        "   ...   " +
-        "  .   .  " +
-        "  .   .  " +
-        "  .   .  " +
-        "   ...   " +
-        "   ...   " +
-        "   ...   " +
-        "    .    ")
-    
-    public static let powerOnMatrix = NuimoLEDMatrix(string:
-        "         " +
-        "         " +
-        "   ...   " +
-        "  .....  " +
-        "  .....  " +
-        "  .....  " +
-        "   ...   " +
-        "         " +
-        "         ")
-    
-    public static let powerOffMatrix = NuimoLEDMatrix(string:
-        "         " +
-        "         " +
-        "   ...   " +
-        "  .   .  " +
-        "  .   .  " +
-        "  .   .  " +
-        "   ...   " +
-        "         " +
-        "         ")
-    
-    public static let shuffleMatrix = NuimoLEDMatrix(string:
-        "         " +
-        "         " +
-        " ..   .. " +
-        "   . .   " +
-        "    .    " +
-        "   . .   " +
-        " ..   .. " +
-        "         " +
-        "         ")
-    
-    public static let letterBMatrix = NuimoLEDMatrix(string:
-        "         " +
-        "   ...   " +
-        "   .  .  " +
-        "   .  .  " +
-        "   ...   " +
-        "   .  .  " +
-        "   .  .  " +
-        "   ...   " +
-        "         ")
-    
-    public static let letterOMatrix = NuimoLEDMatrix(string:
-        "         " +
-        "   ...   " +
-        "  .   .  " +
-        "  .   .  " +
-        "  .   .  " +
-        "  .   .  " +
-        "  .   .  " +
-        "   ...   " +
-        "         ")
-    
-    public static let letterGMatrix = NuimoLEDMatrix(string:
-        "         " +
-        "   ...   " +
-        "  .   .  " +
-        "  .      " +
-        "  . ...  " +
-        "  .   .  " +
-        "  .   .  " +
-        "   ...   " +
-        "         ")
-    
-    public static let letterWMatrix = NuimoLEDMatrix(string:
-        "         " +
-        " .     . " +
-        " .     . " +
-        " .     . " +
-        " .     . " +
-        " .  .  . " +
-        " .  .  . " +
-        "  .. ..  " +
-        "         ")
-    
-    public static let letterYMatrix = NuimoLEDMatrix(string:
-        "         " +
-        "  .   .  " +
-        "  .   .  " +
-        "   . .   " +
-        "    .    " +
-        "    .    " +
-        "    .    " +
-        "    .    " +
-        "         ")
-    
-    public static let playMatrix = NuimoLEDMatrix(string:
-        "         " +
-        "   .     " +
-        "   ..    " +
-        "   ...   " +
-        "   ....  " +
-        "   ...   " +
-        "   ..    " +
-        "   .     " +
-        "         ")
-    
-    public static let pauseMatrix = NuimoLEDMatrix(string:
-        "         " +
-        "  .. ..  " +
-        "  .. ..  " +
-        "  .. ..  " +
-        "  .. ..  " +
-        "  .. ..  " +
-        "  .. ..  " +
-        "  .. ..  " +
-        "         ")
-    
-    public static let nextMatrix = NuimoLEDMatrix(string:
-        "         " +
-        "         " +
-        "   .  .  " +
-        "   .. .  " +
-        "   ....  " +
-        "   .. .  " +
-        "   .  .  " +
-        "         " +
-        "         ")
-    
-    public static let previousMatrix = NuimoLEDMatrix(string:
-        "         " +
-        "         " +
-        "  .  .   " +
-        "  . ..   " +
-        "  ....   " +
-        "  . ..   " +
-        "  .  .   " +
-        "         " +
-        "         ")
-    
-    public static let questionMarkMatrix = NuimoLEDMatrix(string:
-        "   ...   " +
-        "  .   .  " +
-        " .     . " +
-        "      .  " +
-        "     .   " +
-        "    .    " +
-        "    .    " +
-        "         " +
-        "    .    ")
 }
 
 public func ==(left: NuimoLEDMatrix, right: NuimoLEDMatrix) -> Bool {
@@ -224,3 +47,184 @@ public func ==(left: NuimoLEDMatrix, right: NuimoLEDMatrix) -> Bool {
 public func !=(left: NuimoLEDMatrix, right: NuimoLEDMatrix) -> Bool {
     return !(left == right)
 }
+
+//MARK: Predefined matrices
+
+extension NuimoLEDMatrix {
+    public static var emptyMatrix: NuimoLEDMatrix {return NuimoLEDMatrix(string:
+        "         " +
+        "         " +
+        "         " +
+        "         " +
+        "         " +
+        "         " +
+        "         " +
+        "         " +
+        "         ")}
+
+    public static var musicNoteMatrix: NuimoLEDMatrix {return NuimoLEDMatrix(string:
+        "         " +
+        "  .....  " +
+        "  .....  " +
+        "  .   .  " +
+        "  .   .  " +
+        "  .   .  " +
+        " ..  ..  " +
+        "... ...  " +
+        " .   .   ")}
+    
+    public static var lightBulbMatrix: NuimoLEDMatrix {return NuimoLEDMatrix(string:
+        "         " +
+        "   ...   " +
+        "  .   .  " +
+        "  .   .  " +
+        "  .   .  " +
+        "   ...   " +
+        "   ...   " +
+        "   ...   " +
+        "    .    ")}
+    
+    public static var powerOnMatrix: NuimoLEDMatrix {return NuimoLEDMatrix(string:
+        "         " +
+        "         " +
+        "   ...   " +
+        "  .....  " +
+        "  .....  " +
+        "  .....  " +
+        "   ...   " +
+        "         " +
+        "         ")}
+    
+    public static var powerOffMatrix: NuimoLEDMatrix {return NuimoLEDMatrix(string:
+        "         " +
+        "         " +
+        "   ...   " +
+        "  .   .  " +
+        "  .   .  " +
+        "  .   .  " +
+        "   ...   " +
+        "         " +
+        "         ")}
+    
+    public static var shuffleMatrix: NuimoLEDMatrix {return NuimoLEDMatrix(string:
+        "         " +
+        "         " +
+        " ..   .. " +
+        "   . .   " +
+        "    .    " +
+        "   . .   " +
+        " ..   .. " +
+        "         " +
+        "         ")}
+    
+    public static var letterBMatrix: NuimoLEDMatrix {return NuimoLEDMatrix(string:
+        "         " +
+        "   ...   " +
+        "   .  .  " +
+        "   .  .  " +
+        "   ...   " +
+        "   .  .  " +
+        "   .  .  " +
+        "   ...   " +
+        "         ")}
+    
+    public static var letterOMatrix: NuimoLEDMatrix {return NuimoLEDMatrix(string:
+        "         " +
+        "   ...   " +
+        "  .   .  " +
+        "  .   .  " +
+        "  .   .  " +
+        "  .   .  " +
+        "  .   .  " +
+        "   ...   " +
+        "         ")}
+    
+    public static var letterGMatrix: NuimoLEDMatrix {return NuimoLEDMatrix(string:
+        "         " +
+        "   ...   " +
+        "  .   .  " +
+        "  .      " +
+        "  . ...  " +
+        "  .   .  " +
+        "  .   .  " +
+        "   ...   " +
+        "         ")}
+    
+    public static var letterWMatrix: NuimoLEDMatrix {return NuimoLEDMatrix(string:
+        "         " +
+        " .     . " +
+        " .     . " +
+        " .     . " +
+        " .     . " +
+        " .  .  . " +
+        " .  .  . " +
+        "  .. ..  " +
+        "         ")}
+    
+    public static var letterYMatrix: NuimoLEDMatrix {return NuimoLEDMatrix(string:
+        "         " +
+        "  .   .  " +
+        "  .   .  " +
+        "   . .   " +
+        "    .    " +
+        "    .    " +
+        "    .    " +
+        "    .    " +
+        "         ")}
+    
+    public static var playMatrix: NuimoLEDMatrix {return NuimoLEDMatrix(string:
+        "         " +
+        "   .     " +
+        "   ..    " +
+        "   ...   " +
+        "   ....  " +
+        "   ...   " +
+        "   ..    " +
+        "   .     " +
+        "         ")}
+    
+    public static var pauseMatrix: NuimoLEDMatrix {return NuimoLEDMatrix(string:
+        "         " +
+        "  .. ..  " +
+        "  .. ..  " +
+        "  .. ..  " +
+        "  .. ..  " +
+        "  .. ..  " +
+        "  .. ..  " +
+        "  .. ..  " +
+        "         ")}
+    
+    public static var nextMatrix: NuimoLEDMatrix {return NuimoLEDMatrix(string:
+        "         " +
+        "         " +
+        "   .  .  " +
+        "   .. .  " +
+        "   ....  " +
+        "   .. .  " +
+        "   .  .  " +
+        "         " +
+        "         ")}
+    
+    public static var previousMatrix: NuimoLEDMatrix {return NuimoLEDMatrix(string:
+        "         " +
+        "         " +
+        "  .  .   " +
+        "  . ..   " +
+        "  ....   " +
+        "  . ..   " +
+        "  .  .   " +
+        "         " +
+        "         ")}
+    
+    public static var questionMarkMatrix: NuimoLEDMatrix {return NuimoLEDMatrix(string:
+        "   ...   " +
+        "  .   .  " +
+        " .     . " +
+        "      .  " +
+        "     .   " +
+        "    .    " +
+        "    .    " +
+        "         " +
+        "    .    ")}
+}
+
