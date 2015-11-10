@@ -56,7 +56,34 @@ public func ==(left: NuimoLEDMatrix, right: NuimoLEDMatrix) -> Bool {
     return left.bits == right.bits
 }
 
+public func ==(left: NuimoLEDMatrix?, right: NuimoLEDMatrix) -> Bool {
+    guard let left = left else {return false}
+    return left == right
+}
+
+public func ==(left: NuimoLEDMatrix, right: NuimoLEDMatrix?) -> Bool {
+    guard let right = right else {return false}
+    return left == right
+}
+
+public func ==(left: NuimoLEDMatrix?, right: NuimoLEDMatrix?) -> Bool {
+    guard let left = left else {return right == nil}
+    return left == right
+}
+
 public func !=(left: NuimoLEDMatrix, right: NuimoLEDMatrix) -> Bool {
+    return !(left == right)
+}
+
+public func !=(left: NuimoLEDMatrix?, right: NuimoLEDMatrix) -> Bool {
+    return !(left == right)
+}
+
+public func !=(left: NuimoLEDMatrix, right: NuimoLEDMatrix?) -> Bool {
+    return !(left == right)
+}
+
+public func !=(left: NuimoLEDMatrix?, right: NuimoLEDMatrix?) -> Bool {
     return !(left == right)
 }
 
