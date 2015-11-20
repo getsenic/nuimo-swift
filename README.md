@@ -12,10 +12,10 @@ If you haven't set up your project yet to use CocoaPods, please follow these ste
 
 3. Create a file inside your project's root folder named `Podfile` and paste the following content. Make sure to adopt the right platform:
 
-          platform :ios, '8.0'
-          #Use the following line instead if you're developing for MacOS:
-          #platform :osx, '10.9'
-          use_frameworks!
+        platform :ios, '8.0'
+        #Use the following line instead if you're developing for MacOS:
+        #platform :osx, '10.9'
+        use_frameworks!
 
 4. From now on always open the workspace file `<YourProject>.xcworkspace` in Xcode. Otherwise the just added CocoaPods dependencies won't be available (see next step)
 
