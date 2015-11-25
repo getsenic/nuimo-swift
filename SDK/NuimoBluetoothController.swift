@@ -239,7 +239,7 @@ private extension NuimoGestureEvent {
             if let eventGesture: NuimoGesture = {
                     switch eventByte {
                     case 1:  return touchDownGesture.self
-                    case 2:  return touchDownGesture.touchUpGesture
+                    case 2:  return touchDownGesture.touchReleaseGesture //TODO: Move this method here as a private extension method
                     case 3:  return nil //TODO: Do we need to handle double touch gestures here as well?
                     case 4:  return touchDownGesture.swipeGesture
                     default: return nil}}() {

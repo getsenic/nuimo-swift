@@ -46,7 +46,7 @@
     public var touchDownGesture: NuimoGesture? { return touchDownGestureForTouchGesture[self] }
     
     // Returns the corresponding touch up gesture if self is a touch gesture, nil if not
-    public var touchUpGesture: NuimoGesture? { return touchUpGestureForTouchGesture[self] }
+    public var touchReleaseGesture: NuimoGesture? { return touchReleaseGestureForTouchGesture[self] }
     
     // Returns the corresponding swipe gesture if self is a touch gesture, nil if not
     public var swipeGesture: NuimoGesture? { return swipeGestureForTouchGesture[self] }
@@ -106,7 +106,7 @@ private let touchDownGestureForTouchGesture: [NuimoGesture : NuimoGesture] = [
     .SwipeDown          : .TouchBottomDown,
 ]
 
-private let touchUpGestureForTouchGesture: [NuimoGesture : NuimoGesture] = [
+private let touchReleaseGestureForTouchGesture: [NuimoGesture : NuimoGesture] = [
     .TouchLeftDown      : .TouchLeftRelease,
     .TouchLeftRelease   : .TouchLeftRelease,
     .TouchRightDown     : .TouchRightRelease,
