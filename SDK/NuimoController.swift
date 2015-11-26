@@ -13,13 +13,26 @@
     var delegate: NuimoControllerDelegate? {get set}
     
     var state: NuimoConnectionState {get}
+    // Battery level 0..100
     var batteryLevel: Int {get set}
+    // Display interval in seconds
+    var defaultMatrixDisplayInterval: NSTimeInterval {get set}
+    // Brightness 0..1 (1=max)
+    var matrixBrightness: Float {get set}
     
     func connect()
     
     func disconnect()
     
-    func writeMatrix(matrix: NuimoLEDMatrix)
+    // Displays a LED matrix for an interval
+    func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval)
+}
+
+public extension NuimoController {
+    // Displays a LED matrix using the default display interval
+    public func writeMatrix(matrix: NuimoLEDMatrix) {
+        writeMatrix(matrix, interval: defaultMatrixDisplayInterval)
+    }
 }
 
 @objc public enum NuimoConnectionState: Int {

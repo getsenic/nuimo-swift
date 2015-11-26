@@ -18,6 +18,8 @@ public class NuimoWebSocketController : NSObject, NuimoController {
     
     public var state: NuimoConnectionState { return connectionStateForWebSocketReadyState[self.webSocket?.readyState ?? .Closed] ?? .Disconnected }
     public var batteryLevel: Int = -1 { didSet { if self.batteryLevel != oldValue { delegate?.nuimoController?(self, didUpdateBatteryLevel: self.batteryLevel) } } }
+    public var defaultMatrixDisplayInterval: NSTimeInterval = 10.0
+    public var matrixBrightness: Float = 1.0
     
     private var webSocket: WebSocket?
     
@@ -58,7 +60,7 @@ public class NuimoWebSocketController : NSObject, NuimoController {
         self.webSocket?.close()
     }
     
-    public func writeMatrix(matrix: NuimoLEDMatrix) {
+    public func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval) {
         //TODO: Send matrix to websocket
     }
     
