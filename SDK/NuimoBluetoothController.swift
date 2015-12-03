@@ -128,9 +128,10 @@ public class NuimoBluetoothController: NSObject, NuimoController, CBPeripheralDe
     
     //MARK: - LED matrix writing
     
-    //TODO: Allow for writing custom matrices
+    //TODO: Move matrix write handling into a private class
     public func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval) {
         // Do not write same matrix again that is already shown unless the display interval has timed out
+        //TODO: We must instead compare lastWriteMatrixDate to the display interval of the matrix that had been written as last
         guard matrix != currentMatrix || NSDate().timeIntervalSinceDate(lastWriteMatrixDate ?? NSDate()) >= interval else {return}
         
         currentMatrix = matrix
@@ -141,6 +142,7 @@ public class NuimoBluetoothController: NSObject, NuimoController, CBPeripheralDe
             writeMatrixOnWriteResponseReceived = true
             writeMatrixOnWriteResponseReceivedDisplayInterval = interval
         } else {
+            //TODO: No arguments necessary. Take them from currentMatrix and lastWrittenMatrixDisplayInterval
             writeMatrixNow(matrix, interval: interval)
         }
     }
