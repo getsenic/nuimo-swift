@@ -26,10 +26,9 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
 
     private var matrixCharacteristic: CBCharacteristic?
     private var currentMatrix: NuimoLEDMatrix?
-    private var lastWriteMatrixDate: NSDate?
+    private var currentMatrixDisplayInterval: NSTimeInterval = 0.0
     private var isWaitingForMatrixWriteResponse: Bool = false
     private var writeMatrixOnWriteResponseReceived: Bool = false
-    private var writeMatrixOnWriteResponseReceivedDisplayInterval: NSTimeInterval = 0.0
     private var writeMatrixResponseTimeoutTimer: NSTimer?
     
     public override func connect() {
@@ -104,38 +103,34 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
     
     //TODO: Move matrix write handling into a private class
     public func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval) {
-        // Do not write same matrix again that is already shown unless the display interval has timed out
-        //TODO: We must instead compare lastWriteMatrixDate to the display interval of the matrix that had been written as last
-        guard matrix != currentMatrix || NSDate().timeIntervalSinceDate(lastWriteMatrixDate ?? NSDate()) >= interval else {return}
-        
         currentMatrix = matrix
+        currentMatrixDisplayInterval = interval
         
         // Send matrix later when the write response from previous write request is not yet received
-        //TODO: Use WriteQueue instead (as Android SDK does)
         if isWaitingForMatrixWriteResponse {
             writeMatrixOnWriteResponseReceived = true
-            writeMatrixOnWriteResponseReceivedDisplayInterval = interval
         } else {
-            //TODO: No arguments necessary. Take them from currentMatrix and lastWrittenMatrixDisplayInterval
-            writeMatrixNow(matrix, interval: interval)
+            writeMatrixNow()
         }
     }
     
-    private func writeMatrixNow(matrix: NuimoLEDMatrix, interval: NSTimeInterval) {
-        assert(!isWaitingForMatrixWriteResponse, "Cannot write matrix now, response from previous write request not yet received")
-        guard let ledMatrixCharacteristic = matrixCharacteristic else { return }
+    private func writeMatrixNow() {
+        guard
+            let ledMatrixCharacteristic = matrixCharacteristic,
+            let currentMatrix = self.currentMatrix
+            where !isWaitingForMatrixWriteResponse
+            else { return }
         
         // Convert matrix string representation into byte representation
-        let matrixBytes = matrix.matrixBytes
+        let matrixBytes = currentMatrix.matrixBytes
         
         // Write matrix
         let matrixData = NSMutableData(bytes: matrixBytes, length: matrixBytes.count)
         if firmwareVersion >= 0.1 {
-            let matrixAdditionalBytes: [UInt8] = [UInt8(min(max(matrixBrightness, 0.0), 1.0) * 255), UInt8(interval * 10)]
+            let matrixAdditionalBytes: [UInt8] = [UInt8(min(max(matrixBrightness, 0.0), 1.0) * 255), UInt8(currentMatrixDisplayInterval * 10.0)]
             matrixData.appendBytes(matrixAdditionalBytes, length: matrixAdditionalBytes.count)
         }
         peripheral.writeValue(matrixData, forCharacteristic: ledMatrixCharacteristic, type: .WithResponse)
-        lastWriteMatrixDate = NSDate()
         isWaitingForMatrixWriteResponse = true
         
         // When the matrix write response is not retrieved within 100ms we assume the response to have timed out
@@ -148,9 +143,9 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
         writeMatrixResponseTimeoutTimer?.invalidate()
         
         // Write next matrix if any
-        if let currentMatrix = currentMatrix where writeMatrixOnWriteResponseReceived {
+        if writeMatrixOnWriteResponseReceived {
             writeMatrixOnWriteResponseReceived = false
-            writeMatrixNow(currentMatrix, interval: writeMatrixOnWriteResponseReceivedDisplayInterval)
+            writeMatrixNow()
         }
     }
 }
