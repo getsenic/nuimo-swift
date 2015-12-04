@@ -19,7 +19,7 @@ public class NuimoBluetoothController: NSObject, NuimoController, CBPeripheralDe
     public var batteryLevel: Int = -1 { didSet { if self.batteryLevel != oldValue { delegate?.nuimoController?(self, didUpdateBatteryLevel: self.batteryLevel) } } }
     public var defaultMatrixDisplayInterval: NSTimeInterval = 2.0
     public var matrixBrightness: Float = 1.0
-    public var firmwareVersion = 0.0
+    public var firmwareVersion = 0.1
     
     private let peripheral: CBPeripheral
     private let centralManager: CBCentralManager
