@@ -11,18 +11,19 @@
 import CoreBluetooth
 
 // Represents a bluetooth low energy (BLE) Nuimo controller
-public class NuimoBluetoothController: NSObject, NuimoController, CBPeripheralDelegate {
-    public let uuid: String
+//TODO: Internalize CBPeripheralDelegate implementation
+public class NuimoBluetoothController: BLEDevice, NuimoController {
     public var delegate: NuimoControllerDelegate?
-    
     public var state: NuimoConnectionState { get{ return self.peripheral.state.nuimoConnectionState } }
     public var batteryLevel: Int = -1 { didSet { if self.batteryLevel != oldValue { delegate?.nuimoController?(self, didUpdateBatteryLevel: self.batteryLevel) } } }
     public var defaultMatrixDisplayInterval: NSTimeInterval = 2.0
     public var matrixBrightness: Float = 1.0
     public var firmwareVersion = 0.1
     
-    private let peripheral: CBPeripheral
-    private let centralManager: CBCentralManager
+    public override var serviceUUIDs: [CBUUID] { get { return nuimoServiceUUIDs } }
+    public override var charactericUUIDsForServiceUUID: [CBUUID : [CBUUID]] { get { return nuimoCharactericUUIDsForServiceUUID } }
+    public override var notificationCharacteristicUUIDs: [CBUUID] { get { return nuimoNotificationCharacteristicnUUIDs } }
+
     private var matrixCharacteristic: CBCharacteristic?
     private var currentMatrix: NuimoLEDMatrix?
     private var lastWriteMatrixDate: NSDate?
@@ -31,57 +32,39 @@ public class NuimoBluetoothController: NSObject, NuimoController, CBPeripheralDe
     private var writeMatrixOnWriteResponseReceivedDisplayInterval: NSTimeInterval = 0.0
     private var writeMatrixResponseTimeoutTimer: NSTimer?
     
-    public init(centralManager: CBCentralManager, uuid: String, peripheral: CBPeripheral) {
-        self.centralManager = centralManager
-        self.uuid = uuid
-        self.peripheral = peripheral
-        super.init()
-        peripheral.delegate = self
-    }
-
-    public func connect() {
-        guard peripheral.state == .Disconnected else { return }
-        centralManager.connectPeripheral(peripheral, options: nil)
+    public override func connect() {
+        super.connect()
         delegate?.nuimoControllerDidStartConnecting?(self)
     }
     
-    internal func didConnect() {
+    public override func didConnect() {
+        super.didConnect()
         isWaitingForMatrixWriteResponse = false
         writeMatrixOnWriteResponseReceived = false
-        // Discover bluetooth services
-        peripheral.discoverServices(nuimoServiceUUIDs)
         delegate?.nuimoControllerDidConnect?(self)
     }
     
-    internal func didFailToConnect() {
+    public override func didFailToConnect() {
+        super.didFailToConnect()
         delegate?.nuimoControllerDidFailToConnect?(self)
     }
     
-    public func disconnect() {
-        guard peripheral.state == .Connected else { return }
-        centralManager.cancelPeripheralConnection(peripheral)
-    }
-    
-    internal func didDisconnect() {
-        peripheral.delegate = nil
+    public override func didDisconnect() {
+        super.didDisconnect()
         matrixCharacteristic = nil
         delegate?.nuimoControllerDidDisconnect?(self)
     }
     
-    internal func invalidate() {
+    public override func invalidate() {
+        super.invalidate()
         peripheral.delegate = nil
         delegate?.nuimoControllerDidInvalidate?(self)
     }
     
     //MARK: - CBPeripheralDelegate
     
-    @objc public func peripheral(peripheral: CBPeripheral, didDiscoverServices error: NSError?) {
-        peripheral.services?
-            .flatMap{ ($0, charactericUUIDsForServiceUUID[$0.UUID]) }
-            .forEach{ peripheral.discoverCharacteristics($0.1, forService: $0.0) }
-    }
-    
-    @objc public func peripheral(peripheral: CBPeripheral, didDiscoverCharacteristicsForService service: CBService, error: NSError?) {
+    public override func peripheral(peripheral: CBPeripheral, didDiscoverCharacteristicsForService service: CBService, error: NSError?) {
+        super.peripheral(peripheral, didDiscoverCharacteristicsForService: service, error: error)
         service.characteristics?.forEach{ characteristic in
             switch characteristic.UUID {
             case kBatteryCharacteristicUUID:
@@ -92,13 +75,12 @@ public class NuimoBluetoothController: NSObject, NuimoController, CBPeripheralDe
             default:
                 break
             }
-            if characteristicNotificationUUIDs.contains(characteristic.UUID) {
-                peripheral.setNotifyValue(true, forCharacteristic: characteristic)
-            }
         }
     }
     
-    @objc public func peripheral(peripheral: CBPeripheral, didUpdateValueForCharacteristic characteristic: CBCharacteristic, error: NSError?) {
+    public override func peripheral(peripheral: CBPeripheral, didUpdateValueForCharacteristic characteristic: CBCharacteristic, error: NSError?) {
+        super.peripheral(peripheral, didUpdateValueForCharacteristic: characteristic, error: error)
+
         guard let data = characteristic.value else { return }
         
         switch characteristic.UUID {
@@ -111,11 +93,8 @@ public class NuimoBluetoothController: NSObject, NuimoController, CBPeripheralDe
         }
     }
     
-    @objc public func peripheral(peripheral: CBPeripheral, didUpdateNotificationStateForCharacteristic characteristic: CBCharacteristic, error: NSError?) {
-        // Nothing to do here
-    }
-    
-    @objc public func peripheral(peripheral: CBPeripheral, didWriteValueForCharacteristic characteristic: CBCharacteristic, error: NSError?) {
+    public override func peripheral(peripheral: CBPeripheral, didWriteValueForCharacteristic characteristic: CBCharacteristic, error: NSError?) {
+        super.peripheral(peripheral, didWriteValueForCharacteristic: characteristic, error: error)
         if characteristic.UUID == kLEDMatrixCharacteristicUUID {
             didRetrieveMatrixWriteResponse()
         }
@@ -197,7 +176,7 @@ internal let nuimoServiceUUIDs: [CBUUID] = [
     kSensorServiceUUID
 ]
 
-private let charactericUUIDsForServiceUUID = [
+private let nuimoCharactericUUIDsForServiceUUID = [
     kBatteryServiceUUID: [kBatteryCharacteristicUUID],
     kDeviceInformationServiceUUID: [kDeviceInformationCharacteristicUUID],
     kLEDMatrixServiceUUID: [kLEDMatrixCharacteristicUUID],
@@ -209,7 +188,7 @@ private let charactericUUIDsForServiceUUID = [
     ]
 ]
 
-private let characteristicNotificationUUIDs = [
+private let nuimoNotificationCharacteristicnUUIDs = [
     kBatteryCharacteristicUUID,
     kSensorFlyCharacteristicUUID,
     kSensorTouchCharacteristicUUID,
@@ -300,7 +279,7 @@ private extension SequenceType {
 
 //MARK: Extension methods for CoreBluetooth
 
-private extension CBPeripheralState {
+public extension CBPeripheralState {
     var nuimoConnectionState: NuimoConnectionState {
         #if os(iOS)
             switch self {
