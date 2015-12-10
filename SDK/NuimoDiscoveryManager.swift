@@ -103,10 +103,7 @@ public class NuimoDiscoveryManager: NSObject, CBCentralManagerDelegate {
     }
     
     public func centralManager(central: CBCentralManager, didDiscoverPeripheral peripheral: CBPeripheral, advertisementData: [String : AnyObject], RSSI: NSNumber) {
-        //TODO: There's no need to check for the device's name as we only discover controllers with our set of services
-        if advertisementData[CBAdvertisementDataLocalNameKey] as? String != NuimoControllerName {
-            return
-        }
+        guard advertisementData[CBAdvertisementDataLocalNameKey] as? String == NuimoControllerName else { return }
         let controller = NuimoBluetoothController(centralManager: central, uuid: peripheral.identifier.UUIDString, peripheral: peripheral)
         controllerForPeripheral[peripheral] = controller
         unreachableDevicesDetector.didFindController(controller)
