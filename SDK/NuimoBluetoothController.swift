@@ -38,12 +38,11 @@ public class NuimoBluetoothController: NSObject, NuimoController, CBPeripheralDe
         super.init()
         peripheral.delegate = self
     }
-    
+
     public func connect() {
-        if peripheral.state == .Disconnected {
-            centralManager.connectPeripheral(peripheral, options: nil)
-            delegate?.nuimoControllerDidStartConnecting?(self)
-        }
+        guard peripheral.state == .Disconnected else { return }
+        centralManager.connectPeripheral(peripheral, options: nil)
+        delegate?.nuimoControllerDidStartConnecting?(self)
     }
     
     internal func didConnect() {
@@ -59,9 +58,7 @@ public class NuimoBluetoothController: NSObject, NuimoController, CBPeripheralDe
     }
     
     public func disconnect() {
-        if peripheral.state != .Connected {
-            return
-        }
+        guard peripheral.state == .Connected else { return }
         centralManager.cancelPeripheralConnection(peripheral)
     }
     
@@ -102,9 +99,7 @@ public class NuimoBluetoothController: NSObject, NuimoController, CBPeripheralDe
     }
     
     @objc public func peripheral(peripheral: CBPeripheral, didUpdateValueForCharacteristic characteristic: CBCharacteristic, error: NSError?) {
-        guard let data = characteristic.value else {
-            return
-        }
+        guard let data = characteristic.value else { return }
         
         switch characteristic.UUID {
         case kBatteryCharacteristicUUID:
