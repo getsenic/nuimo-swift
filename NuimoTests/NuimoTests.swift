@@ -92,6 +92,46 @@ class NuimoTests: XCTestCase {
         discovery.startDiscovery()
         waitForExpectationsWithTimeout(30.0, handler: {_ in discovery.stopDiscovery() })
     }
+
+    func testNuimoControllerSkipsLEDAnimationFramesIfFramesAreSentTooFast() {
+        let sendFramesRepeatInterval = 0.01
+        let sendFramesCount = 500
+        let expectedMinDisplayedFrameCount = 20
+        let expectedMaxDisplayedFrameCount = 100
+        var framesDisplayed = 0
+        let expectation = expectationWithDescription("All animation frames should be sent")
+        let discovery = NuimoDiscoveryManager()
+        discovery.delegate = NuimoDiscoveryDelegateClosures(onDiscoverController: { controller in
+            discovery.stopDiscovery()
+            controller.delegate = NuimoControllerDelegateClosures(
+                onReady: {
+                    var frameIndex = 0
+                    var nextFrame = {}
+                    nextFrame = {
+                        after(sendFramesRepeatInterval, {
+                            guard frameIndex < sendFramesCount else {
+                                expectation.fulfill()
+                                return
+                            }
+                            frameIndex += 1
+                            controller.writeMatrix(NuimoLEDMatrix(string: String(count: frameIndex % 81, repeatedValue: Character("*"))), interval: 2.0)
+                            nextFrame()
+                        })
+                    }
+                    nextFrame()
+                },
+                onLEDMatrixDisplayed: {
+                    framesDisplayed++
+                }
+            )
+            controller.connect()
+        })
+        discovery.startDiscovery()
+        waitForExpectationsWithTimeout(10.0, handler: {_ in discovery.stopDiscovery() })
+
+        XCTAssert(framesDisplayed >= expectedMinDisplayedFrameCount, "Nuimo controller should display at least \(expectedMinDisplayedFrameCount) animation frames but it displayed only \(framesDisplayed) frames")
+        XCTAssert(framesDisplayed <= expectedMaxDisplayedFrameCount, "Nuimo controller should not display more than \(expectedMaxDisplayedFrameCount) but it displayed \(framesDisplayed)")
+    }
 }
 
 func after(delay: NSTimeInterval, _ block: dispatch_block_t) {
