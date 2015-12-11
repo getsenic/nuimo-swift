@@ -21,16 +21,28 @@ class NuimoTests: XCTestCase {
         super.tearDown()
     }
     
-    func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-    }
-    
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measureBlock {
-            // Put the code you want to measure the time of here.
+    func testDiscoveryManagerDiscoversNuimoController() {
+        let expectation = expectationWithDescription("Discovery manager should discover nuimo controller")
+        let discovery = NuimoDiscoveryManager()
+        let testDelegate = NuimoDiscoveryTestDelegate()
+        testDelegate.onDiscoverController = { _ in
+            discovery.stopDiscovery()
+            expectation.fulfill()
         }
+        discovery.delegate = testDelegate
+        discovery.startDiscovery()
+        waitForExpectationsWithTimeout(10.0, handler: { (error) in
+            if let _ = error {
+                XCTFail("Nuimo controller not discovered before timeout")
+            }
+        })
     }
-    
+}
+
+class NuimoDiscoveryTestDelegate : NuimoDiscoveryDelegate {
+    var onDiscoverController: ((NuimoController) -> Void)? = nil
+
+    func nuimoDiscoveryManager(discovery: NuimoDiscoveryManager, didDiscoverNuimoController controller: NuimoController) {
+        onDiscoverController?(controller)
+    }
 }
