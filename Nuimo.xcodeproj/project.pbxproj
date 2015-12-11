@@ -1,0 +1,522 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		46FB8E871C1B06EA00ED88DE /* Nuimo.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FB8E861C1B06EA00ED88DE /* Nuimo.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		46FB8E8E1C1B06EA00ED88DE /* Nuimo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 46FB8E831C1B06EA00ED88DE /* Nuimo.framework */; };
+		46FB8E931C1B06EA00ED88DE /* NuimoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46FB8E921C1B06EA00ED88DE /* NuimoTests.swift */; };
+		46FB8EA81C1B086600ED88DE /* BLEDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46FB8E9E1C1B086600ED88DE /* BLEDevice.swift */; };
+		46FB8EA91C1B086600ED88DE /* BLEDiscoveryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46FB8E9F1C1B086600ED88DE /* BLEDiscoveryManager.swift */; };
+		46FB8EAA1C1B086600ED88DE /* NuimoBluetoothController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46FB8EA01C1B086600ED88DE /* NuimoBluetoothController.swift */; };
+		46FB8EAB1C1B086600ED88DE /* NuimoController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46FB8EA11C1B086600ED88DE /* NuimoController.swift */; };
+		46FB8EAC1C1B086600ED88DE /* NuimoDiscoveryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46FB8EA21C1B086600ED88DE /* NuimoDiscoveryManager.swift */; };
+		46FB8EAD1C1B086600ED88DE /* NuimoGesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46FB8EA31C1B086600ED88DE /* NuimoGesture.swift */; };
+		46FB8EAE1C1B086600ED88DE /* NuimoGestureEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46FB8EA41C1B086600ED88DE /* NuimoGestureEvent.swift */; };
+		46FB8EAF1C1B086600ED88DE /* NuimoLEDMatrix.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46FB8EA51C1B086600ED88DE /* NuimoLEDMatrix.swift */; };
+		46FB8EB01C1B086600ED88DE /* NuimoWebSocketController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46FB8EA71C1B086600ED88DE /* NuimoWebSocketController.swift */; };
+		4E70E7BE741DC57CFD83968D /* Pods.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6F56754F7BEEA5425C497D7F /* Pods.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		46FB8E8F1C1B06EA00ED88DE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 46FB8E7A1C1B06EA00ED88DE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 46FB8E821C1B06EA00ED88DE;
+			remoteInfo = Nuimo;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		3CC3C9C54E9948600B67A0F4 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
+		46FB8E831C1B06EA00ED88DE /* Nuimo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Nuimo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		46FB8E861C1B06EA00ED88DE /* Nuimo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Nuimo.h; sourceTree = "<group>"; };
+		46FB8E881C1B06EA00ED88DE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		46FB8E8D1C1B06EA00ED88DE /* NuimoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NuimoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		46FB8E921C1B06EA00ED88DE /* NuimoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NuimoTests.swift; sourceTree = "<group>"; };
+		46FB8E941C1B06EA00ED88DE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		46FB8E9E1C1B086600ED88DE /* BLEDevice.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BLEDevice.swift; sourceTree = "<group>"; };
+		46FB8E9F1C1B086600ED88DE /* BLEDiscoveryManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BLEDiscoveryManager.swift; sourceTree = "<group>"; };
+		46FB8EA01C1B086600ED88DE /* NuimoBluetoothController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NuimoBluetoothController.swift; sourceTree = "<group>"; };
+		46FB8EA11C1B086600ED88DE /* NuimoController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NuimoController.swift; sourceTree = "<group>"; };
+		46FB8EA21C1B086600ED88DE /* NuimoDiscoveryManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NuimoDiscoveryManager.swift; sourceTree = "<group>"; };
+		46FB8EA31C1B086600ED88DE /* NuimoGesture.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NuimoGesture.swift; sourceTree = "<group>"; };
+		46FB8EA41C1B086600ED88DE /* NuimoGestureEvent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NuimoGestureEvent.swift; sourceTree = "<group>"; };
+		46FB8EA51C1B086600ED88DE /* NuimoLEDMatrix.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NuimoLEDMatrix.swift; sourceTree = "<group>"; };
+		46FB8EA71C1B086600ED88DE /* NuimoWebSocketController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NuimoWebSocketController.swift; sourceTree = "<group>"; };
+		6F56754F7BEEA5425C497D7F /* Pods.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		8F8EEB89589377F962BD46B2 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		46FB8E7F1C1B06EA00ED88DE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4E70E7BE741DC57CFD83968D /* Pods.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		46FB8E8A1C1B06EA00ED88DE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				46FB8E8E1C1B06EA00ED88DE /* Nuimo.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		46FB8E791C1B06EA00ED88DE = {
+			isa = PBXGroup;
+			children = (
+				46FB8E851C1B06EA00ED88DE /* Nuimo */,
+				46FB8E911C1B06EA00ED88DE /* NuimoTests */,
+				46FB8E9D1C1B086600ED88DE /* SDK */,
+				46FB8E841C1B06EA00ED88DE /* Products */,
+				8F99C384716A98A956BDE19D /* Pods */,
+				B0B45EDFF78310BEDB8228C8 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		46FB8E841C1B06EA00ED88DE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				46FB8E831C1B06EA00ED88DE /* Nuimo.framework */,
+				46FB8E8D1C1B06EA00ED88DE /* NuimoTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		46FB8E851C1B06EA00ED88DE /* Nuimo */ = {
+			isa = PBXGroup;
+			children = (
+				46FB8E861C1B06EA00ED88DE /* Nuimo.h */,
+				46FB8E881C1B06EA00ED88DE /* Info.plist */,
+			);
+			path = Nuimo;
+			sourceTree = "<group>";
+		};
+		46FB8E911C1B06EA00ED88DE /* NuimoTests */ = {
+			isa = PBXGroup;
+			children = (
+				46FB8E921C1B06EA00ED88DE /* NuimoTests.swift */,
+				46FB8E941C1B06EA00ED88DE /* Info.plist */,
+			);
+			path = NuimoTests;
+			sourceTree = "<group>";
+		};
+		46FB8E9D1C1B086600ED88DE /* SDK */ = {
+			isa = PBXGroup;
+			children = (
+				46FB8E9E1C1B086600ED88DE /* BLEDevice.swift */,
+				46FB8E9F1C1B086600ED88DE /* BLEDiscoveryManager.swift */,
+				46FB8EA01C1B086600ED88DE /* NuimoBluetoothController.swift */,
+				46FB8EA11C1B086600ED88DE /* NuimoController.swift */,
+				46FB8EA21C1B086600ED88DE /* NuimoDiscoveryManager.swift */,
+				46FB8EA31C1B086600ED88DE /* NuimoGesture.swift */,
+				46FB8EA41C1B086600ED88DE /* NuimoGestureEvent.swift */,
+				46FB8EA51C1B086600ED88DE /* NuimoLEDMatrix.swift */,
+				46FB8EA61C1B086600ED88DE /* WebSocket */,
+			);
+			path = SDK;
+			sourceTree = "<group>";
+		};
+		46FB8EA61C1B086600ED88DE /* WebSocket */ = {
+			isa = PBXGroup;
+			children = (
+				46FB8EA71C1B086600ED88DE /* NuimoWebSocketController.swift */,
+			);
+			path = WebSocket;
+			sourceTree = "<group>";
+		};
+		8F99C384716A98A956BDE19D /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				3CC3C9C54E9948600B67A0F4 /* Pods.debug.xcconfig */,
+				8F8EEB89589377F962BD46B2 /* Pods.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		B0B45EDFF78310BEDB8228C8 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				6F56754F7BEEA5425C497D7F /* Pods.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		46FB8E801C1B06EA00ED88DE /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				46FB8E871C1B06EA00ED88DE /* Nuimo.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		46FB8E821C1B06EA00ED88DE /* Nuimo */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 46FB8E971C1B06EA00ED88DE /* Build configuration list for PBXNativeTarget "Nuimo" */;
+			buildPhases = (
+				33E8CBEE75C5B060CFFDFB63 /* Check Pods Manifest.lock */,
+				46FB8E7E1C1B06EA00ED88DE /* Sources */,
+				46FB8E7F1C1B06EA00ED88DE /* Frameworks */,
+				46FB8E801C1B06EA00ED88DE /* Headers */,
+				46FB8E811C1B06EA00ED88DE /* Resources */,
+				433931281FD84C82DC8E9A03 /* Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Nuimo;
+			productName = Nuimo;
+			productReference = 46FB8E831C1B06EA00ED88DE /* Nuimo.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		46FB8E8C1C1B06EA00ED88DE /* NuimoTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 46FB8E9A1C1B06EA00ED88DE /* Build configuration list for PBXNativeTarget "NuimoTests" */;
+			buildPhases = (
+				46FB8E891C1B06EA00ED88DE /* Sources */,
+				46FB8E8A1C1B06EA00ED88DE /* Frameworks */,
+				46FB8E8B1C1B06EA00ED88DE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				46FB8E901C1B06EA00ED88DE /* PBXTargetDependency */,
+			);
+			name = NuimoTests;
+			productName = NuimoTests;
+			productReference = 46FB8E8D1C1B06EA00ED88DE /* NuimoTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		46FB8E7A1C1B06EA00ED88DE /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0720;
+				LastUpgradeCheck = 0720;
+				ORGANIZATIONNAME = senic;
+				TargetAttributes = {
+					46FB8E821C1B06EA00ED88DE = {
+						CreatedOnToolsVersion = 7.2;
+						DevelopmentTeam = 326587HQT3;
+					};
+					46FB8E8C1C1B06EA00ED88DE = {
+						CreatedOnToolsVersion = 7.2;
+					};
+				};
+			};
+			buildConfigurationList = 46FB8E7D1C1B06EA00ED88DE /* Build configuration list for PBXProject "Nuimo" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 46FB8E791C1B06EA00ED88DE;
+			productRefGroup = 46FB8E841C1B06EA00ED88DE /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				46FB8E821C1B06EA00ED88DE /* Nuimo */,
+				46FB8E8C1C1B06EA00ED88DE /* NuimoTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		46FB8E811C1B06EA00ED88DE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		46FB8E8B1C1B06EA00ED88DE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		33E8CBEE75C5B060CFFDFB63 /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		433931281FD84C82DC8E9A03 /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		46FB8E7E1C1B06EA00ED88DE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				46FB8EAD1C1B086600ED88DE /* NuimoGesture.swift in Sources */,
+				46FB8EAF1C1B086600ED88DE /* NuimoLEDMatrix.swift in Sources */,
+				46FB8EAB1C1B086600ED88DE /* NuimoController.swift in Sources */,
+				46FB8EAA1C1B086600ED88DE /* NuimoBluetoothController.swift in Sources */,
+				46FB8EAC1C1B086600ED88DE /* NuimoDiscoveryManager.swift in Sources */,
+				46FB8EA91C1B086600ED88DE /* BLEDiscoveryManager.swift in Sources */,
+				46FB8EAE1C1B086600ED88DE /* NuimoGestureEvent.swift in Sources */,
+				46FB8EA81C1B086600ED88DE /* BLEDevice.swift in Sources */,
+				46FB8EB01C1B086600ED88DE /* NuimoWebSocketController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		46FB8E891C1B06EA00ED88DE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				46FB8E931C1B06EA00ED88DE /* NuimoTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		46FB8E901C1B06EA00ED88DE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 46FB8E821C1B06EA00ED88DE /* Nuimo */;
+			targetProxy = 46FB8E8F1C1B06EA00ED88DE /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		46FB8E951C1B06EA00ED88DE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				VALID_ARCHS = "i386 x86_64 arm64 armv7s armv7";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		46FB8E961C1B06EA00ED88DE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator";
+				VALID_ARCHS = "i386 x86_64 arm64 armv7s armv7";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		46FB8E981C1B06EA00ED88DE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 3CC3C9C54E9948600B67A0F4 /* Pods.debug.xcconfig */;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_VERSION = A;
+				INFOPLIST_FILE = Nuimo/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.senic.Nuimo;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		46FB8E991C1B06EA00ED88DE /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8F8EEB89589377F962BD46B2 /* Pods.release.xcconfig */;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_VERSION = A;
+				INFOPLIST_FILE = Nuimo/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.senic.Nuimo;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+		46FB8E9B1C1B06EA00ED88DE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = NuimoTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks ";
+				PRODUCT_BUNDLE_IDENTIFIER = com.senic.NuimoTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		46FB8E9C1C1B06EA00ED88DE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = NuimoTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks ";
+				PRODUCT_BUNDLE_IDENTIFIER = com.senic.NuimoTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		46FB8E7D1C1B06EA00ED88DE /* Build configuration list for PBXProject "Nuimo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				46FB8E951C1B06EA00ED88DE /* Debug */,
+				46FB8E961C1B06EA00ED88DE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		46FB8E971C1B06EA00ED88DE /* Build configuration list for PBXNativeTarget "Nuimo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				46FB8E981C1B06EA00ED88DE /* Debug */,
+				46FB8E991C1B06EA00ED88DE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		46FB8E9A1C1B06EA00ED88DE /* Build configuration list for PBXNativeTarget "NuimoTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				46FB8E9B1C1B06EA00ED88DE /* Debug */,
+				46FB8E9C1C1B06EA00ED88DE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 46FB8E7A1C1B06EA00ED88DE /* Project object */;
+}
