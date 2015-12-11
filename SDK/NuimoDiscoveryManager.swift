@@ -46,7 +46,7 @@ public class NuimoDiscoveryManager: BLEDiscoveryManager {
     }
 
     override public func didInvalidateDevice(device: BLEDevice) {
-        delegate?.nuimoDiscoveryManager(self, didInvalidateController: device as! NuimoController)
+        delegate?.nuimoDiscoveryManager?(self, didInvalidateController: device as! NuimoController)
     }
     
     override public func didDiscoverDevice(device: BLEDevice) {
@@ -54,25 +54,22 @@ public class NuimoDiscoveryManager: BLEDiscoveryManager {
     }
 
     override public func didConnectDevice(device: BLEDevice) {
-        delegate?.nuimoDiscoveryManager(self, didConnectNuimoController: device as! NuimoController)
+        delegate?.nuimoDiscoveryManager?(self, didConnectNuimoController: device as! NuimoController)
     }
 
     override public func didFailToConnectDevice(device: BLEDevice, error: NSError?) {
-        delegate?.nuimoDiscoveryManager(self, didFailToConnectNuimoController: device as! NuimoController, error: error)
+        delegate?.nuimoDiscoveryManager?(self, didFailToConnectNuimoController: device as! NuimoController, error: error)
     }
 
     override public func didDisconnectDevice(device: BLEDevice, error: NSError?) {
-        delegate?.nuimoDiscoveryManager(self, didDisconnectNuimoController: device as! NuimoController, error: error)
+        delegate?.nuimoDiscoveryManager?(self, didDisconnectNuimoController: device as! NuimoController, error: error)
     }
 }
 
-public protocol NuimoDiscoveryDelegate {
+@objc public protocol NuimoDiscoveryDelegate {
     func nuimoDiscoveryManager(discovery: NuimoDiscoveryManager, didDiscoverNuimoController controller: NuimoController)
-}
-
-extension NuimoDiscoveryDelegate {
-    func nuimoDiscoveryManager(discovery: NuimoDiscoveryManager, didConnectNuimoController controller: NuimoController) {}
-    func nuimoDiscoveryManager(discovery: NuimoDiscoveryManager, didFailToConnectNuimoController controller: NuimoController, error: NSError?) {}
-    func nuimoDiscoveryManager(discovery: NuimoDiscoveryManager, didDisconnectNuimoController controller: NuimoController, error: NSError?) {}
-    func nuimoDiscoveryManager(discovery: NuimoDiscoveryManager, didInvalidateController controller: NuimoController) {}
+    optional func nuimoDiscoveryManager(discovery: NuimoDiscoveryManager, didConnectNuimoController controller: NuimoController)
+    optional func nuimoDiscoveryManager(discovery: NuimoDiscoveryManager, didFailToConnectNuimoController controller: NuimoController, error: NSError?)
+    optional func nuimoDiscoveryManager(discovery: NuimoDiscoveryManager, didDisconnectNuimoController controller: NuimoController, error: NSError?)
+    optional func nuimoDiscoveryManager(discovery: NuimoDiscoveryManager, didInvalidateController controller: NuimoController)
 }
