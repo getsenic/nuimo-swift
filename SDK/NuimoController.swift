@@ -52,4 +52,5 @@ public extension NuimoController {
     optional func nuimoControllerDidDiscoverMatrixService(controller: NuimoController)
     optional func nuimoController(controller: NuimoController, didUpdateBatteryLevel bateryLevel: Int)
     optional func nuimoController(controller: NuimoController, didReceiveGestureEvent event: NuimoGestureEvent)
+    optional func nuimoControllerDidDisplayLEDMatrix(controller: NuimoController)
 }

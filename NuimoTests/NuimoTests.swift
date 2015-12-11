@@ -29,11 +29,7 @@ class NuimoTests: XCTestCase {
             expectation.fulfill()
         })
         discovery.startDiscovery()
-        waitForExpectationsWithTimeout(10.0, handler: { (error) in
-            if let _ = error {
-                XCTFail("Nuimo controller not discovered before timeout")
-            }
-        })
+        waitForExpectationsWithTimeout(10.0, handler: {_ in discovery.stopDiscovery() })
     }
 
     func testNuimoControllerConnects() {
@@ -48,12 +44,31 @@ class NuimoTests: XCTestCase {
             controller.connect()
         })
         discovery.startDiscovery()
-        waitForExpectationsWithTimeout(10.0, handler: { (error) in
-            if let _ = error {
-                XCTFail("Nuimo controller did not connect before timeout")
-            }
-        })
+        waitForExpectationsWithTimeout(10.0, handler: {_ in discovery.stopDiscovery() })
     }
+
+    func testNuimoControllerDisplayLEDMatrix() {
+        let expectation = expectationWithDescription("Nuimo controller should display LED matrix")
+        let discovery = NuimoDiscoveryManager()
+        discovery.delegate = NuimoDiscoveryDelegateClosures(onDiscoverController: { (var controller) in
+            discovery.stopDiscovery()
+            controller.delegate = NuimoControllerDelegateClosures(
+                onReady: {
+                    controller.writeMatrix(NuimoLEDMatrix(string: String(count: 81, repeatedValue: Character("*"))), interval: 5.0)
+                },
+                onLEDMatrixDisplayed: {
+                    after(2.0, expectation.fulfill)
+                }
+            )
+            controller.connect()
+        })
+        discovery.startDiscovery()
+        waitForExpectationsWithTimeout(10.0, handler: {_ in discovery.stopDiscovery() })
+    }
+}
+
+func after(delay: NSTimeInterval, _ block: dispatch_block_t) {
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(delay * Double(NSEC_PER_SEC))), dispatch_get_main_queue(), block)
 }
 
 //TODO: Make this part of the SDK
@@ -71,12 +86,43 @@ class NuimoDiscoveryDelegateClosures : NuimoDiscoveryDelegate {
 
 //TODO: Make this part of the SDK
 class NuimoControllerDelegateClosures : NuimoControllerDelegate {
-    let onConnect: () -> Void
-    init(onConnect: () -> Void) {
+    let onConnect: (() -> Void)?
+    let onReady: (() -> Void)?
+    let onLEDMatrixDisplayed: (() -> Void)?
+
+    init(onConnect: (() -> Void)? = nil, onReady: (() -> Void)? = nil, onLEDMatrixDisplayed: (() -> Void)? = nil) {
         self.onConnect = onConnect
+        self.onReady = onReady
+        self.onLEDMatrixDisplayed = onLEDMatrixDisplayed
     }
 
-    func nuimoControllerDidConnect(controller: NuimoController) {
-        onConnect()
+    @objc func nuimoControllerDidStartConnecting(controller: NuimoController) {
+    }
+
+    @objc func nuimoControllerDidConnect(controller: NuimoController) {
+        onConnect?()
+    }
+
+    @objc func nuimoControllerDidFailToConnect(controller: NuimoController) {
+    }
+
+    @objc func nuimoControllerDidDisconnect(controller: NuimoController) {
+    }
+
+    @objc func nuimoControllerDidDiscoverMatrixService(controller: NuimoController) {
+        onReady?()
+    }
+
+    @objc func nuimoControllerDidDisplayLEDMatrix(controller: NuimoController) {
+        onLEDMatrixDisplayed?()
+    }
+
+    @objc func nuimoController(controller: NuimoController, didReceiveGestureEvent event: NuimoGestureEvent) {
+    }
+
+    @objc func nuimoController(controller: NuimoController, didUpdateBatteryLevel bateryLevel: Int) {
+    }
+
+    @objc func nuimoControllerDidInvalidate(controller: NuimoController) {
     }
 }

@@ -96,6 +96,7 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
         super.peripheral(peripheral, didWriteValueForCharacteristic: characteristic, error: error)
         if characteristic.UUID == kLEDMatrixCharacteristicUUID {
             matrixWriter?.didRetrieveMatrixWriteResponse()
+            delegate?.nuimoControllerDidDisplayLEDMatrix?(self)
         }
     }
 }
