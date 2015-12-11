@@ -115,10 +115,6 @@ private class LEDMatrixWriter {
     private var writeMatrixOnWriteResponseReceived = false
     private var writeMatrixResponseTimeoutTimer: NSTimer?
 
-    var v1 = 0
-    var v2 = 0
-    var v3 = 0
-
     init(peripheral: CBPeripheral, matrixCharacteristic: CBCharacteristic, brightness: Float, firmwareVersion: Double) {
         self.peripheral = peripheral
         self.matrixCharacteristic = matrixCharacteristic
@@ -154,14 +150,19 @@ private class LEDMatrixWriter {
         peripheral.writeValue(matrixData, forCharacteristic: matrixCharacteristic, type: .WithResponse)
         isWaitingForMatrixWriteResponse = true
 
-        // When the matrix write response is not retrieved within 100ms we assume the response to have timed out
-        writeMatrixResponseTimeoutTimer?.invalidate()
-        writeMatrixResponseTimeoutTimer = NSTimer.scheduledTimerWithTimeInterval(0.1, target: self, selector: "didRetrieveMatrixWriteResponse", userInfo: nil, repeats: false)
+        // When the matrix write response is not retrieved within 500ms we assume the response to have timed out
+        dispatch_async(dispatch_get_main_queue()) {
+            self.writeMatrixResponseTimeoutTimer?.invalidate()
+            self.writeMatrixResponseTimeoutTimer = NSTimer.scheduledTimerWithTimeInterval(0.5, target: self, selector: "didRetrieveMatrixWriteResponse", userInfo: nil, repeats: false)
+        }
     }
 
     @objc func didRetrieveMatrixWriteResponse() {
+        guard isWaitingForMatrixWriteResponse else { return }
         isWaitingForMatrixWriteResponse = false
-        writeMatrixResponseTimeoutTimer?.invalidate()
+        dispatch_async(dispatch_get_main_queue()) {
+            self.writeMatrixResponseTimeoutTimer?.invalidate()
+        }
 
         // Write next matrix if any
         if writeMatrixOnWriteResponseReceived {

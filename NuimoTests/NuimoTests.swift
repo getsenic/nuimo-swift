@@ -35,7 +35,7 @@ class NuimoTests: XCTestCase {
     func testNuimoControllerConnects() {
         let expectation = expectationWithDescription("Nuimo controller should connect")
         let discovery = NuimoDiscoveryManager()
-        discovery.delegate = NuimoDiscoveryDelegateClosures(onDiscoverController: { (var controller) in
+        discovery.delegate = NuimoDiscoveryDelegateClosures(onDiscoverController: { controller in
             discovery.stopDiscovery()
             controller.delegate = NuimoControllerDelegateClosures(onConnect: {
                 controller.disconnect()
