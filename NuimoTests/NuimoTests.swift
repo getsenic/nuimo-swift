@@ -24,12 +24,10 @@ class NuimoTests: XCTestCase {
     func testDiscoveryManagerDiscoversNuimoController() {
         let expectation = expectationWithDescription("Discovery manager should discover nuimo controller")
         let discovery = NuimoDiscoveryManager()
-        let testDelegate = NuimoDiscoveryTestDelegate()
-        testDelegate.onDiscoverController = { _ in
+        discovery.delegate = NuimoDiscoveryDelegateClosures(onDiscoverController: { _ in
             discovery.stopDiscovery()
             expectation.fulfill()
-        }
-        discovery.delegate = testDelegate
+        })
         discovery.startDiscovery()
         waitForExpectationsWithTimeout(10.0, handler: { (error) in
             if let _ = error {
@@ -39,10 +37,15 @@ class NuimoTests: XCTestCase {
     }
 }
 
-class NuimoDiscoveryTestDelegate : NuimoDiscoveryDelegate {
-    var onDiscoverController: ((NuimoController) -> Void)? = nil
+//TODO: Make this part of the SDK
+class NuimoDiscoveryDelegateClosures : NuimoDiscoveryDelegate {
+    var onDiscoverController: ((NuimoController) -> Void)
+
+    init(onDiscoverController: ((NuimoController) -> Void)) {
+        self.onDiscoverController = onDiscoverController
+    }
 
     func nuimoDiscoveryManager(discovery: NuimoDiscoveryManager, didDiscoverNuimoController controller: NuimoController) {
-        onDiscoverController?(controller)
+        onDiscoverController(controller)
     }
 }
