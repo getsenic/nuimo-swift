@@ -50,7 +50,7 @@ class NuimoTests: XCTestCase {
     func testNuimoControllerDisplayLEDMatrix() {
         let expectation = expectationWithDescription("Nuimo controller should display LED matrix")
         let discovery = NuimoDiscoveryManager()
-        discovery.delegate = NuimoDiscoveryDelegateClosures(onDiscoverController: { (var controller) in
+        discovery.delegate = NuimoDiscoveryDelegateClosures(onDiscoverController: { controller in
             discovery.stopDiscovery()
             controller.delegate = NuimoControllerDelegateClosures(
                 onReady: {
@@ -79,7 +79,7 @@ class NuimoDiscoveryDelegateClosures : NuimoDiscoveryDelegate {
         self.onDiscoverController = onDiscoverController
     }
 
-    func nuimoDiscoveryManager(discovery: NuimoDiscoveryManager, didDiscoverNuimoController controller: NuimoController) {
+    @objc func nuimoDiscoveryManager(discovery: NuimoDiscoveryManager, didDiscoverNuimoController controller: NuimoController) {
         onDiscoverController(controller)
     }
 }
