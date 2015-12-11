@@ -65,6 +65,33 @@ class NuimoTests: XCTestCase {
         discovery.startDiscovery()
         waitForExpectationsWithTimeout(10.0, handler: {_ in discovery.stopDiscovery() })
     }
+
+    func testNuimoControllerDisplaysLEDMatrixAnimation() {
+        let expectation = expectationWithDescription("Nuimo controller should display LED matrix animation")
+        let discovery = NuimoDiscoveryManager()
+        discovery.delegate = NuimoDiscoveryDelegateClosures(onDiscoverController: { controller in
+            discovery.stopDiscovery()
+            var frameIndex = 0
+            let displayFrame = {
+                controller.writeMatrix(NuimoLEDMatrix(string: String(count: frameIndex < 81 ? (frameIndex + 1) : (frameIndex % 2 == 0 ? 0 : 81), repeatedValue: Character("*"))), interval: 5.0)
+            }
+            controller.delegate = NuimoControllerDelegateClosures(
+                onReady: {
+                    displayFrame()
+                },
+                onLEDMatrixDisplayed: {
+                    frameIndex++
+                    switch (frameIndex) {
+                    case 110: after(2.0, expectation.fulfill)
+                    default: displayFrame()
+                    }
+                }
+            )
+            controller.connect()
+        })
+        discovery.startDiscovery()
+        waitForExpectationsWithTimeout(30.0, handler: {_ in discovery.stopDiscovery() })
+    }
 }
 
 func after(delay: NSTimeInterval, _ block: dispatch_block_t) {
