@@ -35,11 +35,30 @@ class NuimoTests: XCTestCase {
             }
         })
     }
+
+    func testNuimoControllerConnects() {
+        let expectation = expectationWithDescription("Nuimo controller should connect")
+        let discovery = NuimoDiscoveryManager()
+        discovery.delegate = NuimoDiscoveryDelegateClosures(onDiscoverController: { (var controller) in
+            discovery.stopDiscovery()
+            controller.delegate = NuimoControllerDelegateClosures(onConnect: {
+                controller.disconnect()
+                expectation.fulfill()
+            })
+            controller.connect()
+        })
+        discovery.startDiscovery()
+        waitForExpectationsWithTimeout(10.0, handler: { (error) in
+            if let _ = error {
+                XCTFail("Nuimo controller did not connect before timeout")
+            }
+        })
+    }
 }
 
 //TODO: Make this part of the SDK
 class NuimoDiscoveryDelegateClosures : NuimoDiscoveryDelegate {
-    var onDiscoverController: ((NuimoController) -> Void)
+    let onDiscoverController: ((NuimoController) -> Void)
 
     init(onDiscoverController: ((NuimoController) -> Void)) {
         self.onDiscoverController = onDiscoverController
@@ -47,5 +66,17 @@ class NuimoDiscoveryDelegateClosures : NuimoDiscoveryDelegate {
 
     func nuimoDiscoveryManager(discovery: NuimoDiscoveryManager, didDiscoverNuimoController controller: NuimoController) {
         onDiscoverController(controller)
+    }
+}
+
+//TODO: Make this part of the SDK
+class NuimoControllerDelegateClosures : NuimoControllerDelegate {
+    let onConnect: () -> Void
+    init(onConnect: () -> Void) {
+        self.onConnect = onConnect
+    }
+
+    func nuimoControllerDidConnect(controller: NuimoController) {
+        onConnect()
     }
 }
