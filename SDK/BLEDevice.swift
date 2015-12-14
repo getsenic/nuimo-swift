@@ -43,7 +43,7 @@ public class BLEDevice: NSObject, CBPeripheralDelegate {
         peripheral.discoverServices(serviceUUIDs)
     }
 
-    public func didFailToConnect() {
+    public func didFailToConnect(error: NSError?) {
     }
 
     public func disconnect() {
@@ -51,7 +51,7 @@ public class BLEDevice: NSObject, CBPeripheralDelegate {
         centralManager.cancelPeripheralConnection(peripheral)
     }
 
-    public func didDisconnect() {
+    public func didDisconnect(error: NSError?) {
         peripheral.delegate = nil
     }
 

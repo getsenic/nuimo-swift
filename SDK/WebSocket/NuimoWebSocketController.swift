@@ -37,15 +37,15 @@ public class NuimoWebSocketController : NSObject, NuimoController {
             }
             webSocket.event.close = { _ in
                 self.webSocket = nil
-                self.delegate?.nuimoControllerDidDisconnect?(self)
+                self.delegate?.nuimoController?(self, didDisconnect: nil)
             }
             webSocket.event.end = { _ in
                 self.webSocket = nil
-                self.delegate?.nuimoControllerDidDisconnect?(self)
+                self.delegate?.nuimoController?(self, didDisconnect: nil)
             }
-            webSocket.event.error = { error in
+            webSocket.event.error = { _ in
                 //TODO: Figure out which error occurred and eventually call adeguate delegate methode
-                self.delegate?.nuimoControllerDidFailToConnect?(self)
+                self.delegate?.nuimoController?(self, didFailToConnect: nil)
             }
             webSocket.event.message = { message in
                 if let text = message as? String {

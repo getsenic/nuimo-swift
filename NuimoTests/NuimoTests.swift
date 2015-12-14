@@ -7,6 +7,7 @@
 //
 
 import XCTest
+import CoreBluetooth
 @testable import Nuimo
 
 class NuimoTests: XCTestCase {
@@ -134,7 +135,7 @@ class NuimoTests: XCTestCase {
             controller.connect()
         })
         discovery.startDiscovery()
-        waitForExpectationsWithTimeout(10.0, handler: {_ in discovery.stopDiscovery() })
+        waitForExpectationsWithTimeout(20.0, handler: {_ in discovery.stopDiscovery() })
 
         XCTAssert(framesDisplayed >= expectedMinDisplayedFrameCount, "Nuimo controller should display at least \(expectedMinDisplayedFrameCount) animation frames but it displayed only \(framesDisplayed) frames")
         XCTAssert(framesDisplayed <= expectedMaxDisplayedFrameCount, "Nuimo controller should not display more than \(expectedMaxDisplayedFrameCount) but it displayed \(framesDisplayed)")
@@ -177,10 +178,10 @@ class NuimoControllerDelegateClosures : NuimoControllerDelegate {
         onConnect?()
     }
 
-    @objc func nuimoControllerDidFailToConnect(controller: NuimoController) {
+    @objc func nuimoController(controller: NuimoController, didFailToConnect error: NSError?) {
     }
 
-    @objc func nuimoControllerDidDisconnect(controller: NuimoController) {
+    @objc func nuimoController(controller: NuimoController, didDisconnect error: NSError?) {
     }
 
     @objc func nuimoControllerDidDiscoverMatrixService(controller: NuimoController) {

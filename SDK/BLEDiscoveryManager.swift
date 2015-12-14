@@ -150,7 +150,8 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
             assertionFailure("Peripheral not registered")
             return
         }
-        device.didFailToConnect()
+        device.didFailToConnect(error)
+        discovery.didFailToConnectDevice(device, error: error)
     }
 
     @objc func centralManager(central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: NSError?) {
@@ -158,7 +159,7 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
             assertionFailure("Peripheral not registered")
             return
         }
-        device.didDisconnect()
+        device.didDisconnect(error)
         if error != nil {
             // Device probably went offline
             invalidateDevice(device)

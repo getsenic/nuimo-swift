@@ -37,15 +37,15 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
         delegate?.nuimoControllerDidConnect?(self)
     }
     
-    public override func didFailToConnect() {
-        super.didFailToConnect()
-        delegate?.nuimoControllerDidFailToConnect?(self)
+    public override func didFailToConnect(error: NSError?) {
+        super.didFailToConnect(error)
+        delegate?.nuimoController?(self, didFailToConnect: error)
     }
     
-    public override func didDisconnect() {
-        super.didDisconnect()
+    public override func didDisconnect(error: NSError?) {
+        super.didDisconnect(error)
         matrixWriter = nil
-        delegate?.nuimoControllerDidDisconnect?(self)
+        delegate?.nuimoController?(self, didDisconnect: error)
     }
     
     public override func invalidate() {
@@ -69,7 +69,6 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
                 peripheral.readValueForCharacteristic(characteristic)
             case kLEDMatrixCharacteristicUUID:
                 matrixWriter = LEDMatrixWriter(peripheral: peripheral, matrixCharacteristic: characteristic, brightness: matrixBrightness, firmwareVersion: firmwareVersion)
-                //TODO: Rename to nuimoControllerDidBecomeReady
                 delegate?.nuimoControllerDidDiscoverMatrixService?(self)
             default:
                 break
