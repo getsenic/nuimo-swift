@@ -106,13 +106,18 @@ private class LEDMatrixWriter {
     let peripheral: CBPeripheral
     let matrixCharacteristic: CBCharacteristic
     var brightness: Float
+
     //TODO: Remove when we don't have devices with old firmware any more
     private var firmwareVersion: Double
     private var currentMatrix: NuimoLEDMatrix?
     private var currentMatrixDisplayInterval: NSTimeInterval = 0.0
+    private var lastWrittenMatrix: NuimoLEDMatrix?
+    private var lastWrittenMatrixDate = NSDate(timeIntervalSince1970: 0.0)
     private var isWaitingForMatrixWriteResponse = false
     private var writeMatrixOnWriteResponseReceived = false
     private var writeMatrixResponseTimeoutTimer: NSTimer?
+    // Minimum interval before a matrix, that has already been sent, can be send again. This improves user experience when a lot of matrices are sent with a high rate.
+    private let minSameMatrixResendInterval: NSTimeInterval = 0.2
 
     init(peripheral: CBPeripheral, matrixCharacteristic: CBCharacteristic, brightness: Float, firmwareVersion: Double) {
         self.peripheral = peripheral
@@ -129,7 +134,7 @@ private class LEDMatrixWriter {
         // Send matrix later when the write response from previous write request is not yet received
         if isWaitingForMatrixWriteResponse {
             writeMatrixOnWriteResponseReceived = true
-        } else {
+        } else if lastWrittenMatrix != matrix || (-lastWrittenMatrixDate.timeIntervalSinceNow >= minSameMatrixResendInterval) {
             writeMatrixNow()
         }
     }
@@ -154,6 +159,8 @@ private class LEDMatrixWriter {
             self.writeMatrixResponseTimeoutTimer?.invalidate()
             self.writeMatrixResponseTimeoutTimer = NSTimer.scheduledTimerWithTimeInterval(0.5, target: self, selector: "didRetrieveMatrixWriteResponse", userInfo: nil, repeats: false)
         }
+
+        lastWrittenMatrix = currentMatrix
     }
 
     @objc func didRetrieveMatrixWriteResponse() {
@@ -162,6 +169,7 @@ private class LEDMatrixWriter {
         dispatch_async(dispatch_get_main_queue()) {
             self.writeMatrixResponseTimeoutTimer?.invalidate()
         }
+        lastWrittenMatrixDate = NSDate()
 
         // Write next matrix if any
         if writeMatrixOnWriteResponseReceived {
