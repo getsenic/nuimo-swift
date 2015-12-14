@@ -57,7 +57,10 @@ class NuimoTests: XCTestCase {
                     controller.writeMatrix(NuimoLEDMatrix(string: String(count: 81, repeatedValue: Character("*"))), interval: 5.0)
                 },
                 onLEDMatrixDisplayed: {
-                    after(2.0, expectation.fulfill)
+                    after(2.0, {
+                        controller.disconnect()
+                        expectation.fulfill()
+                    })
                 }
             )
             controller.connect()
@@ -82,7 +85,10 @@ class NuimoTests: XCTestCase {
                 onLEDMatrixDisplayed: {
                     frameIndex++
                     switch (frameIndex) {
-                    case 110: after(2.0, expectation.fulfill)
+                    case 110: after(2.0) {
+                        controller.disconnect()
+                        expectation.fulfill()
+                    }
                     default: displayFrame()
                     }
                 }
@@ -110,6 +116,7 @@ class NuimoTests: XCTestCase {
                     nextFrame = {
                         after(sendFramesRepeatInterval, {
                             guard frameIndex < sendFramesCount else {
+                                controller.disconnect()
                                 expectation.fulfill()
                                 return
                             }
