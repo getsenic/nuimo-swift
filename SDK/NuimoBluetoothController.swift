@@ -34,7 +34,7 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
     public override func didConnect() {
         super.didConnect()
         matrixWriter = nil
-        delegate?.nuimoControllerDidConnect?(self)
+        //TODO: When the matrix characteristic is being found, didConnect() is fired. But if matrix characteristic is not found, didFailToConnect() should be fired instead!
     }
     
     public override func didFailToConnect(error: NSError?) {
@@ -69,7 +69,7 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
                 peripheral.readValueForCharacteristic(characteristic)
             case kLEDMatrixCharacteristicUUID:
                 matrixWriter = LEDMatrixWriter(peripheral: peripheral, matrixCharacteristic: characteristic, brightness: matrixBrightness, firmwareVersion: firmwareVersion)
-                delegate?.nuimoControllerDidDiscoverMatrixService?(self)
+                delegate?.nuimoControllerDidConnect?(self)
             default:
                 break
             }

@@ -49,7 +49,6 @@ public extension NuimoController {
     optional func nuimoController(controller: NuimoController, didFailToConnect error: NSError?)
     optional func nuimoController(controller: NuimoController, didDisconnect error: NSError?)
     optional func nuimoControllerDidInvalidate(controller: NuimoController)
-    optional func nuimoControllerDidDiscoverMatrixService(controller: NuimoController)
     optional func nuimoController(controller: NuimoController, didUpdateBatteryLevel bateryLevel: Int)
     optional func nuimoController(controller: NuimoController, didReceiveGestureEvent event: NuimoGestureEvent)
     optional func nuimoControllerDidDisplayLEDMatrix(controller: NuimoController)

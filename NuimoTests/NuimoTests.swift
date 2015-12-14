@@ -54,7 +54,7 @@ class NuimoTests: XCTestCase {
         discovery.delegate = NuimoDiscoveryDelegateClosures(onDiscoverController: { controller in
             discovery.stopDiscovery()
             controller.delegate = NuimoControllerDelegateClosures(
-                onReady: {
+                onConnect: {
                     controller.writeMatrix(NuimoLEDMatrix(string: String(count: 81, repeatedValue: Character("*"))), interval: 5.0)
                 },
                 onLEDMatrixDisplayed: {
@@ -80,7 +80,7 @@ class NuimoTests: XCTestCase {
                 controller.writeMatrix(NuimoLEDMatrix(string: String(count: frameIndex < 81 ? (frameIndex + 1) : (frameIndex % 2 == 0 ? 0 : 81), repeatedValue: Character("*"))), interval: 5.0)
             }
             controller.delegate = NuimoControllerDelegateClosures(
-                onReady: {
+                onConnect: {
                     displayFrame()
                 },
                 onLEDMatrixDisplayed: {
@@ -111,7 +111,7 @@ class NuimoTests: XCTestCase {
         discovery.delegate = NuimoDiscoveryDelegateClosures(onDiscoverController: { controller in
             discovery.stopDiscovery()
             controller.delegate = NuimoControllerDelegateClosures(
-                onReady: {
+                onConnect: {
                     var frameIndex = 0
                     var nextFrame = {}
                     nextFrame = {
@@ -162,12 +162,10 @@ class NuimoDiscoveryDelegateClosures : NuimoDiscoveryDelegate {
 //TODO: Make this part of the SDK
 class NuimoControllerDelegateClosures : NuimoControllerDelegate {
     let onConnect: (() -> Void)?
-    let onReady: (() -> Void)?
     let onLEDMatrixDisplayed: (() -> Void)?
 
-    init(onConnect: (() -> Void)? = nil, onReady: (() -> Void)? = nil, onLEDMatrixDisplayed: (() -> Void)? = nil) {
+    init(onConnect: (() -> Void)? = nil, onLEDMatrixDisplayed: (() -> Void)? = nil) {
         self.onConnect = onConnect
-        self.onReady = onReady
         self.onLEDMatrixDisplayed = onLEDMatrixDisplayed
     }
 
@@ -182,10 +180,6 @@ class NuimoControllerDelegateClosures : NuimoControllerDelegate {
     }
 
     @objc func nuimoController(controller: NuimoController, didDisconnect error: NSError?) {
-    }
-
-    @objc func nuimoControllerDidDiscoverMatrixService(controller: NuimoController) {
-        onReady?()
     }
 
     @objc func nuimoControllerDidDisplayLEDMatrix(controller: NuimoController) {
