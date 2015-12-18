@@ -18,7 +18,6 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
     public var batteryLevel: Int = -1 { didSet { if self.batteryLevel != oldValue { delegate?.nuimoController?(self, didUpdateBatteryLevel: self.batteryLevel) } } }
     public var defaultMatrixDisplayInterval: NSTimeInterval = 2.0
     public var matrixBrightness: Float = 1.0 { didSet { matrixWriter?.brightness = self.matrixBrightness } }
-    public var firmwareVersion = 0.1 { didSet { matrixWriter?.firmwareVersion = self.firmwareVersion } }
     
     public override var serviceUUIDs: [CBUUID] { get { return nuimoServiceUUIDs } }
     public override var charactericUUIDsForServiceUUID: [CBUUID : [CBUUID]] { get { return nuimoCharactericUUIDsForServiceUUID } }
@@ -68,7 +67,7 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
             case kBatteryCharacteristicUUID:
                 peripheral.readValueForCharacteristic(characteristic)
             case kLEDMatrixCharacteristicUUID:
-                matrixWriter = LEDMatrixWriter(peripheral: peripheral, matrixCharacteristic: characteristic, brightness: matrixBrightness, firmwareVersion: firmwareVersion)
+                matrixWriter = LEDMatrixWriter(peripheral: peripheral, matrixCharacteristic: characteristic, brightness: matrixBrightness)
                 delegate?.nuimoControllerDidConnect?(self)
             default:
                 break
@@ -107,8 +106,6 @@ private class LEDMatrixWriter {
     let matrixCharacteristic: CBCharacteristic
     var brightness: Float
 
-    //TODO: Remove when we don't have devices with old firmware any more
-    private var firmwareVersion: Double
     private var currentMatrix: NuimoLEDMatrix?
     private var currentMatrixDisplayInterval: NSTimeInterval = 0.0
     private var lastWrittenMatrix: NuimoLEDMatrix?
@@ -119,14 +116,12 @@ private class LEDMatrixWriter {
     // Minimum interval before a matrix, that has already been sent, can be send again. This improves user experience when a lot of matrices are sent with a high rate.
     private let minSameMatrixResendInterval: NSTimeInterval = 0.2
 
-    init(peripheral: CBPeripheral, matrixCharacteristic: CBCharacteristic, brightness: Float, firmwareVersion: Double) {
+    init(peripheral: CBPeripheral, matrixCharacteristic: CBCharacteristic, brightness: Float) {
         self.peripheral = peripheral
         self.matrixCharacteristic = matrixCharacteristic
         self.brightness = brightness
-        self.firmwareVersion = firmwareVersion
     }
 
-    //TODO: Move matrix write handling into a private class
     func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval) {
         currentMatrix = matrix
         currentMatrixDisplayInterval = interval
@@ -147,10 +142,8 @@ private class LEDMatrixWriter {
 
         // Write matrix
         let matrixData = NSMutableData(bytes: matrixBytes, length: matrixBytes.count)
-        if firmwareVersion >= 0.1 {
-            let matrixAdditionalBytes: [UInt8] = [UInt8(min(max(brightness, 0.0), 1.0) * 255), UInt8(currentMatrixDisplayInterval * 10.0)]
-            matrixData.appendBytes(matrixAdditionalBytes, length: matrixAdditionalBytes.count)
-        }
+        let matrixAdditionalBytes = [UInt8(min(max(brightness, 0.0), 1.0) * 255), UInt8(currentMatrixDisplayInterval * 10.0)]
+        matrixData.appendBytes(matrixAdditionalBytes, length: matrixAdditionalBytes.count)
         peripheral.writeValue(matrixData, forCharacteristic: matrixCharacteristic, type: .WithResponse)
         isWaitingForMatrixWriteResponse = true
 
