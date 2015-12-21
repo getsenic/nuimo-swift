@@ -265,5 +265,16 @@ extension NuimoLEDMatrix {
         "    .    " +
         "         " +
         "    .    ")}
+
+    public static var bluetoothMatrix: NuimoLEDMatrix {return NuimoLEDMatrix(string:
+        "    *    " +
+        "    **   " +
+        "  * * *  " +
+        "   ***   " +
+        "    *    " +
+        "   ***   " +
+        "  * * *  " +
+        "    **   " +
+        "    *    ")}
 }
 
