@@ -22,7 +22,7 @@ If you haven't set up your project yet to use CocoaPods, please follow these ste
 ##### Add a dependency to the NuimoSwift SDK
 Edit your project's `Podfile` to add the following line:
 ```
-pod 'NuimoSwift'
+pod 'NuimoSwift', '~> 0.3.0'
 ```
 Then from a terminal within your project's root folder run:
 ```bash
@@ -73,7 +73,7 @@ class ViewController : UIViewController|NSViewController, NuimoDiscoveryDelegate
 
 #### A ready to checkout MacOS demo application
 
-We've provided a ready to checkout application that demonstrates discovering, connecting and receiving events from your Nuimo controllers. Simply clone the [Nuimo MacOS demo repository](https://github.com/getSenic/nuimo-swift-demo-osx) and run `pod install` before opening the project workspace. Hit the _Run_ button in Xcode to execute the application. Before that, make sure that the correct target `NuimoDemoOSX` is selected.
+We've provided a ready to checkout application that demonstrates discovering, connecting and receiving events from your Nuimo controllers. Simply clone the [Nuimo MacOS demo repository](https://github.com/getSenic/nuimo-swift-demo-osx), open the included Xcode workspace and hit the _Run_ button to execute the application. Before that, make sure that the correct target `NuimoDemoOSX` is selected.
 
 ## Advanced use cases
 The NuimoSwift SDK is much more powerful than the use cases presented above. More details to follow here soon.
