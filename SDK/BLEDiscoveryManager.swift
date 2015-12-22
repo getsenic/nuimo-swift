@@ -124,10 +124,8 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
             // When bluetooth turned on and discovery start had already been triggered before, start discovery now
             guard shouldStartDiscoveryWhenPowerStateTurnsOn else { break }
             discovery.startDiscovery(discoverServiceUUIDs, detectUnreachableControllers: detectUnreachableControllers)
-        case .PoweredOff:
-            break
         default:
-            // Invalidate all connections as state moved below .PoweredOff
+            // Invalidate all connections as bluetooth state is .PoweredOff or below
             deviceForPeripheral.values.forEach(invalidateDevice)
         }
     }
