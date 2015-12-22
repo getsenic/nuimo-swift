@@ -201,9 +201,7 @@ private class UnreachableDevicesDetector {
 
     @objc func removeUnreachableDevices() {
         // Remove unreachable devices if the discovery session was running at least for some time
-        guard let lastTimestamp = lastUnreachableDevicesRemovedTimestamp where NSDate().timeIntervalSinceDate(lastTimestamp) >= minDetectionInterval else {
-            return
-        }
+        guard let lastTimestamp = lastUnreachableDevicesRemovedTimestamp where NSDate().timeIntervalSinceDate(lastTimestamp) >= minDetectionInterval else { return }
         lastUnreachableDevicesRemovedTimestamp = NSDate()
 
         // All bluetooth devices found during the *previous* discovery session and not found during the currently running discovery session will assumed to be now unreachable
