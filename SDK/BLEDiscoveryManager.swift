@@ -102,19 +102,17 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
     private func invalidateDevice(device: BLEDevice) {
         device.invalidate()
         // Remove all peripherals associated with controller (there should be only one)
-        deviceForPeripheral.filter{ $0.1 == device }.forEach {
-            deviceForPeripheral.removeValueForKey($0.0)
-        }
+        deviceForPeripheral
+            .filter{ $0.1 == device }
+            .forEach { deviceForPeripheral.removeValueForKey($0.0) }
     }
 
     @objc func centralManager(central: CBCentralManager, willRestoreState state: [String : AnyObject]) {
         //TODO: Should work on OSX as well. http://stackoverflow.com/q/33210078/543875
         #if os(iOS)
-            if let peripherals = state[CBCentralManagerRestoredStatePeripheralsKey] as? [CBPeripheral] {
-                for peripheral in peripherals {
-                    centralManager(central, didDiscoverPeripheral: peripheral, advertisementData: [:], RSSI: 0)
-                }
-            }
+            // Restore discovered peripherals
+            guard let peripherals = state[CBCentralManagerRestoredStatePeripheralsKey] as? [CBPeripheral] else { return }
+            peripherals.forEach{ centralManager(central, didDiscoverPeripheral: $0, advertisementData: [:], RSSI: 0) }
         #endif
     }
 
