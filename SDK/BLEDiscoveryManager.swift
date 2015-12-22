@@ -33,6 +33,7 @@ public class BLEDiscoveryManager: NSObject {
     }
 
     // MARK: Methods to be overridden by subclass
+    //TODO: Implement as delegate methods. This class should not required to be sub classed.
 
     public func deviceWithPeripheral(peripheral: CBPeripheral) -> BLEDevice? {
         return nil
@@ -118,13 +119,15 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
     }
 
     @objc func centralManagerDidUpdateState(central: CBCentralManager) {
-        // If bluetooth turned on and discovery start had already been triggered before, start discovery now
-        if central.state == .PoweredOn && shouldStartDiscoveryWhenPowerStateTurnsOn {
+        switch central.state {
+        case .PoweredOn:
+            // When bluetooth turned on and discovery start had already been triggered before, start discovery now
+            guard shouldStartDiscoveryWhenPowerStateTurnsOn else { break }
             discovery.startDiscovery(discoverServiceUUIDs, detectUnreachableControllers: detectUnreachableControllers)
-        }
-
-        // Invalidate all connections when state moves below .PoweredOff as they are then invalid
-        if central.state.rawValue < CBCentralManagerState.PoweredOff.rawValue {
+        case .PoweredOff:
+            break
+        default:
+            // Invalidate all connections as state moved below .PoweredOff
             deviceForPeripheral.values.forEach(invalidateDevice)
         }
     }
@@ -204,10 +207,10 @@ private class UnreachableDevicesDetector {
         lastUnreachableDevicesRemovedTimestamp = NSDate()
 
         // All bluetooth devices found during the *previous* discovery session and not found during the currently running discovery session will assumed to be now unreachable
-        previouslyDiscoveredDevices.filter { previouslyDiscoveredController -> Bool in
-            return (previouslyDiscoveredController.peripheral.state == .Disconnected) &&
-                (currentlyDiscoveredDevices.filter{$0.uuid == previouslyDiscoveredController.uuid}).count == 0
-            }.forEach(discovery.invalidateDevice)
+        previouslyDiscoveredDevices
+            .filter { previouslyDiscoveredController -> Bool in
+                return (previouslyDiscoveredController.peripheral.state == .Disconnected) && (currentlyDiscoveredDevices.filter{$0.uuid == previouslyDiscoveredController.uuid}).count == 0 }
+            .forEach(discovery.invalidateDevice)
 
         // Rescan peripherals
         previouslyDiscoveredDevices = currentlyDiscoveredDevices
