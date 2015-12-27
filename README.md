@@ -1,7 +1,7 @@
 The Nuimo controller is an intuitive controller for your computer and connected smart devices. This document demonstrates how to integrate your iOS and MacOS applications with Nuimo controllers using the Nuimo Swift SDK.
 
 ## Installation
-[The Nuimo Swift SDK is available](https://cocoapods.org/pods/NuimoSwift) through [CocoaPods](https://cocoapods.org/), a very good dependency manager for Swift and Objective-C applications. (If you don't want to use CocoaPods just copy all `.swift` files from this repository into your Xcode project and skip to the next step.)
+[The Nuimo Swift SDK is available](https://cocoapods.org/pods/NuimoSwift) through [CocoaPods](https://cocoapods.org/), a very good dependency manager for Swift and Objective-C applications. (If you don't want to use CocoaPods just copy all `.swift` files from folder `SDK` into your Xcode project and skip to the next step.)
 
 ##### Prepare your project to use CocoaPods
 If you haven't set up your project yet to use CocoaPods, please follow these steps first:
