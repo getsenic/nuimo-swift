@@ -16,11 +16,13 @@ import CoreBluetooth
 */
 public class BLEDiscoveryManager: NSObject {
     public private(set) lazy var centralManager: CBCentralManager = self.discovery.centralManager
+    public var delegate: BLEDiscoveryDelegate?
 
     private let options: [String : AnyObject]
     private lazy var discovery: BLEDiscoveryManagerPrivate = BLEDiscoveryManagerPrivate(discovery: self, options: self.options)
 
-    public init(options: [String : AnyObject] = [:]) {
+    public init(delegate: BLEDiscoveryDelegate? = nil, options: [String : AnyObject] = [:]) {
+        self.delegate = delegate
         self.options = options
         super.init()
     }
@@ -32,28 +34,20 @@ public class BLEDiscoveryManager: NSObject {
     public func stopDiscovery() {
         discovery.stopDiscovery()
     }
+}
 
-    // MARK: Methods to be overridden by subclass
-    //TODO: Implement as delegate methods. This class should not required to be sub classed.
+public protocol BLEDiscoveryDelegate {
+    func bleDiscoveryManager(discovery: BLEDiscoveryManager, deviceWithPeripheral peripheral: CBPeripheral) -> BLEDevice?
 
-    public func deviceWithPeripheral(peripheral: CBPeripheral) -> BLEDevice? {
-        return nil
-    }
+    func bleDiscoveryManager(discovery: BLEDiscoveryManager, didInvalidateDevice device: BLEDevice)
 
-    public func didInvalidateDevice(device: BLEDevice) {
-    }
+    func bleDiscoveryManager(discovery: BLEDiscoveryManager, didDiscoverDevice device: BLEDevice)
 
-    public func didDiscoverDevice(device: BLEDevice) {
-    }
+    func bleDiscoveryManager(discovery: BLEDiscoveryManager, didConnectDevice device: BLEDevice)
 
-    public func didConnectDevice(device: BLEDevice) {
-    }
+    func bleDiscoveryManager(discovery: BLEDiscoveryManager, didFailToConnectDevice device: BLEDevice, error: NSError?)
 
-    public func didFailToConnectDevice(device: BLEDevice, error: NSError?) {
-    }
-
-    public func didDisconnectDevice(device: BLEDevice, error: NSError?) {
-    }
+    func bleDiscoveryManager(discovery: BLEDiscoveryManager, didDisconnectDevice device: BLEDevice, error: NSError?)
 }
 
 /**
@@ -135,10 +129,10 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
             // Work around a bug in OSX with custom USB BLE module where the same device is discovered multiple times although explicitly not wanted
             guard options[CBCentralManagerScanOptionAllowDuplicatesKey] === true || !deviceForPeripheral.keys.contains(peripheral) else { return }
         #endif
-        guard let device = discovery.deviceWithPeripheral(peripheral) else { return }
+        guard let device = discovery.delegate?.bleDiscoveryManager(discovery, deviceWithPeripheral: peripheral) else { return }
         deviceForPeripheral[peripheral] = device
         unreachableDevicesDetector.didFindDevice(device)
-        discovery.didDiscoverDevice(device)
+        discovery.delegate?.bleDiscoveryManager(discovery, didDiscoverDevice: device)
     }
 
     @objc func centralManager(central: CBCentralManager, didConnectPeripheral peripheral: CBPeripheral) {
@@ -147,7 +141,7 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
             return
         }
         device.didConnect()
-        discovery.didConnectDevice(device)
+        discovery.delegate?.bleDiscoveryManager(discovery, didConnectDevice: device)
     }
 
     @objc func centralManager(central: CBCentralManager, didFailToConnectPeripheral peripheral: CBPeripheral, error: NSError?) {
@@ -156,7 +150,7 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
             return
         }
         device.didFailToConnect(error)
-        discovery.didFailToConnectDevice(device, error: error)
+        discovery.delegate?.bleDiscoveryManager(discovery, didFailToConnectDevice: device, error: error)
     }
 
     @objc func centralManager(central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: NSError?) {
@@ -169,7 +163,7 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
             // Device probably went offline
             invalidateDevice(device)
         }
-        discovery.didDisconnectDevice(device, error: error)
+        discovery.delegate?.bleDiscoveryManager(discovery, didDisconnectDevice: device, error: error)
     }
 }
 

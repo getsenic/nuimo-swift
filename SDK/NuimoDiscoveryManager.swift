@@ -14,7 +14,7 @@ public let NuimoDiscoveryManagerAutoDetectUnreachableControllersKey = "NuimoDisc
 public let NuimoDiscoveryManagerWebSocketControllerURLsKey = "NuimoDiscoveryManagerWebSocketControllerURLs"
 
 // Allows for discovering Nuimo BLE hardware controllers and virtual (websocket) controllers
-public class NuimoDiscoveryManager: BLEDiscoveryManager {
+public class NuimoDiscoveryManager: NSObject, BLEDiscoveryDelegate {
     
     public static let sharedManager = NuimoDiscoveryManager()
     
@@ -22,10 +22,14 @@ public class NuimoDiscoveryManager: BLEDiscoveryManager {
     public var webSocketControllerURLs: [String]
     public var detectUnreachableControllers: Bool
 
+    private let options: [String : AnyObject]
+    private lazy var bleDiscovery: BLEDiscoveryManager = BLEDiscoveryManager(delegate: self, options: self.options)
+
     public init(delegate: NuimoDiscoveryDelegate? = nil, options: [String : AnyObject] = [:]) {
+        self.options = options
         webSocketControllerURLs = options[NuimoDiscoveryManagerWebSocketControllerURLsKey] as? [String] ?? []
         detectUnreachableControllers = options[NuimoDiscoveryManagerAutoDetectUnreachableControllersKey] as? Bool ?? false
-        super.init(options: options)
+        super.init()
         self.delegate = delegate
     }
     
@@ -37,31 +41,35 @@ public class NuimoDiscoveryManager: BLEDiscoveryManager {
         }
         #endif
 
-        super.startDiscovery(nuimoServiceUUIDs, detectUnreachableControllers: detectUnreachableControllers)
+        bleDiscovery.startDiscovery(nuimoServiceUUIDs, detectUnreachableControllers: detectUnreachableControllers)
     }
 
-    override public func deviceWithPeripheral(peripheral: CBPeripheral) -> BLEDevice? {
+    public func stopDiscovery() {
+        bleDiscovery.stopDiscovery()
+    }
+
+    public func bleDiscoveryManager(discovery: BLEDiscoveryManager, deviceWithPeripheral peripheral: CBPeripheral) -> BLEDevice? {
         guard peripheral.name == "Nuimo" else { return nil }
-        return NuimoBluetoothController(centralManager: centralManager, uuid: peripheral.identifier.UUIDString, peripheral: peripheral)
+        return NuimoBluetoothController(centralManager: bleDiscovery.centralManager, uuid: peripheral.identifier.UUIDString, peripheral: peripheral)
     }
 
-    override public func didInvalidateDevice(device: BLEDevice) {
+    public func bleDiscoveryManager(discovery: BLEDiscoveryManager, didInvalidateDevice device: BLEDevice) {
         delegate?.nuimoDiscoveryManager?(self, didInvalidateController: device as! NuimoController)
     }
     
-    override public func didDiscoverDevice(device: BLEDevice) {
+    public func bleDiscoveryManager(discovery: BLEDiscoveryManager, didDiscoverDevice device: BLEDevice) {
         delegate?.nuimoDiscoveryManager(self, didDiscoverNuimoController: device as! NuimoController)
     }
 
-    override public func didConnectDevice(device: BLEDevice) {
+    public func bleDiscoveryManager(discovery: BLEDiscoveryManager, didConnectDevice device: BLEDevice) {
         delegate?.nuimoDiscoveryManager?(self, didConnectNuimoController: device as! NuimoController)
     }
 
-    override public func didFailToConnectDevice(device: BLEDevice, error: NSError?) {
+    public func bleDiscoveryManager(discovery: BLEDiscoveryManager, didFailToConnectDevice device: BLEDevice, error: NSError?) {
         delegate?.nuimoDiscoveryManager?(self, didFailToConnectNuimoController: device as! NuimoController, error: error)
     }
 
-    override public func didDisconnectDevice(device: BLEDevice, error: NSError?) {
+    public func bleDiscoveryManager(discovery: BLEDiscoveryManager, didDisconnectDevice device: BLEDevice, error: NSError?) {
         delegate?.nuimoDiscoveryManager?(self, didDisconnectNuimoController: device as! NuimoController, error: error)
     }
 }
