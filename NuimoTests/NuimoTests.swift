@@ -14,12 +14,7 @@ class NuimoTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-    }
-    
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-        super.tearDown()
+        continueAfterFailure = false
     }
     
     func testDiscoveryManagerDiscoversNuimoController() {
@@ -31,6 +26,26 @@ class NuimoTests: XCTestCase {
         })
         discovery.startDiscovery()
         waitForExpectationsWithTimeout(10.0) {_ in discovery.stopDiscovery() }
+    }
+
+    func testDiscoveryManagerDiscoversSameNuimoControllerOnlyOnce() {
+        continueAfterFailure = false
+        let expectation = expectationWithDescription("Discovery manager should discovery same nuimo controller only once")
+        var controllers = [String]()
+        let discovery = NuimoDiscoveryManager()
+        discovery.delegate = NuimoDiscoveryDelegateClosures(onDiscoverController: {
+            print("Found \($0.uuid)")
+            XCTAssertFalse(controllers.contains($0.uuid))
+            controllers.append($0.uuid)
+        })
+        discovery.startDiscovery()
+        after(19.0) {
+            expectation.fulfill()
+        }
+        waitForExpectationsWithTimeout(20.0) {_ in
+            discovery.stopDiscovery()
+        }
+        continueAfterFailure = true
     }
 
     func testNuimoControllerConnects() {
