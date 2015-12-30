@@ -77,7 +77,7 @@ class NuimoTests: XCTestCase {
             discovery.stopDiscovery()
             var frameIndex = 0
             let displayFrame = {
-                controller.writeMatrix(NuimoLEDMatrix(string: String(count: frameIndex < 81 ? (frameIndex + 1) : (frameIndex % 2 == 0 ? 0 : 81), repeatedValue: Character("*"))), interval: 5.0)
+                controller.writeMatrix(NuimoLEDMatrix(string: String(count: (frameIndex % 81) + 1, repeatedValue: Character("*"))), interval: 5.0)
             }
             controller.delegate = NuimoControllerDelegateClosures(
                 onConnect: {
