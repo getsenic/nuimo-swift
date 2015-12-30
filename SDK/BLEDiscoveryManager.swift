@@ -15,21 +15,22 @@ import CoreBluetooth
     Automatically re-starts discovery if bluetooth was disabled for a previous discovery.
 */
 public class BLEDiscoveryManager: NSObject {
-    public private(set) lazy var centralManager: CBCentralManager = self.discovery!.centralManager!
+    public private(set) lazy var centralManager: CBCentralManager = self.discovery.centralManager
 
-    private var discovery: BLEDiscoveryManagerPrivate? = nil
+    private let options: [String : AnyObject]
+    private lazy var discovery: BLEDiscoveryManagerPrivate = BLEDiscoveryManagerPrivate(discovery: self, options: self.options)
 
     public init(options: [String : AnyObject] = [:]) {
+        self.options = options
         super.init()
-        self.discovery = BLEDiscoveryManagerPrivate(discovery: self, options: options)
     }
 
     public func startDiscovery(discoverServiceUUIDs: [CBUUID], detectUnreachableControllers: Bool) {
-        discovery!.startDiscovery(discoverServiceUUIDs, detectUnreachableControllers: detectUnreachableControllers)
+        discovery.startDiscovery(discoverServiceUUIDs, detectUnreachableControllers: detectUnreachableControllers)
     }
 
     public func stopDiscovery() {
-        discovery!.stopDiscovery()
+        discovery.stopDiscovery()
     }
 
     // MARK: Methods to be overridden by subclass
@@ -61,7 +62,8 @@ public class BLEDiscoveryManager: NSObject {
 */
 private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
     let discovery: BLEDiscoveryManager
-    var centralManager: CBCentralManager? = nil
+    let options: [String : AnyObject]
+    lazy var centralManager: CBCentralManager = CBCentralManager(delegate: self, queue: nil, options: self.options)
     var discoverServiceUUIDs = [CBUUID]()
     var shouldStartDiscoveryWhenPowerStateTurnsOn = false
     var deviceForPeripheral = [CBPeripheral : BLEDevice]()
@@ -70,8 +72,8 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
 
     init(discovery: BLEDiscoveryManager, options: [String : AnyObject]) {
         self.discovery = discovery
+        self.options = options
         super.init()
-        self.centralManager = CBCentralManager(delegate: self, queue: nil, options: options)
     }
 
     func startDiscovery(discoverServiceUUIDs: [CBUUID], detectUnreachableControllers: Bool) {
@@ -79,8 +81,8 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
         self.detectUnreachableControllers = detectUnreachableControllers
         self.shouldStartDiscoveryWhenPowerStateTurnsOn = true
 
-        guard centralManager?.state == .PoweredOn else { return }
-        centralManager?.scanForPeripheralsWithServices(discoverServiceUUIDs, options: nil)
+        guard centralManager.state == .PoweredOn else { return }
+        centralManager.scanForPeripheralsWithServices(discoverServiceUUIDs, options: nil)
 
         unreachableDevicesDetector.stop()
         if detectUnreachableControllers {
@@ -90,12 +92,12 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
     }
 
     func restartDiscovery() {
-        centralManager!.scanForPeripheralsWithServices(discoverServiceUUIDs, options: nil)
+        centralManager.scanForPeripheralsWithServices(discoverServiceUUIDs, options: nil)
     }
 
     func stopDiscovery() {
         unreachableDevicesDetector.stop()
-        centralManager?.stopScan()
+        centralManager.stopScan()
         shouldStartDiscoveryWhenPowerStateTurnsOn = false
     }
 
@@ -167,6 +169,9 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
     }
 }
 
+/**
+    Detects, while in discovery mode, which devices went offline by regularly restarting the discovery.
+ */
 private class UnreachableDevicesDetector {
     // Minimum interval to wait before a device is considered to be unreachable
     private let minDetectionInterval: NSTimeInterval = 5.0
