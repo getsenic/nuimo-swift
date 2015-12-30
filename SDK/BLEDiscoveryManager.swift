@@ -82,7 +82,7 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
         self.shouldStartDiscoveryWhenPowerStateTurnsOn = true
 
         guard centralManager.state == .PoweredOn else { return }
-        centralManager.scanForPeripheralsWithServices(discoverServiceUUIDs, options: options)
+        startDiscovery()
 
         unreachableDevicesDetector.stop()
         if detectUnreachableControllers {
@@ -91,7 +91,7 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
         }
     }
 
-    func restartDiscovery() {
+    func startDiscovery() {
         centralManager.scanForPeripheralsWithServices(discoverServiceUUIDs, options: options)
     }
 
@@ -218,7 +218,7 @@ private class UnreachableDevicesDetector {
         // Rescan peripherals
         previouslyDiscoveredDevices = currentlyDiscoveredDevices
         currentlyDiscoveredDevices = Set()
-        discovery.restartDiscovery()
+        discovery.startDiscovery()
     }
 
     func didFindDevice(device: BLEDevice) {
