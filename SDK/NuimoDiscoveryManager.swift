@@ -17,6 +17,7 @@ public let NuimoDiscoveryManagerWebSocketControllerURLsKey = "NuimoDiscoveryMana
 public class NuimoDiscoveryManager: NSObject, BLEDiscoveryDelegate {
     
     public static let sharedManager = NuimoDiscoveryManager()
+    public private (set) lazy var centralManager: CBCentralManager = self.bleDiscovery.centralManager
     
     public var delegate: NuimoDiscoveryDelegate?
     public var webSocketControllerURLs: [String]
