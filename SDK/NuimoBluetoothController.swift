@@ -220,8 +220,12 @@ private let nuimoNotificationCharacteristicnUUIDs = [
 private extension NuimoGestureEvent {
     convenience init(gattFlyData data: NSData) {
         let bytes = UnsafePointer<UInt8>(data.bytes)
-        let directionByte = bytes.memory
-        let gesture = flyGestureForDirectionByte[directionByte] ?? .Undefined
+        //TODO: Firmware shall encode direction in first byte
+        let speedByte = bytes.memory
+        let directionByte = bytes.advancedBy(1).memory
+        print("direction byte: \(directionByte)")
+        print("speed byte: \(speedByte)")
+        let gesture: NuimoGesture = [0 : .FlyLeft, 1 : .FlyRight, 2 : .FlyBackwards, 3 : .FlyTowards][directionByte] ?? .Undefined
         //TODO: Support fly up/down events
         self.init(gesture: gesture, value: nil)
     }
@@ -267,8 +271,6 @@ private extension NuimoGestureEvent {
         self.init(gesture: value == 1 ? .ButtonPress : .ButtonRelease, value: value)
     }
 }
-
-private let flyGestureForDirectionByte: [UInt8 : NuimoGesture] = [1 : .FlyLeft, 2 : .FlyRight, 3 : .FlyAway, 4 : .FlyTowards]
 
 //MARK: Matrix string to byte array conversion
 

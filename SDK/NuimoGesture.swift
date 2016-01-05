@@ -30,8 +30,8 @@
     SwipeDown,
     FlyLeft,
     FlyRight,
+    FlyBackwards,
     FlyTowards,
-    FlyAway,
     FlyUp,
     FlyDown
     
@@ -77,8 +77,8 @@ private let identifierForGesture: [NuimoGesture : String] = [
     .SwipeDown          : "SwipeDown",
     .FlyLeft            : "FlyLeft",
     .FlyRight           : "FlyRight",
+    .FlyBackwards       : "FlyBackwards",
     .FlyTowards         : "FlyTowards",
-    .FlyAway            : "FlyAway",
     .FlyUp              : "FlyUp",
     .FlyDown            : "FlyDown"
 ]
