@@ -97,6 +97,7 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
 
     private func invalidateDevice(device: BLEDevice) {
         device.invalidate()
+        discovery.delegate?.bleDiscoveryManager(discovery, didInvalidateDevice: device)
         // Remove all peripherals associated with controller (there should be only one)
         deviceForPeripheral
             .filter{ $0.1 == device }
