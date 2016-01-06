@@ -225,7 +225,8 @@ private extension NuimoGestureEvent {
         let directionByte = bytes.advancedBy(1).memory
         print("direction byte: \(directionByte)")
         print("speed byte: \(speedByte)")
-        let gesture: NuimoGesture = [0 : .FlyLeft, 1 : .FlyRight, 2 : .FlyBackwards, 3 : .FlyTowards][directionByte] ?? .Undefined
+        //TODO: When firmware bug is fixed fallback to .Undefined gesture
+        let gesture: NuimoGesture = [0 : .FlyLeft, 1 : .FlyRight, 2 : .FlyBackwards, 3 : .FlyTowards][directionByte] ?? .FlyRight //.Undefined
         //TODO: Support fly up/down events
         self.init(gesture: gesture, value: nil)
     }
