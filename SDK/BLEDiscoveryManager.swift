@@ -43,6 +43,8 @@ public protocol BLEDiscoveryDelegate {
 
     func bleDiscoveryManager(discovery: BLEDiscoveryManager, didDiscoverDevice device: BLEDevice)
 
+    func bleDiscoveryManager(discovery: BLEDiscoveryManager, didRestoreDevice device: BLEDevice)
+
     func bleDiscoveryManager(discovery: BLEDiscoveryManager, didConnectDevice device: BLEDevice)
 
     func bleDiscoveryManager(discovery: BLEDiscoveryManager, didFailToConnectDevice device: BLEDevice, error: NSError?)
@@ -61,6 +63,7 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
     var discoverServiceUUIDs = [CBUUID]()
     var shouldStartDiscoveryWhenPowerStateTurnsOn = false
     var deviceForPeripheral = [CBPeripheral : BLEDevice]()
+    var restoredConnectedPeripherals: [CBPeripheral]?
     var detectUnreachableControllers = false
     lazy var unreachableDevicesDetector: UnreachableDevicesDetector = UnreachableDevicesDetector(discovery: self)
 
@@ -107,18 +110,19 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
     @objc func centralManager(central: CBCentralManager, willRestoreState state: [String : AnyObject]) {
         //TODO: Should work on OSX as well. http://stackoverflow.com/q/33210078/543875
         #if os(iOS)
-            // Restore discovered peripherals
-            guard let peripherals = state[CBCentralManagerRestoredStatePeripheralsKey] as? [CBPeripheral] else { return }
-            peripherals.forEach{ centralManager(central, didDiscoverPeripheral: $0, advertisementData: [:], RSSI: 0) }
+            restoredConnectedPeripherals = (state[CBCentralManagerRestoredStatePeripheralsKey] as? [CBPeripheral])?.filter{ $0.state == .Connected }
         #endif
     }
 
     @objc func centralManagerDidUpdateState(central: CBCentralManager) {
         switch central.state {
         case .PoweredOn:
+            restoredConnectedPeripherals?.forEach{ centralManager(central, didRestorePeripheral: $0) }
+            restoredConnectedPeripherals = nil
             // When bluetooth turned on and discovery start had already been triggered before, start discovery now
-            guard shouldStartDiscoveryWhenPowerStateTurnsOn else { break }
-            discovery.startDiscovery(discoverServiceUUIDs, detectUnreachableControllers: detectUnreachableControllers)
+            shouldStartDiscoveryWhenPowerStateTurnsOn
+                ? discovery.startDiscovery(discoverServiceUUIDs, detectUnreachableControllers: detectUnreachableControllers)
+                : ()
         default:
             // Invalidate all connections as bluetooth state is .PoweredOff or below
             deviceForPeripheral.values.forEach(invalidateDevice)
@@ -134,6 +138,13 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
         deviceForPeripheral[peripheral] = device
         unreachableDevicesDetector.didFindDevice(device)
         discovery.delegate?.bleDiscoveryManager(discovery, didDiscoverDevice: device)
+    }
+
+    func centralManager(central: CBCentralManager, didRestorePeripheral peripheral: CBPeripheral) {
+        guard let device = discovery.delegate?.bleDiscoveryManager(discovery, deviceWithPeripheral: peripheral) else { return }
+        deviceForPeripheral[peripheral] = device
+        device.didRestore()
+        discovery.delegate?.bleDiscoveryManager(discovery, didRestoreDevice: device)
     }
 
     @objc func centralManager(central: CBCentralManager, didConnectPeripheral peripheral: CBPeripheral) {

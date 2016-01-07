@@ -31,8 +31,8 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
     }
     
     public override func didConnect() {
-        super.didConnect()
         matrixWriter = nil
+        super.didConnect()
         //TODO: When the matrix characteristic is being found, didConnect() is fired. But if matrix characteristic is not found, didFailToConnect() should be fired instead!
     }
     

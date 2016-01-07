@@ -46,6 +46,11 @@ public class BLEDevice: NSObject, CBPeripheralDelegate {
     public func didFailToConnect(error: NSError?) {
     }
 
+    public func didRestore() {
+        //TODO: We might want to check first if re-discovering services is not necessary, this is when all services and characteristics and notification subscriptions are present
+        peripheral.discoverServices(serviceUUIDs)
+    }
+
     public func disconnect() {
         guard peripheral.state == .Connected else { return }
         centralManager.cancelPeripheralConnection(peripheral)

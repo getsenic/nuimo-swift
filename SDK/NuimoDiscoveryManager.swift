@@ -62,6 +62,10 @@ public class NuimoDiscoveryManager: NSObject, BLEDiscoveryDelegate {
         delegate?.nuimoDiscoveryManager(self, didDiscoverNuimoController: device as! NuimoController)
     }
 
+    public func bleDiscoveryManager(discovery: BLEDiscoveryManager, didRestoreDevice device: BLEDevice) {
+        delegate?.nuimoDiscoveryManager?(self, didRestoreNuimoController: device as! NuimoController)
+    }
+
     public func bleDiscoveryManager(discovery: BLEDiscoveryManager, didConnectDevice device: BLEDevice) {
         delegate?.nuimoDiscoveryManager?(self, didConnectNuimoController: device as! NuimoController)
     }
@@ -77,6 +81,7 @@ public class NuimoDiscoveryManager: NSObject, BLEDiscoveryDelegate {
 
 @objc public protocol NuimoDiscoveryDelegate {
     func nuimoDiscoveryManager(discovery: NuimoDiscoveryManager, didDiscoverNuimoController controller: NuimoController)
+    optional func nuimoDiscoveryManager(discovery: NuimoDiscoveryManager, didRestoreNuimoController controller: NuimoController)
     optional func nuimoDiscoveryManager(discovery: NuimoDiscoveryManager, didConnectNuimoController controller: NuimoController)
     optional func nuimoDiscoveryManager(discovery: NuimoDiscoveryManager, didFailToConnectNuimoController controller: NuimoController, error: NSError?)
     optional func nuimoDiscoveryManager(discovery: NuimoDiscoveryManager, didDisconnectNuimoController controller: NuimoController, error: NSError?)
