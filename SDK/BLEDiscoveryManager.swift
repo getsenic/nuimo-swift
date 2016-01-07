@@ -39,8 +39,6 @@ public class BLEDiscoveryManager: NSObject {
 public protocol BLEDiscoveryDelegate {
     func bleDiscoveryManager(discovery: BLEDiscoveryManager, deviceWithPeripheral peripheral: CBPeripheral) -> BLEDevice?
 
-    func bleDiscoveryManager(discovery: BLEDiscoveryManager, didInvalidateDevice device: BLEDevice)
-
     func bleDiscoveryManager(discovery: BLEDiscoveryManager, didDiscoverDevice device: BLEDevice)
 
     func bleDiscoveryManager(discovery: BLEDiscoveryManager, didRestoreDevice device: BLEDevice)
@@ -50,6 +48,8 @@ public protocol BLEDiscoveryDelegate {
     func bleDiscoveryManager(discovery: BLEDiscoveryManager, didFailToConnectDevice device: BLEDevice, error: NSError?)
 
     func bleDiscoveryManager(discovery: BLEDiscoveryManager, didDisconnectDevice device: BLEDevice, error: NSError?)
+
+    func bleDiscoveryManager(discovery: BLEDiscoveryManager, didInvalidateDevice device: BLEDevice)
 }
 
 /**

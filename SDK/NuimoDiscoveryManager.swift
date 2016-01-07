@@ -54,10 +54,6 @@ public class NuimoDiscoveryManager: NSObject, BLEDiscoveryDelegate {
         return NuimoBluetoothController(centralManager: bleDiscovery.centralManager, uuid: peripheral.identifier.UUIDString, peripheral: peripheral)
     }
 
-    public func bleDiscoveryManager(discovery: BLEDiscoveryManager, didInvalidateDevice device: BLEDevice) {
-        delegate?.nuimoDiscoveryManager?(self, didInvalidateController: device as! NuimoController)
-    }
-    
     public func bleDiscoveryManager(discovery: BLEDiscoveryManager, didDiscoverDevice device: BLEDevice) {
         delegate?.nuimoDiscoveryManager(self, didDiscoverNuimoController: device as! NuimoController)
     }
@@ -76,6 +72,10 @@ public class NuimoDiscoveryManager: NSObject, BLEDiscoveryDelegate {
 
     public func bleDiscoveryManager(discovery: BLEDiscoveryManager, didDisconnectDevice device: BLEDevice, error: NSError?) {
         delegate?.nuimoDiscoveryManager?(self, didDisconnectNuimoController: device as! NuimoController, error: error)
+    }
+
+    public func bleDiscoveryManager(discovery: BLEDiscoveryManager, didInvalidateDevice device: BLEDevice) {
+        delegate?.nuimoDiscoveryManager?(self, didInvalidateController: device as! NuimoController)
     }
 }
 
