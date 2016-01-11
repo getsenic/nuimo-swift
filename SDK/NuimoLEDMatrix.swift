@@ -35,7 +35,7 @@ public class NuimoLEDMatrix: NSObject {
         let string = (0..<9)
             .reverse()
             .map{progress > Double($0) / 9.0 ? "   ...   " : "         "}
-            .reduce(""){(s: String, row: String) in s + row}
+            .reduce("", combine: +)
         self.init(string: string)
     }
     
@@ -47,7 +47,7 @@ public class NuimoLEDMatrix: NSObject {
             .map{$0.element
                 .substringToIndex($0.element.startIndex.advancedBy(width))
                 .stringByPaddingToLength(9, withString: " ", startingAtIndex: 0)}
-            .reduce(""){(s: String, row: String) in s + row}
+            .reduce("", combine: +)
         self.init(string: string)
     }
 }
