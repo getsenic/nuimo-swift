@@ -220,9 +220,8 @@ private let nuimoNotificationCharacteristicnUUIDs = [
 private extension NuimoGestureEvent {
     convenience init(gattFlyData data: NSData) {
         let bytes = UnsafePointer<UInt8>(data.bytes)
-        //TODO: Firmware shall encode direction in first byte
-        let speedByte = bytes.memory
-        let directionByte = bytes.advancedBy(1).memory
+        let directionByte = bytes.memory
+        let speedByte = bytes.advancedBy(1).memory
         print("direction byte: \(directionByte)")
         print("speed byte: \(speedByte)")
         //TODO: When firmware bug is fixed fallback to .Undefined gesture
