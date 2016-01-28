@@ -20,14 +20,12 @@ public class NuimoDiscoveryManager: NSObject, BLEDiscoveryDelegate {
     public private (set) lazy var centralManager: CBCentralManager = self.bleDiscovery.centralManager
     
     public var delegate: NuimoDiscoveryDelegate?
-    public var detectUnreachableControllers: Bool
 
     private let options: [String : AnyObject]
     private lazy var bleDiscovery: BLEDiscoveryManager = BLEDiscoveryManager(delegate: self, options: self.options)
 
     public init(delegate: NuimoDiscoveryDelegate? = nil, options: [String : AnyObject] = [:]) {
         self.options = options
-        detectUnreachableControllers = options[NuimoDiscoveryManagerAutoDetectUnreachableControllersKey] as? Bool ?? false
         super.init()
         self.delegate = delegate
     }
@@ -40,6 +38,7 @@ public class NuimoDiscoveryManager: NSObject, BLEDiscoveryDelegate {
         }
         #endif
 
+        let detectUnreachableControllers = options[NuimoDiscoveryManagerAutoDetectUnreachableControllersKey] as? Bool ?? false
         bleDiscovery.startDiscovery(nuimoServiceUUIDs, detectUnreachableControllers: detectUnreachableControllers)
     }
 
