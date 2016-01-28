@@ -20,7 +20,6 @@ public class NuimoDiscoveryManager: NSObject, BLEDiscoveryDelegate {
     public private (set) lazy var centralManager: CBCentralManager = self.bleDiscovery.centralManager
     
     public var delegate: NuimoDiscoveryDelegate?
-    public var webSocketControllerURLs: [String]
     public var detectUnreachableControllers: Bool
 
     private let options: [String : AnyObject]
@@ -28,7 +27,6 @@ public class NuimoDiscoveryManager: NSObject, BLEDiscoveryDelegate {
 
     public init(delegate: NuimoDiscoveryDelegate? = nil, options: [String : AnyObject] = [:]) {
         self.options = options
-        webSocketControllerURLs = options[NuimoDiscoveryManagerWebSocketControllerURLsKey] as? [String] ?? []
         detectUnreachableControllers = options[NuimoDiscoveryManagerAutoDetectUnreachableControllersKey] as? Bool ?? false
         super.init()
         self.delegate = delegate
@@ -37,7 +35,7 @@ public class NuimoDiscoveryManager: NSObject, BLEDiscoveryDelegate {
     public func startDiscovery() {
         // Discover websocket controllers
         #if NUIMO_USE_WEBSOCKETS
-        webSocketControllerURLs.forEach {
+        (options[NuimoDiscoveryManagerWebSocketControllerURLsKey] as? [String])?.forEach {
             delegate?.nuimoDiscoveryManager(self, didDiscoverNuimoController: NuimoWebSocketController(url: $0))
         }
         #endif
