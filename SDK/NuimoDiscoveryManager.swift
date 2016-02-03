@@ -48,8 +48,8 @@ public class NuimoDiscoveryManager: NSObject, BLEDiscoveryDelegate {
         bleDiscovery.stopDiscovery()
     }
 
-    public func bleDiscoveryManager(discovery: BLEDiscoveryManager, deviceWithPeripheral peripheral: CBPeripheral) -> BLEDevice? {
-        guard peripheral.name == "Nuimo" else { return nil }
+    public func bleDiscoveryManager(discovery: BLEDiscoveryManager, deviceWithPeripheral peripheral: CBPeripheral, advertisementData: [String : AnyObject]?) -> BLEDevice? {
+        guard peripheral.name == "Nuimo" || advertisementData?[CBAdvertisementDataLocalNameKey] as? String == "Nuimo" else { return nil }
         return NuimoBluetoothController(centralManager: bleDiscovery.centralManager, uuid: peripheral.identifier.UUIDString, peripheral: peripheral)
     }
 
