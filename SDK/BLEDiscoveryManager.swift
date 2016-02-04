@@ -130,10 +130,8 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
     }
 
     @objc func centralManager(central: CBCentralManager, didDiscoverPeripheral peripheral: CBPeripheral, advertisementData: [String : AnyObject], RSSI: NSNumber) {
-        #if os(OSX)
-            // Work around a bug in OSX with custom USB BLE module where the same device is discovered multiple times although explicitly not wanted
-            guard options[CBCentralManagerScanOptionAllowDuplicatesKey] === true || !deviceForPeripheral.keys.contains(peripheral) else { return }
-        #endif
+        // Prevent devices from being discovered multiple times. iOS devices in peripheral role are also discovered multiple times.
+        guard options[CBCentralManagerScanOptionAllowDuplicatesKey] === true || !deviceForPeripheral.keys.contains(peripheral) else { return }
         guard let device = discovery.delegate?.bleDiscoveryManager(discovery, deviceWithPeripheral: peripheral, advertisementData: advertisementData) else { return }
         deviceForPeripheral[peripheral] = device
         unreachableDevicesDetector.didFindDevice(device)
