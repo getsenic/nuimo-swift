@@ -11,7 +11,6 @@
 import CoreBluetooth
 
 public let NuimoDiscoveryManagerAutoDetectUnreachableControllersKey = "NuimoDiscoveryManagerAutoDetectUnreachableControllers"
-public let NuimoDiscoveryManagerWebSocketControllerURLsKey = "NuimoDiscoveryManagerWebSocketControllerURLs"
 public let NuimoDiscoveryManagerAdditionalDiscoverServiceUUIDsKey = "NuimoDiscoveryManagerAdditionalDiscoverServiceUUIDs"
 
 // Allows for discovering Nuimo BLE hardware controllers and virtual (websocket) controllers
@@ -32,13 +31,6 @@ public class NuimoDiscoveryManager: NSObject, BLEDiscoveryDelegate {
     }
     
     public func startDiscovery() {
-        // Discover websocket controllers
-        #if NUIMO_USE_WEBSOCKETS
-        (options[NuimoDiscoveryManagerWebSocketControllerURLsKey] as? [String])?.forEach {
-            delegate?.nuimoDiscoveryManager(self, didDiscoverNuimoController: NuimoWebSocketController(url: $0))
-        }
-        #endif
-
         let detectUnreachableControllers = options[NuimoDiscoveryManagerAutoDetectUnreachableControllersKey] as? Bool ?? false
         let additionalDiscoverServiceUUIDs = options[NuimoDiscoveryManagerAdditionalDiscoverServiceUUIDsKey] as? [CBUUID] ?? []
         bleDiscovery.startDiscovery(nuimoServiceUUIDs + additionalDiscoverServiceUUIDs, detectUnreachableControllers: detectUnreachableControllers)

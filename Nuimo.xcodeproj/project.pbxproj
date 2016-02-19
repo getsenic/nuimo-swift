@@ -18,7 +18,6 @@
 		46FB8EAD1C1B086600ED88DE /* NuimoGesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46FB8EA31C1B086600ED88DE /* NuimoGesture.swift */; };
 		46FB8EAE1C1B086600ED88DE /* NuimoGestureEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46FB8EA41C1B086600ED88DE /* NuimoGestureEvent.swift */; };
 		46FB8EAF1C1B086600ED88DE /* NuimoLEDMatrix.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46FB8EA51C1B086600ED88DE /* NuimoLEDMatrix.swift */; };
-		46FB8EB01C1B086600ED88DE /* NuimoWebSocketController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46FB8EA71C1B086600ED88DE /* NuimoWebSocketController.swift */; };
 		4E70E7BE741DC57CFD83968D /* Pods.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6F56754F7BEEA5425C497D7F /* Pods.framework */; };
 /* End PBXBuildFile section */
 
@@ -48,7 +47,6 @@
 		46FB8EA31C1B086600ED88DE /* NuimoGesture.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NuimoGesture.swift; sourceTree = "<group>"; };
 		46FB8EA41C1B086600ED88DE /* NuimoGestureEvent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NuimoGestureEvent.swift; sourceTree = "<group>"; };
 		46FB8EA51C1B086600ED88DE /* NuimoLEDMatrix.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NuimoLEDMatrix.swift; sourceTree = "<group>"; };
-		46FB8EA71C1B086600ED88DE /* NuimoWebSocketController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NuimoWebSocketController.swift; sourceTree = "<group>"; };
 		6F56754F7BEEA5425C497D7F /* Pods.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8F8EEB89589377F962BD46B2 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -123,17 +121,8 @@
 				46FB8EA31C1B086600ED88DE /* NuimoGesture.swift */,
 				46FB8EA41C1B086600ED88DE /* NuimoGestureEvent.swift */,
 				46FB8EA51C1B086600ED88DE /* NuimoLEDMatrix.swift */,
-				46FB8EA61C1B086600ED88DE /* WebSocket */,
 			);
 			path = SDK;
-			sourceTree = "<group>";
-		};
-		46FB8EA61C1B086600ED88DE /* WebSocket */ = {
-			isa = PBXGroup;
-			children = (
-				46FB8EA71C1B086600ED88DE /* NuimoWebSocketController.swift */,
-			);
-			path = WebSocket;
 			sourceTree = "<group>";
 		};
 		8F99C384716A98A956BDE19D /* Pods */ = {
@@ -305,7 +294,6 @@
 				46FB8EA91C1B086600ED88DE /* BLEDiscoveryManager.swift in Sources */,
 				46FB8EAE1C1B086600ED88DE /* NuimoGestureEvent.swift in Sources */,
 				46FB8EA81C1B086600ED88DE /* BLEDevice.swift in Sources */,
-				46FB8EB01C1B086600ED88DE /* NuimoWebSocketController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

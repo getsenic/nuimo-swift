@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "NuimoSwift"
-  s.version      = "0.3.2"
+  s.version      = "0.3.3"
   s.summary      = "Swift library for connecting and communicating with Senic's Nuimo controllers"
   s.description  = <<-DESC
                      Swift library for connecting and communicating with Senic's Nuimo controllers
@@ -17,21 +17,7 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = "8.0"
   s.osx.deployment_target = "10.9"
 
-  s.source       = { :git => "https://github.com/getSenic/nuimo-swift.git", :tag => s.version }
+  s.source       = { :git => "https://github.com/getSenic/nuimo-swift.git", :tag => "v#{s.version}" }
   s.framework    = 'CoreBluetooth'
-  s.default_subspec = 'Core'
-
-  s.subspec 'Core' do |c|
-    # Default sub spec for users who don't need the WebSockets feature
-    c.source_files = "SDK/*.swift"
-  end
-
-  s.subspec 'WebSockets' do |ws|
-    ws.ios.deployment_target = "8.0"
-    ws.osx.deployment_target = "10.9"
-    ws.source_files = "SDK/WebSocket/*.swift"
-    ws.xcconfig = { 'OTHER_SWIFT_FLAGS' => '$(inherited) -DNUIMO_USE_WEBSOCKETS' }
-    ws.dependency 'NuimoSwift/Core'
-    ws.dependency "SwiftWebSocket"
-  end
+  s.source_files = "SDK/*.swift"
 end
