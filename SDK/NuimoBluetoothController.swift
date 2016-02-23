@@ -14,7 +14,7 @@ import CoreBluetooth
 //TODO: Internalize CBPeripheralDelegate implementation
 public class NuimoBluetoothController: BLEDevice, NuimoController {
     public var delegate: NuimoControllerDelegate?
-    public var state: NuimoConnectionState { get{ return self.peripheral.state.nuimoConnectionState } }
+    public private(set) dynamic var connectionState = NuimoConnectionState.Disconnected
     public var batteryLevel: Int = -1 { didSet { if self.batteryLevel != oldValue { delegate?.nuimoController?(self, didUpdateBatteryLevel: self.batteryLevel) } } }
     public var defaultMatrixDisplayInterval: NSTimeInterval = 2.0
     public var matrixBrightness: Float = 1.0 { didSet { matrixWriter?.brightness = self.matrixBrightness } }
@@ -25,9 +25,11 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
 
     private var matrixWriter: LEDMatrixWriter?
     
-    public override func connect() {
-        super.connect()
+    public override func connect() -> Bool {
+        guard super.connect() else { return false }
         delegate?.nuimoControllerDidStartConnecting?(self)
+        connectionState = .Connecting
+        return true
     }
     
     public override func didConnect() {
@@ -38,18 +40,27 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
     
     public override func didFailToConnect(error: NSError?) {
         super.didFailToConnect(error)
+        connectionState = .Disconnected
         delegate?.nuimoController?(self, didFailToConnect: error)
+    }
+
+    public override func disconnect() -> Bool {
+        guard super.disconnect() else { return false }
+        connectionState = .Disconnecting
+        return true
     }
     
     public override func didDisconnect(error: NSError?) {
         super.didDisconnect(error)
         matrixWriter = nil
+        connectionState = .Disconnected
         delegate?.nuimoController?(self, didDisconnect: error)
     }
     
     public override func invalidate() {
         super.invalidate()
         peripheral.delegate = nil
+        connectionState = .Invalidated
         delegate?.nuimoControllerDidInvalidate?(self)
     }
 
@@ -68,6 +79,7 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
                 peripheral.readValueForCharacteristic(characteristic)
             case kLEDMatrixCharacteristicUUID:
                 matrixWriter = LEDMatrixWriter(peripheral: peripheral, matrixCharacteristic: characteristic, brightness: matrixBrightness)
+                connectionState = .Connected
                 delegate?.nuimoControllerDidConnect?(self)
             default:
                 break
@@ -307,25 +319,6 @@ private extension SequenceType {
 }
 
 //MARK: Extension methods for CoreBluetooth
-
-public extension CBPeripheralState {
-    var nuimoConnectionState: NuimoConnectionState {
-        #if os(iOS)
-            switch self {
-            case .Connecting:    return .Connecting
-            case .Connected:     return .Connected
-            case .Disconnecting: return .Disconnecting
-            case .Disconnected:  return .Disconnected
-            }
-        #elseif os(OSX)
-            switch self {
-            case .Connecting:    return .Connecting
-            case .Connected:     return .Connected
-            case .Disconnected:  return .Disconnected
-            }
-        #endif
-    }
-}
 
 private extension CBCharacteristic {
     func nuimoGestureEvent() -> NuimoGestureEvent? {

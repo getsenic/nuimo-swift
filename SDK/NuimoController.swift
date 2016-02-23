@@ -12,7 +12,7 @@
     var uuid: String {get}
     var delegate: NuimoControllerDelegate? {get set}
     
-    var state: NuimoConnectionState {get}
+    var connectionState: NuimoConnectionState {get}
     // Battery level 0..100
     var batteryLevel: Int {get set}
     // Display interval in seconds
@@ -20,9 +20,9 @@
     // Brightness 0..1 (1=max)
     var matrixBrightness: Float {get set}
     
-    func connect()
+    func connect() -> Bool
     
-    func disconnect()
+    func disconnect() -> Bool
     
     // Displays a LED matrix for an interval
     func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval)
@@ -40,7 +40,8 @@ public extension NuimoController {
     Connecting,
     Connected,
     Disconnecting,
-    Disconnected
+    Disconnected,
+    Invalidated
 }
 
 @objc public protocol NuimoControllerDelegate {

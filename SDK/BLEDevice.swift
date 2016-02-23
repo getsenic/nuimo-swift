@@ -33,9 +33,10 @@ public class BLEDevice: NSObject, CBPeripheralDelegate {
         peripheral.delegate = self
     }
 
-    public func connect() {
-        guard peripheral.state == .Disconnected else { return }
+    public func connect() -> Bool {
+        guard peripheral.state == .Disconnected else { return false }
         centralManager.connectPeripheral(peripheral, options: nil)
+        return true
     }
 
     public func didConnect() {
@@ -51,9 +52,10 @@ public class BLEDevice: NSObject, CBPeripheralDelegate {
         peripheral.discoverServices(serviceUUIDs)
     }
 
-    public func disconnect() {
-        guard peripheral.state == .Connected else { return }
+    public func disconnect() -> Bool {
+        guard peripheral.state == .Connected else { return false }
         centralManager.cancelPeripheralConnection(peripheral)
+        return true
     }
 
     public func didDisconnect(error: NSError?) {
