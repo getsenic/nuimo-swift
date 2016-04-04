@@ -24,6 +24,9 @@ public class BLEDevice: NSObject, CBPeripheralDelegate {
     public var notificationCharacteristicUUIDs: [CBUUID] { get { return [] } }
     public let peripheral: CBPeripheral
     public let centralManager: CBCentralManager
+    public var connectionTimeoutInterval: NSTimeInterval { get { return 5.0 } }
+
+    private var connectionTimeoutTimer: NSTimer?
 
     public init(centralManager: CBCentralManager, uuid: String, peripheral: CBPeripheral) {
         self.centralManager = centralManager
@@ -36,12 +39,19 @@ public class BLEDevice: NSObject, CBPeripheralDelegate {
     public func connect() -> Bool {
         guard peripheral.state == .Disconnected else { return false }
         centralManager.connectPeripheral(peripheral, options: nil)
+        connectionTimeoutTimer?.invalidate()
+        connectionTimeoutTimer = NSTimer.scheduledTimerWithTimeInterval(connectionTimeoutInterval, target: self, selector: "didConnectTimeout", userInfo: nil, repeats: false)
         return true
     }
 
     public func didConnect() {
+        connectionTimeoutTimer?.invalidate()
         // Discover bluetooth services
         peripheral.discoverServices(serviceUUIDs)
+    }
+
+    public func didConnectTimeout() {
+        didFailToConnect(NSError(domain: NuimoErrorDomain, code: NuimoBLEDeviceFailedToConnect, userInfo: nil))
     }
 
     public func didFailToConnect(error: NSError?) {

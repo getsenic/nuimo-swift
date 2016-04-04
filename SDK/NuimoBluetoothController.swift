@@ -18,12 +18,14 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
     public var batteryLevel: Int = -1 { didSet { if self.batteryLevel != oldValue { delegate?.nuimoController?(self, didUpdateBatteryLevel: self.batteryLevel) } } }
     public var defaultMatrixDisplayInterval: NSTimeInterval = 2.0
     public var matrixBrightness: Float = 1.0 { didSet { matrixWriter?.brightness = self.matrixBrightness } }
+    public override var connectionTimeoutInterval: NSTimeInterval { get { return 5.0 } }
     
     public override var serviceUUIDs: [CBUUID] { get { return nuimoServiceUUIDs } }
     public override var charactericUUIDsForServiceUUID: [CBUUID : [CBUUID]] { get { return nuimoCharactericUUIDsForServiceUUID } }
     public override var notificationCharacteristicUUIDs: [CBUUID] { get { return nuimoNotificationCharacteristicnUUIDs } }
 
     private var matrixWriter: LEDMatrixWriter?
+    private var connectTimeoutTimer: NSTimer?
     
     public override func connect() -> Bool {
         guard super.connect() else { return false }
