@@ -61,7 +61,6 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
     
     public override func invalidate() {
         super.invalidate()
-        peripheral.delegate = nil
         connectionState = .Invalidated
         delegate?.nuimoControllerDidInvalidate?(self)
     }
