@@ -169,11 +169,10 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
             return
         }
         device.didDisconnect(error)
-        if error != nil {
-            // Device probably went offline
-            invalidateDevice(device)
-        }
         discovery.delegate?.bleDiscoveryManager(discovery, didDisconnectDevice: device, error: error)
+
+        // Invalid the device (discards its CBPeripheral reference) as a reconnection won't find services and characteristics. See also http://stackoverflow.com/q/28285393/543875
+        invalidateDevice(device)
     }
 }
 
