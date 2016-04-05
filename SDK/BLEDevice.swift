@@ -72,8 +72,12 @@ public class BLEDevice: NSObject, CBPeripheralDelegate {
         peripheral.delegate = nil
     }
 
-    public func invalidate() {
+    public func didInvalidate() {
+    }
+
+    internal func invalidate() {
         peripheral.delegate = nil
+        didInvalidate()
     }
 
     //MARK: - CBPeripheralDelegate
