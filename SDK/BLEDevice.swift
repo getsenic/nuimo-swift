@@ -51,7 +51,7 @@ public class BLEDevice: NSObject, CBPeripheralDelegate {
     }
 
     public func didConnectTimeout() {
-        didFailToConnect(NSError(domain: NuimoErrorDomain, code: NuimoBLEDeviceFailedToConnect, userInfo: nil))
+        centralManager.cancelPeripheralConnection(peripheral)
     }
 
     public func didFailToConnect(error: NSError?) {
