@@ -123,6 +123,7 @@ private class LEDMatrixWriter {
     private var currentMatrixDisplayInterval: NSTimeInterval = 0.0
     private var lastWrittenMatrix: NuimoLEDMatrix?
     private var lastWrittenMatrixDate = NSDate(timeIntervalSince1970: 0.0)
+    private var lastWrittenMatrixDisplayInterval: NSTimeInterval = 0.0
     private var isWaitingForMatrixWriteResponse = false
     private var writeMatrixOnWriteResponseReceived = false
     private var writeMatrixResponseTimeoutTimer: NSTimer?
@@ -136,13 +137,18 @@ private class LEDMatrixWriter {
     }
 
     func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval) {
+        guard
+            lastWrittenMatrix != matrix ||
+            (lastWrittenMatrixDisplayInterval > 0 && -lastWrittenMatrixDate.timeIntervalSinceNow >= lastWrittenMatrixDisplayInterval)
+            else { return }
+
         currentMatrix = matrix
         currentMatrixDisplayInterval = interval
 
-        // Send matrix later when the write response from previous write request is not yet received
         if isWaitingForMatrixWriteResponse {
             writeMatrixOnWriteResponseReceived = true
-        } else if lastWrittenMatrix != matrix || (-lastWrittenMatrixDate.timeIntervalSinceNow >= minSameMatrixResendInterval) {
+        }
+        else {
             writeMatrixNow()
         }
     }
@@ -167,6 +173,8 @@ private class LEDMatrixWriter {
         }
 
         lastWrittenMatrix = currentMatrix
+        lastWrittenMatrixDate = NSDate()
+        lastWrittenMatrixDisplayInterval = currentMatrixDisplayInterval
     }
 
     @objc func didRetrieveMatrixWriteResponse() {
@@ -175,7 +183,6 @@ private class LEDMatrixWriter {
         dispatch_async(dispatch_get_main_queue()) {
             self.writeMatrixResponseTimeoutTimer?.invalidate()
         }
-        lastWrittenMatrixDate = NSDate()
 
         // Write next matrix if any
         if writeMatrixOnWriteResponseReceived {
