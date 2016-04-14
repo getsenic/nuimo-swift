@@ -66,8 +66,8 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
     }
 
     //TODO: Rename to displayMatrix
-    public func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval) {
-        matrixWriter?.writeMatrix(matrix, interval: interval)
+    public func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval, resendsSameMatrix: Bool) {
+        matrixWriter?.writeMatrix(matrix, interval: interval, resendsSameMatrix: resendsSameMatrix)
     }
     
     //MARK: - CBPeripheralDelegate
@@ -136,8 +136,9 @@ private class LEDMatrixWriter {
         self.brightness = brightness
     }
 
-    func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval) {
+    func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval, resendsSameMatrix: Bool) {
         guard
+            resendsSameMatrix ||
             lastWrittenMatrix != matrix ||
             (lastWrittenMatrixDisplayInterval > 0 && -lastWrittenMatrixDate.timeIntervalSinceNow >= lastWrittenMatrixDisplayInterval)
             else { return }

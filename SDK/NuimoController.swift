@@ -11,7 +11,7 @@
 @objc public protocol NuimoController {
     var uuid: String {get}
     var delegate: NuimoControllerDelegate? {get set}
-    
+
     var connectionState: NuimoConnectionState {get}
     // Battery level 0..100
     var batteryLevel: Int {get set}
@@ -19,19 +19,24 @@
     var defaultMatrixDisplayInterval: NSTimeInterval {get set}
     // Brightness 0..1 (1=max)
     var matrixBrightness: Float {get set}
-    
+
     func connect() -> Bool
-    
+
     func disconnect() -> Bool
-    
-    // Displays a LED matrix for an interval
-    func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval)
+
+    /// Displays a LED matrix for an interval
+    func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval, resendsSameMatrix: Bool)
 }
 
 public extension NuimoController {
-    // Displays a LED matrix using the default display interval
-    public func writeMatrix(matrix: NuimoLEDMatrix) {
-        writeMatrix(matrix, interval: defaultMatrixDisplayInterval)
+    /// Displays a LED matrix for an interval with resendsSameMatrix defaulting to true
+    public func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval, resendsSameMatrix: Bool = true) {
+        writeMatrix(matrix, interval: interval, resendsSameMatrix: resendsSameMatrix)
+    }
+
+    /// Displays a LED matrix using the default display interval and with resendsSameMatrix defaulting to true
+    public func writeMatrix(matrix: NuimoLEDMatrix, resendsSameMatrix: Bool = true) {
+        writeMatrix(matrix, interval: defaultMatrixDisplayInterval, resendsSameMatrix: resendsSameMatrix)
     }
 }
 
