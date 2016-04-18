@@ -32,8 +32,7 @@
     FlyRight,
     FlyBackwards,
     FlyTowards,
-    FlyUp,
-    FlyDown
+    FlyUpDown
     
     public init(identifier: String) throws {
         guard let gesture = gestureForIdentifier[identifier] else { throw NuimoGestureError.InvalidIdentifier }
@@ -79,8 +78,7 @@ private let identifierForGesture: [NuimoGesture : String] = [
     .FlyRight           : "FlyRight",
     .FlyBackwards       : "FlyBackwards",
     .FlyTowards         : "FlyTowards",
-    .FlyUp              : "FlyUp",
-    .FlyDown            : "FlyDown"
+    .FlyUpDown          : "FlyUpDown"
 ]
 
 private let gestureForIdentifier: [String : NuimoGesture] = {
