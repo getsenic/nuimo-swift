@@ -282,7 +282,7 @@ private extension NuimoGestureEvent {
 
     convenience init(gattRotationData data: NSData) {
         let value = Int(UnsafePointer<Int16>(data.bytes).memory)
-        self.init(gesture: value < 0 ? .RotateLeft : .RotateRight, value: value)
+        self.init(gesture: .Rotate, value: value)
     }
 
     convenience init(gattButtonData data: NSData) {
