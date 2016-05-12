@@ -66,8 +66,8 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
     }
 
     //TODO: Rename to displayMatrix
-    public func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval, resendsSameMatrix: Bool) {
-        matrixWriter?.writeMatrix(matrix, interval: interval, resendsSameMatrix: resendsSameMatrix)
+    public func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval, resendsSameMatrix: Bool, writesWithResponse: Bool) {
+        matrixWriter?.writeMatrix(matrix, interval: interval, resendsSameMatrix: resendsSameMatrix, writesWithResponse: writesWithResponse)
     }
 
     //MARK: - CBPeripheralDelegate
@@ -136,7 +136,7 @@ private class LEDMatrixWriter {
         self.brightness = brightness
     }
 
-    func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval, resendsSameMatrix: Bool) {
+    func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval, resendsSameMatrix: Bool, writesWithResponse: Bool) {
         guard
             resendsSameMatrix ||
             lastWrittenMatrix != matrix ||
@@ -146,16 +146,16 @@ private class LEDMatrixWriter {
         currentMatrix = matrix
         currentMatrixDisplayInterval = interval
 
-        if isWaitingForMatrixWriteResponse {
+        if writesWithResponse && isWaitingForMatrixWriteResponse {
             writeMatrixOnWriteResponseReceived = true
         }
         else {
-            writeMatrixNow()
+            writeMatrixNow(writesWithResponse)
         }
     }
 
-    func writeMatrixNow() {
-        guard let currentMatrix = self.currentMatrix where !isWaitingForMatrixWriteResponse else { return }
+    private func writeMatrixNow(withResponse: Bool) {
+        guard let currentMatrix = self.currentMatrix where !(withResponse && isWaitingForMatrixWriteResponse) else { return }
 
         // Convert matrix string representation into byte representation
         let matrixBytes = currentMatrix.matrixBytes
@@ -164,13 +164,15 @@ private class LEDMatrixWriter {
         let matrixData = NSMutableData(bytes: matrixBytes, length: matrixBytes.count)
         let matrixAdditionalBytes = [UInt8(min(max(brightness, 0.0), 1.0) * 255), UInt8(currentMatrixDisplayInterval * 10.0)]
         matrixData.appendBytes(matrixAdditionalBytes, length: matrixAdditionalBytes.count)
-        peripheral.writeValue(matrixData, forCharacteristic: matrixCharacteristic, type: .WithResponse)
-        isWaitingForMatrixWriteResponse = true
+        peripheral.writeValue(matrixData, forCharacteristic: matrixCharacteristic, type: withResponse ? .WithResponse : .WithoutResponse)
+        isWaitingForMatrixWriteResponse = withResponse
 
-        // When the matrix write response is not retrieved within 500ms we assume the response to have timed out
-        dispatch_async(dispatch_get_main_queue()) {
-            self.writeMatrixResponseTimeoutTimer?.invalidate()
-            self.writeMatrixResponseTimeoutTimer = NSTimer.scheduledTimerWithTimeInterval(0.5, target: self, selector: "didRetrieveMatrixWriteResponse", userInfo: nil, repeats: false)
+        if withResponse {
+            // When the matrix write response is not retrieved within 500ms we assume the response to have timed out
+            dispatch_async(dispatch_get_main_queue()) {
+                self.writeMatrixResponseTimeoutTimer?.invalidate()
+                self.writeMatrixResponseTimeoutTimer = NSTimer.scheduledTimerWithTimeInterval(0.5, target: self, selector: "didRetrieveMatrixWriteResponse", userInfo: nil, repeats: false)
+            }
         }
 
         lastWrittenMatrix = currentMatrix
@@ -188,7 +190,7 @@ private class LEDMatrixWriter {
         // Write next matrix if any
         if writeMatrixOnWriteResponseReceived {
             writeMatrixOnWriteResponseReceived = false
-            writeMatrixNow()
+            writeMatrixNow(true)
         }
     }
 }

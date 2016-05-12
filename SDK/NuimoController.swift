@@ -24,19 +24,19 @@
 
     func disconnect() -> Bool
 
-    /// Displays a LED matrix for an interval
-    func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval, resendsSameMatrix: Bool)
+    /// Displays an LED matrix for an interval
+    func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval, resendsSameMatrix: Bool, writesWithResponse: Bool)
 }
 
 public extension NuimoController {
-    /// Displays a LED matrix for an interval with resendsSameMatrix defaulting to true
-    public func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval, resendsSameMatrix: Bool = true) {
-        writeMatrix(matrix, interval: interval, resendsSameMatrix: resendsSameMatrix)
+    /// Displays an LED matrix for an interval with resendsSameMatrix defaulting to true and writesWithResponse defaulting to true
+    public func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval, resendsSameMatrix: Bool = true, writesWithResponse: Bool = true) {
+        writeMatrix(matrix, interval: interval, resendsSameMatrix: resendsSameMatrix, writesWithResponse: writesWithResponse)
     }
 
-    /// Displays a LED matrix using the default display interval and with resendsSameMatrix defaulting to true
-    public func writeMatrix(matrix: NuimoLEDMatrix, resendsSameMatrix: Bool = true) {
-        writeMatrix(matrix, interval: defaultMatrixDisplayInterval, resendsSameMatrix: resendsSameMatrix)
+    /// Displays an LED matrix using the default display interval and with resendsSameMatrix defaulting to true and writesWithResponse defaulting to true
+    public func writeMatrix(matrix: NuimoLEDMatrix, resendsSameMatrix: Bool = true, writesWithResponse: Bool = true) {
+        writeMatrix(matrix, interval: defaultMatrixDisplayInterval, resendsSameMatrix: resendsSameMatrix, writesWithResponse: writesWithResponse)
     }
 }
 
