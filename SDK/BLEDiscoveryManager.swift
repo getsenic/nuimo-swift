@@ -200,7 +200,7 @@ private class UnreachableDevicesDetector {
         previouslyDiscoveredDevices = Set()
         currentlyDiscoveredDevices = Set()
         unreachableDevicesDetectionTimer?.invalidate()
-        unreachableDevicesDetectionTimer = NSTimer.scheduledTimerWithTimeInterval(minDetectionInterval + 0.5, target: self, selector: "removeUnreachableDevices", userInfo: nil, repeats: true)
+        unreachableDevicesDetectionTimer = NSTimer.scheduledTimerWithTimeInterval(minDetectionInterval + 0.5, target: self, selector: #selector(self.removeUnreachableDevices), userInfo: nil, repeats: true)
     }
 
     func stop() {

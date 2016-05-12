@@ -171,7 +171,7 @@ private class LEDMatrixWriter {
             // When the matrix write response is not retrieved within 500ms we assume the response to have timed out
             dispatch_async(dispatch_get_main_queue()) {
                 self.writeMatrixResponseTimeoutTimer?.invalidate()
-                self.writeMatrixResponseTimeoutTimer = NSTimer.scheduledTimerWithTimeInterval(0.5, target: self, selector: "didRetrieveMatrixWriteResponse", userInfo: nil, repeats: false)
+                self.writeMatrixResponseTimeoutTimer = NSTimer.scheduledTimerWithTimeInterval(0.5, target: self, selector: #selector(self.didRetrieveMatrixWriteResponse), userInfo: nil, repeats: false)
             }
         }
 
@@ -298,11 +298,11 @@ private extension NuimoGestureEvent {
 
 private extension NuimoLEDMatrix {
     var matrixBytes: [UInt8] {
-        return bits
+        return leds
             .chunk(8)
             .map{ $0
                 .enumerate()
-                .map{(i: Int, b: Bit) -> Int in return b == Bit.Zero ? 0 : 1 << i}
+                .map{(i: Int, b: Bool) -> Int in return b ? 1 << i : 0}
                 .reduce(UInt8(0), combine: {(s: UInt8, v: Int) -> UInt8 in s + UInt8(v)})
         }
     }
@@ -317,7 +317,8 @@ private extension SequenceType {
         var i = n
         self.forEach {
             chunk.append($0)
-            if --i == 0 {
+            i -= 1
+            if i == 0 {
                 chunks.append(chunk)
                 chunk.removeAll(keepCapacity: true)
                 i = n

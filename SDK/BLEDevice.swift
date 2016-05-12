@@ -40,7 +40,7 @@ public class BLEDevice: NSObject, CBPeripheralDelegate {
         guard peripheral.state == .Disconnected else { return false }
         centralManager.connectPeripheral(peripheral, options: nil)
         connectionTimeoutTimer?.invalidate()
-        connectionTimeoutTimer = NSTimer.scheduledTimerWithTimeInterval(connectionTimeoutInterval, target: self, selector: "didConnectTimeout", userInfo: nil, repeats: false)
+        connectionTimeoutTimer = NSTimer.scheduledTimerWithTimeInterval(connectionTimeoutInterval, target: self, selector: #selector(self.didConnectTimeout), userInfo: nil, repeats: false)
         return true
     }
 

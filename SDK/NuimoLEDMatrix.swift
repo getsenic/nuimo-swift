@@ -14,20 +14,20 @@ public let NuimoLEDMatrixDefaultLEDOffCharacter = NuimoLEDMatrixLEDOffCharacters
 public let NuimoLEDMatrixDefaultLEDOnCharacter: Character = "."
 
 public class NuimoLEDMatrix: NSObject {
-    public let bits: [Bit]
+    public let leds: [Bool]
     
     public init(matrix: NuimoLEDMatrix) {
-        bits = matrix.bits
+        leds = matrix.leds
     }
     
     public init(string: String) {
-        bits = string
+        leds = string
             // Cut off after count of LEDs
             .substringToIndex(string.startIndex.advancedBy(min(string.characters.count, NuimoLEDMatrixLEDCount)))
             // Right fill up to count of LEDs
             .stringByPaddingToLength(NuimoLEDMatrixLEDCount, withString: " ", startingAtIndex: 0)
             .characters
-            .map{NuimoLEDMatrixLEDOffCharacters.contains($0) ? Bit.Zero : Bit.One}
+            .map{!NuimoLEDMatrixLEDOffCharacters.contains($0)}
     }
     
     //TODO: Have only one init(progress) method and pass presentation style as 2nd argument
@@ -53,7 +53,7 @@ public class NuimoLEDMatrix: NSObject {
 }
 
 public func ==(left: NuimoLEDMatrix, right: NuimoLEDMatrix) -> Bool {
-    return left.bits == right.bits
+    return left.leds == right.leds
 }
 
 public func ==(left: NuimoLEDMatrix?, right: NuimoLEDMatrix) -> Bool {
