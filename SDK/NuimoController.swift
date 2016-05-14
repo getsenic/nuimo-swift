@@ -24,20 +24,48 @@
 
     func disconnect() -> Bool
 
-    /// Displays an LED matrix for an interval
-    func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval, withFadeTransition: Bool, resendsSameMatrix: Bool, writesWithResponse: Bool)
+    /// Writes an LED matrix for an interval with options (options is of type Int for compatibility with Objective-C)
+    func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval, options: Int)
 }
 
 public extension NuimoController {
-    /// Displays an LED matrix for an interval with withFadeTransition defaulting to false, resendsSameMatrix defaulting to true and writesWithResponse defaulting to true
-    public func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval, withFadeTransition: Bool = false, resendsSameMatrix: Bool = true, writesWithResponse: Bool = true) {
-        writeMatrix(matrix, interval: interval, withFadeTransition: withFadeTransition, resendsSameMatrix: resendsSameMatrix, writesWithResponse: writesWithResponse)
+    /// Writes an LED matrix with options defaulting to ResendsSameMatrix and WithWriteResponse
+    func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval) {
+        writeMatrix(matrix, interval: interval, options: NuimoLEDMatrixWriteOption.ResendsSameMatrix.rawValue | NuimoLEDMatrixWriteOption.WithWriteResponse.rawValue)
     }
 
-    /// Displays an LED matrix using the default display interval and with withFadeTransition defaulting to false, resendsSameMatrix defaulting to true and writesWithResponse defaulting to true
-    public func writeMatrix(matrix: NuimoLEDMatrix, withFadeTransition: Bool = false, resendsSameMatrix: Bool = true, writesWithResponse: Bool = true) {
-        writeMatrix(matrix, interval: defaultMatrixDisplayInterval, withFadeTransition: withFadeTransition, resendsSameMatrix: resendsSameMatrix, writesWithResponse: writesWithResponse)
+    /// Writes an LED matrix using the default display interval and with options defaulting to ResendsSameMatrix and WithWriteResponse
+    public func writeMatrix(matrix: NuimoLEDMatrix) {
+        writeMatrix(matrix, interval: defaultMatrixDisplayInterval)
     }
+
+    /// Writes an LED matrix for an interval and with options
+    public func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval, options: NuimoLEDMatrixWriteOptions) {
+        writeMatrix(matrix, interval: defaultMatrixDisplayInterval, options: options.rawValue)
+    }
+
+    /// Writes an LED matrix using the default display interval and with options defaulting to ResendsSameMatrix and WithWriteResponse
+    public func writeMatrix(matrix: NuimoLEDMatrix, options: NuimoLEDMatrixWriteOptions) {
+        writeMatrix(matrix, interval: defaultMatrixDisplayInterval, options: options)
+    }
+}
+
+@objc public enum NuimoLEDMatrixWriteOption: Int {
+    case ResendsSameMatrix  = 1
+    case WithFadeTransition = 2
+    case WithWriteResponse  = 4
+}
+
+public struct NuimoLEDMatrixWriteOptions: OptionSetType {
+    public let rawValue: Int
+
+    public init(rawValue: Int) {
+        self.rawValue = rawValue
+    }
+
+    public static let ResendsSameMatrix  = NuimoLEDMatrixWriteOptions(rawValue: NuimoLEDMatrixWriteOption.ResendsSameMatrix.rawValue)
+    public static let WithFadeTransition = NuimoLEDMatrixWriteOptions(rawValue: NuimoLEDMatrixWriteOption.WithFadeTransition.rawValue)
+    public static let WithWriteResponse  = NuimoLEDMatrixWriteOptions(rawValue: NuimoLEDMatrixWriteOption.WithWriteResponse.rawValue)
 }
 
 @objc public enum NuimoConnectionState: Int {
