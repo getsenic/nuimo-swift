@@ -127,8 +127,6 @@ private class LEDMatrixWriter {
     private var isWaitingForMatrixWriteResponse = false
     private var writeMatrixOnWriteResponseReceived = false
     private var writeMatrixResponseTimeoutTimer: NSTimer?
-    // Minimum interval before a matrix, that has already been sent, can be send again. This improves user experience when a lot of matrices are sent with a high rate.
-    private let minSameMatrixResendInterval: NSTimeInterval = 0.2
 
     init(peripheral: CBPeripheral, matrixCharacteristic: CBCharacteristic, brightness: Float) {
         self.peripheral = peripheral
@@ -155,17 +153,15 @@ private class LEDMatrixWriter {
     }
 
     private func writeMatrixNow(withResponse: Bool) {
-        guard let currentMatrix = self.currentMatrix where !(withResponse && isWaitingForMatrixWriteResponse) else { return }
+        guard var matrixBytes = currentMatrix?.matrixBytes where matrixBytes.count == 11 && !(withResponse && isWaitingForMatrixWriteResponse) else { fatalError("Invalid matrix write request") }
 
-        // Convert matrix string representation into byte representation
-        let matrixBytes = currentMatrix.matrixBytes
+        matrixBytes += [UInt8(min(max(brightness, 0.0), 1.0) * 255), UInt8(currentMatrixDisplayInterval * 10.0)]
+        peripheral.writeValue(NSData(bytes: matrixBytes, length: matrixBytes.count), forCharacteristic: matrixCharacteristic, type: withResponse ? .WithResponse : .WithoutResponse)
 
-        // Write matrix
-        let matrixData = NSMutableData(bytes: matrixBytes, length: matrixBytes.count)
-        let matrixAdditionalBytes = [UInt8(min(max(brightness, 0.0), 1.0) * 255), UInt8(currentMatrixDisplayInterval * 10.0)]
-        matrixData.appendBytes(matrixAdditionalBytes, length: matrixAdditionalBytes.count)
-        peripheral.writeValue(matrixData, forCharacteristic: matrixCharacteristic, type: withResponse ? .WithResponse : .WithoutResponse)
-        isWaitingForMatrixWriteResponse = withResponse
+        isWaitingForMatrixWriteResponse  = withResponse
+        lastWrittenMatrix                = currentMatrix
+        lastWrittenMatrixDate            = NSDate()
+        lastWrittenMatrixDisplayInterval = currentMatrixDisplayInterval
 
         if withResponse {
             // When the matrix write response is not retrieved within 500ms we assume the response to have timed out
@@ -174,10 +170,6 @@ private class LEDMatrixWriter {
                 self.writeMatrixResponseTimeoutTimer = NSTimer.scheduledTimerWithTimeInterval(0.5, target: self, selector: #selector(self.didRetrieveMatrixWriteResponse), userInfo: nil, repeats: false)
             }
         }
-
-        lastWrittenMatrix = currentMatrix
-        lastWrittenMatrixDate = NSDate()
-        lastWrittenMatrixDisplayInterval = currentMatrixDisplayInterval
     }
 
     @objc func didRetrieveMatrixWriteResponse() {
