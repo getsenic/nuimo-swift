@@ -66,8 +66,8 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
     }
 
     //TODO: Rename to displayMatrix
-    public func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval, resendsSameMatrix: Bool, writesWithResponse: Bool) {
-        matrixWriter?.writeMatrix(matrix, interval: interval, resendsSameMatrix: resendsSameMatrix, writesWithResponse: writesWithResponse)
+    public func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval, withFadeTransition: Bool, resendsSameMatrix: Bool, writesWithResponse: Bool) {
+        matrixWriter?.writeMatrix(matrix, interval: interval, withFadeTransition: withFadeTransition, resendsSameMatrix: resendsSameMatrix, writesWithResponse: writesWithResponse)
     }
 
     //MARK: - CBPeripheralDelegate
@@ -121,6 +121,7 @@ private class LEDMatrixWriter {
 
     private var currentMatrix: NuimoLEDMatrix?
     private var currentMatrixDisplayInterval: NSTimeInterval = 0.0
+    private var currentMatrixWithFadeTransition = false
     private var lastWrittenMatrix: NuimoLEDMatrix?
     private var lastWrittenMatrixDate = NSDate(timeIntervalSince1970: 0.0)
     private var lastWrittenMatrixDisplayInterval: NSTimeInterval = 0.0
@@ -134,15 +135,16 @@ private class LEDMatrixWriter {
         self.brightness = brightness
     }
 
-    func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval, resendsSameMatrix: Bool, writesWithResponse: Bool) {
+    func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval, withFadeTransition: Bool, resendsSameMatrix: Bool, writesWithResponse: Bool) {
         guard
             resendsSameMatrix ||
             lastWrittenMatrix != matrix ||
             (lastWrittenMatrixDisplayInterval > 0 && -lastWrittenMatrixDate.timeIntervalSinceNow >= lastWrittenMatrixDisplayInterval)
             else { return }
 
-        currentMatrix = matrix
-        currentMatrixDisplayInterval = interval
+        currentMatrix                   = matrix
+        currentMatrixDisplayInterval    = interval
+        currentMatrixWithFadeTransition = withFadeTransition
 
         if writesWithResponse && isWaitingForMatrixWriteResponse {
             writeMatrixOnWriteResponseReceived = true
@@ -155,6 +157,7 @@ private class LEDMatrixWriter {
     private func writeMatrixNow(withResponse: Bool) {
         guard var matrixBytes = currentMatrix?.matrixBytes where matrixBytes.count == 11 && !(withResponse && isWaitingForMatrixWriteResponse) else { fatalError("Invalid matrix write request") }
 
+        matrixBytes[10] = matrixBytes[10] + (currentMatrixWithFadeTransition ? UInt8(1 << 4) : 0)
         matrixBytes += [UInt8(min(max(brightness, 0.0), 1.0) * 255), UInt8(currentMatrixDisplayInterval * 10.0)]
         peripheral.writeValue(NSData(bytes: matrixBytes, length: matrixBytes.count), forCharacteristic: matrixCharacteristic, type: withResponse ? .WithResponse : .WithoutResponse)
 

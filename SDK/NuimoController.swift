@@ -25,18 +25,18 @@
     func disconnect() -> Bool
 
     /// Displays an LED matrix for an interval
-    func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval, resendsSameMatrix: Bool, writesWithResponse: Bool)
+    func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval, withFadeTransition: Bool, resendsSameMatrix: Bool, writesWithResponse: Bool)
 }
 
 public extension NuimoController {
-    /// Displays an LED matrix for an interval with resendsSameMatrix defaulting to true and writesWithResponse defaulting to true
-    public func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval, resendsSameMatrix: Bool = true, writesWithResponse: Bool = true) {
-        writeMatrix(matrix, interval: interval, resendsSameMatrix: resendsSameMatrix, writesWithResponse: writesWithResponse)
+    /// Displays an LED matrix for an interval with withFadeTransition defaulting to false, resendsSameMatrix defaulting to true and writesWithResponse defaulting to true
+    public func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval, withFadeTransition: Bool = false, resendsSameMatrix: Bool = true, writesWithResponse: Bool = true) {
+        writeMatrix(matrix, interval: interval, withFadeTransition: withFadeTransition, resendsSameMatrix: resendsSameMatrix, writesWithResponse: writesWithResponse)
     }
 
-    /// Displays an LED matrix using the default display interval and with resendsSameMatrix defaulting to true and writesWithResponse defaulting to true
-    public func writeMatrix(matrix: NuimoLEDMatrix, resendsSameMatrix: Bool = true, writesWithResponse: Bool = true) {
-        writeMatrix(matrix, interval: defaultMatrixDisplayInterval, resendsSameMatrix: resendsSameMatrix, writesWithResponse: writesWithResponse)
+    /// Displays an LED matrix using the default display interval and with withFadeTransition defaulting to false, resendsSameMatrix defaulting to true and writesWithResponse defaulting to true
+    public func writeMatrix(matrix: NuimoLEDMatrix, withFadeTransition: Bool = false, resendsSameMatrix: Bool = true, writesWithResponse: Bool = true) {
+        writeMatrix(matrix, interval: defaultMatrixDisplayInterval, withFadeTransition: withFadeTransition, resendsSameMatrix: resendsSameMatrix, writesWithResponse: writesWithResponse)
     }
 }
 
