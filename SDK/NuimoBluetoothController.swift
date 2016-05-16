@@ -136,9 +136,9 @@ private class LEDMatrixWriter {
     }
 
     func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval, options: Int) {
-        let resendsSameMatrix  = options & NuimoLEDMatrixWriteOption.ResendsSameMatrix.rawValue  != 0
-        let withFadeTransition = options & NuimoLEDMatrixWriteOption.WithFadeTransition.rawValue != 0
-        let withWriteResponse  = options & NuimoLEDMatrixWriteOption.WithWriteResponse.rawValue  != 0
+        let resendsSameMatrix  = options & NuimoLEDMatrixWriteOption.IgnoreDuplicates.rawValue     == 0
+        let withFadeTransition = options & NuimoLEDMatrixWriteOption.WithFadeTransition.rawValue   != 0
+        let withWriteResponse  = options & NuimoLEDMatrixWriteOption.WithoutWriteResponse.rawValue == 0
 
         guard
             resendsSameMatrix ||

@@ -31,7 +31,7 @@
 public extension NuimoController {
     /// Writes an LED matrix with options defaulting to ResendsSameMatrix and WithWriteResponse
     func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval) {
-        writeMatrix(matrix, interval: interval, options: NuimoLEDMatrixWriteOption.ResendsSameMatrix.rawValue | NuimoLEDMatrixWriteOption.WithWriteResponse.rawValue)
+        writeMatrix(matrix, interval: interval, options: 0)
     }
 
     /// Writes an LED matrix using the default display interval and with options defaulting to ResendsSameMatrix and WithWriteResponse
@@ -51,9 +51,9 @@ public extension NuimoController {
 }
 
 @objc public enum NuimoLEDMatrixWriteOption: Int {
-    case ResendsSameMatrix  = 1
-    case WithFadeTransition = 2
-    case WithWriteResponse  = 4
+    case IgnoreDuplicates     = 1
+    case WithFadeTransition   = 2
+    case WithoutWriteResponse = 4
 }
 
 public struct NuimoLEDMatrixWriteOptions: OptionSetType {
@@ -63,9 +63,9 @@ public struct NuimoLEDMatrixWriteOptions: OptionSetType {
         self.rawValue = rawValue
     }
 
-    public static let ResendsSameMatrix  = NuimoLEDMatrixWriteOptions(rawValue: NuimoLEDMatrixWriteOption.ResendsSameMatrix.rawValue)
-    public static let WithFadeTransition = NuimoLEDMatrixWriteOptions(rawValue: NuimoLEDMatrixWriteOption.WithFadeTransition.rawValue)
-    public static let WithWriteResponse  = NuimoLEDMatrixWriteOptions(rawValue: NuimoLEDMatrixWriteOption.WithWriteResponse.rawValue)
+    public static let IgnoreDuplicates     = NuimoLEDMatrixWriteOptions(rawValue: NuimoLEDMatrixWriteOption.IgnoreDuplicates.rawValue)
+    public static let WithFadeTransition   = NuimoLEDMatrixWriteOptions(rawValue: NuimoLEDMatrixWriteOption.WithFadeTransition.rawValue)
+    public static let WithoutWriteResponse = NuimoLEDMatrixWriteOptions(rawValue: NuimoLEDMatrixWriteOption.WithoutWriteResponse.rawValue)
 }
 
 @objc public enum NuimoConnectionState: Int {
