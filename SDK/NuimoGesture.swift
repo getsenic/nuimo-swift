@@ -33,8 +33,8 @@
     FlyTowards,
     FlyUpDown
     
-    public init(identifier: String) throws {
-        guard let gesture = gestureForIdentifier[identifier] else { throw NuimoGestureError.InvalidIdentifier }
+    public init?(identifier: String) {
+        guard let gesture = gestureForIdentifier[identifier] else { return nil }
         self = gesture
     }
     
