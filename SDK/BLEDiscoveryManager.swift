@@ -43,6 +43,8 @@ public protocol BLEDiscoveryDelegate {
 
     func bleDiscoveryManager(discovery: BLEDiscoveryManager, didRestoreDevice device: BLEDevice)
 
+    //TODO: Remove all following delegate methods since they are not related to discovery. These delegate methods shall be only available to BLEDevice delegates.
+
     func bleDiscoveryManager(discovery: BLEDiscoveryManager, didConnectDevice device: BLEDevice)
 
     func bleDiscoveryManager(discovery: BLEDiscoveryManager, didFailToConnectDevice device: BLEDevice, error: NSError?)
@@ -172,6 +174,8 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
         discovery.delegate?.bleDiscoveryManager(discovery, didDisconnectDevice: device, error: error)
 
         // Invalid the device (discards its CBPeripheral reference) as a reconnection won't find services and characteristics. See also http://stackoverflow.com/q/28285393/543875
+        //TODO: Check if we can reconnect after a regulat call to disconnect(). Invalidating probably makes it impossible without rediscovering it!
+        //TODO: Maybe we only want to invalidate after we've checked `error` for the reason
         invalidateDevice(device)
     }
 }

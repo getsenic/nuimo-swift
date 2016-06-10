@@ -52,6 +52,8 @@ public class BLEDevice: NSObject, CBPeripheralDelegate {
 
     public func didConnectTimeout() {
         centralManager.cancelPeripheralConnection(peripheral)
+        // CoreBluetooth doesn't call didFailToConnectPeripheral delegate method – that's why we call it here
+        centralManager.delegate?.centralManager?(centralManager, didFailToConnectPeripheral: peripheral, error: NSError(domain: "BLEDevice", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to connect to peripheral", NSLocalizedFailureReasonErrorKey: "Connection attempt timed out"]))
     }
 
     public func didFailToConnect(error: NSError?) {
