@@ -14,7 +14,7 @@ public let NuimoDiscoveryManagerAutoDetectUnreachableControllersKey = "NuimoDisc
 public let NuimoDiscoveryManagerAdditionalDiscoverServiceUUIDsKey = "NuimoDiscoveryManagerAdditionalDiscoverServiceUUIDs"
 
 // Allows for discovering Nuimo BLE hardware controllers and virtual (websocket) controllers
-public class NuimoDiscoveryManager: NSObject, BLEDiscoveryDelegate {
+public class NuimoDiscoveryManager: NSObject, BLEDiscoveryManagerDelegate {
     
     public static let sharedManager = NuimoDiscoveryManager()
     public private (set) lazy var centralManager: CBCentralManager = self.bleDiscovery.centralManager
