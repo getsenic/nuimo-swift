@@ -25,8 +25,10 @@ public class BLEDevice: NSObject, CBPeripheralDelegate {
     public let peripheral: CBPeripheral
     public let centralManager: CBCentralManager
     public var connectionTimeoutInterval: NSTimeInterval { get { return 5.0 } }
+    public var reconnectsWhenFirstConnectionAttemptFails = false
 
     private var connectionTimeoutTimer: NSTimer?
+    private var reconnectOnConnectionFailure = false
 
     public init(centralManager: CBCentralManager, uuid: String, peripheral: CBPeripheral) {
         self.centralManager = centralManager
@@ -41,6 +43,7 @@ public class BLEDevice: NSObject, CBPeripheralDelegate {
         centralManager.connectPeripheral(peripheral, options: nil)
         connectionTimeoutTimer?.invalidate()
         connectionTimeoutTimer = NSTimer.scheduledTimerWithTimeInterval(connectionTimeoutInterval, target: self, selector: #selector(self.didConnectTimeout), userInfo: nil, repeats: false)
+        reconnectOnConnectionFailure = reconnectsWhenFirstConnectionAttemptFails
         return true
     }
 
@@ -57,6 +60,10 @@ public class BLEDevice: NSObject, CBPeripheralDelegate {
     }
 
     public func didFailToConnect(error: NSError?) {
+        if reconnectsWhenFirstConnectionAttemptFails && reconnectOnConnectionFailure {
+            connect()
+            reconnectOnConnectionFailure = false
+        }
     }
 
     public func didRestore() {
