@@ -30,7 +30,7 @@ public class BLEDevice: NSObject, CBPeripheralDelegate {
     private var connectionTimeoutTimer: NSTimer?
     private var reconnectOnConnectionFailure = false
 
-    public init(centralManager: CBCentralManager, uuid: String, peripheral: CBPeripheral) {
+    public required init(centralManager: CBCentralManager, uuid: String, peripheral: CBPeripheral) {
         self.centralManager = centralManager
         self.uuid = uuid
         self.peripheral = peripheral

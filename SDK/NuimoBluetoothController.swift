@@ -27,7 +27,7 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
     private var matrixWriter: LEDMatrixWriter?
     private var connectTimeoutTimer: NSTimer?
 
-    override init(centralManager: CBCentralManager, uuid: String, peripheral: CBPeripheral) {
+    public required init(centralManager: CBCentralManager, uuid: String, peripheral: CBPeripheral) {
         super.init(centralManager: centralManager, uuid: uuid, peripheral: peripheral)
         reconnectsWhenFirstConnectionAttemptFails = true
     }
