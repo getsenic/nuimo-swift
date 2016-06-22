@@ -15,7 +15,7 @@ public let NuimoDiscoveryManagerAdditionalDiscoverServiceUUIDsKey = "NuimoDiscov
 
 // Allows for discovering Nuimo BLE hardware controllers and virtual (websocket) controllers
 public class NuimoDiscoveryManager: NSObject {
-    
+
     public static let sharedManager = NuimoDiscoveryManager()
     public private (set) lazy var centralManager: CBCentralManager = self.bleDiscovery.centralManager
     
@@ -83,7 +83,7 @@ private class PrivateBLEDiscoveryManagerDelegate: BLEDiscoveryManagerDelegate {
 }
 
 @objc public protocol NuimoDiscoveryDelegate {
-    optional func nuimoDiscoveryManager(discovery: NuimoDiscoveryManager, deviceForPeripheral peripheral: CBPeripheral) -> BLEDevice
+    optional func nuimoDiscoveryManager(discovery: NuimoDiscoveryManager, deviceForPeripheral peripheral: CBPeripheral) -> BLEDevice?
     func nuimoDiscoveryManager(discovery: NuimoDiscoveryManager, didDiscoverNuimoController controller: NuimoController)
     optional func nuimoDiscoveryManager(discovery: NuimoDiscoveryManager, didRestoreNuimoController controller: NuimoController)
     optional func nuimoDiscoveryManager(discovery: NuimoDiscoveryManager, didConnectNuimoController controller: NuimoController)
