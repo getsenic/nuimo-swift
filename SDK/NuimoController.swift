@@ -13,11 +13,12 @@
     var delegate: NuimoControllerDelegate? {get set}
 
     var connectionState: NuimoConnectionState {get}
-    // Battery level 0..100
-    var batteryLevel: Int {get set}
-    // Display interval in seconds
+    /// Battery level 0..100
+    //TODO: Remove battery level since is emitted through the delegate, that's enough, no need to store it
+    var batteryLevel: Int {get}
+    /// Display interval in seconds
     var defaultMatrixDisplayInterval: NSTimeInterval {get set}
-    // Brightness 0..1 (1=max)
+    /// Brightness 0..1 (1=max)
     var matrixBrightness: Float {get set}
 
     func connect() -> Bool
@@ -83,7 +84,7 @@ public struct NuimoLEDMatrixWriteOptions: OptionSetType {
     optional func nuimoController(controller: NuimoController, didFailToConnect error: NSError?)
     optional func nuimoController(controller: NuimoController, didDisconnect error: NSError?)
     optional func nuimoControllerDidInvalidate(controller: NuimoController)
-    optional func nuimoController(controller: NuimoController, didUpdateBatteryLevel bateryLevel: Int)
+    optional func nuimoController(controller: NuimoController, didUpdateBatteryLevel batteryLevel: Int)
     optional func nuimoController(controller: NuimoController, didReceiveGestureEvent event: NuimoGestureEvent)
     optional func nuimoControllerDidDisplayLEDMatrix(controller: NuimoController)
 }
