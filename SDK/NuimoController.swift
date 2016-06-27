@@ -84,6 +84,7 @@ public struct NuimoLEDMatrixWriteOptions: OptionSetType {
     optional func nuimoController(controller: NuimoController, didFailToConnect error: NSError?)
     optional func nuimoController(controller: NuimoController, didDisconnect error: NSError?)
     optional func nuimoControllerDidInvalidate(controller: NuimoController)
+    optional func nuimoController(controller: NuimoController, didReadFirmwareVersion firmwareVersion: String)
     optional func nuimoController(controller: NuimoController, didUpdateBatteryLevel batteryLevel: Int)
     optional func nuimoController(controller: NuimoController, didReceiveGestureEvent event: NuimoGestureEvent)
     optional func nuimoControllerDidDisplayLEDMatrix(controller: NuimoController)

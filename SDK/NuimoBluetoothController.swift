@@ -81,6 +81,8 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
         super.peripheral(peripheral, didDiscoverCharacteristicsForService: service, error: error)
         service.characteristics?.forEach{ characteristic in
             switch characteristic.UUID {
+            case kFirmwareVersionCharacteristicUUID:
+                peripheral.readValueForCharacteristic(characteristic)
             case kBatteryCharacteristicUUID:
                 peripheral.readValueForCharacteristic(characteristic)
             case kLEDMatrixCharacteristicUUID:
@@ -99,6 +101,10 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
         guard let data = characteristic.value else { return }
 
         switch characteristic.UUID {
+        case kFirmwareVersionCharacteristicUUID:
+            if let firmwareVersion = String(data: data, encoding: NSUTF8StringEncoding) {
+                delegate?.nuimoController?(self, didReadFirmwareVersion: firmwareVersion)
+            }
         case kBatteryCharacteristicUUID:
             batteryLevel = Int(UnsafePointer<UInt8>(data.bytes).memory)
         default:
@@ -204,7 +210,7 @@ private class LEDMatrixWriter {
 private let kBatteryServiceUUID                  = CBUUID(string: "180F")
 private let kBatteryCharacteristicUUID           = CBUUID(string: "2A19")
 private let kDeviceInformationServiceUUID        = CBUUID(string: "180A")
-private let kDeviceInformationCharacteristicUUID = CBUUID(string: "2A29")
+private let kFirmwareVersionCharacteristicUUID   = CBUUID(string: "2A26")
 private let kLEDMatrixServiceUUID                = CBUUID(string: "F29B1523-CB19-40F3-BE5C-7241ECB82FD1")
 private let kLEDMatrixCharacteristicUUID         = CBUUID(string: "F29B1524-CB19-40F3-BE5C-7241ECB82FD1")
 private let kSensorServiceUUID                   = CBUUID(string: "F29B1525-CB19-40F3-BE5C-7241ECB82FD2")
@@ -222,7 +228,7 @@ internal let nuimoServiceUUIDs: [CBUUID] = [
 
 private let nuimoCharactericUUIDsForServiceUUID = [
     kBatteryServiceUUID: [kBatteryCharacteristicUUID],
-    kDeviceInformationServiceUUID: [kDeviceInformationCharacteristicUUID],
+    kDeviceInformationServiceUUID: [kFirmwareVersionCharacteristicUUID],
     kLEDMatrixServiceUUID: [kLEDMatrixCharacteristicUUID],
     kSensorServiceUUID: [
         kSensorFlyCharacteristicUUID,
