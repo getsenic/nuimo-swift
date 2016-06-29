@@ -49,7 +49,7 @@ private class PrivateBLEDiscoveryManagerDelegate: BLEDiscoveryManagerDelegate {
         self.nuimoDiscoveryManager = nuimoDiscoveryManager
     }
 
-    public func bleDiscoveryManager(discovery: BLEDiscoveryManager, deviceWithPeripheral peripheral: CBPeripheral, advertisementData: [String : AnyObject]?) -> BLEDevice? {
+    func bleDiscoveryManager(discovery: BLEDiscoveryManager, deviceWithPeripheral peripheral: CBPeripheral, advertisementData: [String : AnyObject]?) -> BLEDevice? {
         if let device = nuimoDiscoveryManager.delegate?.nuimoDiscoveryManager?(nuimoDiscoveryManager, deviceForPeripheral: peripheral) {
             return device
         }
@@ -57,27 +57,27 @@ private class PrivateBLEDiscoveryManagerDelegate: BLEDiscoveryManagerDelegate {
         return NuimoBluetoothController(centralManager: nuimoDiscoveryManager.centralManager, uuid: peripheral.identifier.UUIDString, peripheral: peripheral)
     }
 
-    public func bleDiscoveryManager(discovery: BLEDiscoveryManager, didDiscoverDevice device: BLEDevice) {
+    func bleDiscoveryManager(discovery: BLEDiscoveryManager, didDiscoverDevice device: BLEDevice) {
         nuimoDiscoveryManager.delegate?.nuimoDiscoveryManager(nuimoDiscoveryManager, didDiscoverNuimoController: device as! NuimoController)
     }
 
-    public func bleDiscoveryManager(discovery: BLEDiscoveryManager, didRestoreDevice device: BLEDevice) {
+    func bleDiscoveryManager(discovery: BLEDiscoveryManager, didRestoreDevice device: BLEDevice) {
         nuimoDiscoveryManager.delegate?.nuimoDiscoveryManager?(nuimoDiscoveryManager, didRestoreNuimoController: device as! NuimoController)
     }
 
-    public func bleDiscoveryManager(discovery: BLEDiscoveryManager, didConnectDevice device: BLEDevice) {
+    func bleDiscoveryManager(discovery: BLEDiscoveryManager, didConnectDevice device: BLEDevice) {
         nuimoDiscoveryManager.delegate?.nuimoDiscoveryManager?(nuimoDiscoveryManager, didConnectNuimoController: device as! NuimoController)
     }
 
-    public func bleDiscoveryManager(discovery: BLEDiscoveryManager, didFailToConnectDevice device: BLEDevice, error: NSError?) {
+    func bleDiscoveryManager(discovery: BLEDiscoveryManager, didFailToConnectDevice device: BLEDevice, error: NSError?) {
         nuimoDiscoveryManager.delegate?.nuimoDiscoveryManager?(nuimoDiscoveryManager, didFailToConnectNuimoController: device as! NuimoController, error: error)
     }
 
-    public func bleDiscoveryManager(discovery: BLEDiscoveryManager, didDisconnectDevice device: BLEDevice, error: NSError?) {
+    func bleDiscoveryManager(discovery: BLEDiscoveryManager, didDisconnectDevice device: BLEDevice, error: NSError?) {
         nuimoDiscoveryManager.delegate?.nuimoDiscoveryManager?(nuimoDiscoveryManager, didDisconnectNuimoController: device as! NuimoController, error: error)
     }
 
-    public func bleDiscoveryManager(discovery: BLEDiscoveryManager, didInvalidateDevice device: BLEDevice) {
+    func bleDiscoveryManager(discovery: BLEDiscoveryManager, didInvalidateDevice device: BLEDevice) {
         nuimoDiscoveryManager.delegate?.nuimoDiscoveryManager?(nuimoDiscoveryManager, didInvalidateController: device as! NuimoController)
     }
 }
