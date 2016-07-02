@@ -34,8 +34,7 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
 
     public override func connect() -> Bool {
         guard super.connect() else { return false }
-        delegate?.nuimoControllerDidStartConnecting?(self)
-        connectionState = .Connecting
+        setConnectionState(.Connecting)
         return true
     }
 
@@ -47,27 +46,30 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
 
     public override func didFailToConnect(error: NSError?) {
         super.didFailToConnect(error)
-        connectionState = .Disconnected
-        delegate?.nuimoController?(self, didFailToConnect: error)
+        setConnectionState(.Disconnected, withError: error)
     }
 
     public override func disconnect() -> Bool {
         guard super.disconnect() else { return false }
-        connectionState = .Disconnecting
+        setConnectionState(.Disconnecting)
         return true
     }
 
     public override func didDisconnect(error: NSError?) {
         super.didDisconnect(error)
         matrixWriter = nil
-        connectionState = .Disconnected
-        delegate?.nuimoController?(self, didDisconnect: error)
+        setConnectionState(.Disconnected, withError: error)
     }
 
     public override func didInvalidate() {
         super.didInvalidate()
-        connectionState = .Invalidated
-        delegate?.nuimoControllerDidInvalidate?(self)
+        setConnectionState(.Invalidated)
+    }
+
+    private func setConnectionState(state: NuimoConnectionState, withError error: NSError? = nil) {
+        assert(state != connectionState, "Nuimo connection state did not change")
+        connectionState = state
+        delegate?.nuimoController?(self, didChangeConnectionState: connectionState, withError: error)
     }
 
     //TODO: Rename to displayMatrix
@@ -87,8 +89,7 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
                 peripheral.readValueForCharacteristic(characteristic)
             case kLEDMatrixCharacteristicUUID:
                 matrixWriter = LEDMatrixWriter(peripheral: peripheral, matrixCharacteristic: characteristic, brightness: matrixBrightness)
-                connectionState = .Connected
-                delegate?.nuimoControllerDidConnect?(self)
+                setConnectionState(.Connected)
             default:
                 break
             }

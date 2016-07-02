@@ -79,11 +79,7 @@ public struct NuimoLEDMatrixWriteOptions: OptionSetType {
 }
 
 @objc public protocol NuimoControllerDelegate {
-    optional func nuimoControllerDidStartConnecting(controller: NuimoController)
-    optional func nuimoControllerDidConnect(controller: NuimoController)
-    optional func nuimoController(controller: NuimoController, didFailToConnect error: NSError?)
-    optional func nuimoController(controller: NuimoController, didDisconnect error: NSError?)
-    optional func nuimoControllerDidInvalidate(controller: NuimoController)
+    optional func nuimoController(controller: NuimoController, didChangeConnectionState state: NuimoConnectionState, withError error: NSError?)
     optional func nuimoController(controller: NuimoController, didReadFirmwareVersion firmwareVersion: String)
     optional func nuimoController(controller: NuimoController, didUpdateBatteryLevel batteryLevel: Int)
     optional func nuimoController(controller: NuimoController, didReceiveGestureEvent event: NuimoGestureEvent)

@@ -184,19 +184,11 @@ class NuimoControllerDelegateClosures : NuimoControllerDelegate {
         self.onLEDMatrixDisplayed = onLEDMatrixDisplayed
     }
 
-    @objc func nuimoControllerDidStartConnecting(controller: NuimoController) {
+    @objc func nuimoController(controller: NuimoController, didChangeConnectionState state: NuimoConnectionState, withError error: NSError?) {
+        if state == .Connected {
+            onConnect?()
+        }
     }
-
-    @objc func nuimoControllerDidConnect(controller: NuimoController) {
-        onConnect?()
-    }
-
-    @objc func nuimoController(controller: NuimoController, didFailToConnect error: NSError?) {
-    }
-
-    @objc func nuimoController(controller: NuimoController, didDisconnect error: NSError?) {
-    }
-
     @objc func nuimoControllerDidDisplayLEDMatrix(controller: NuimoController) {
         onLEDMatrixDisplayed?()
     }
@@ -205,8 +197,5 @@ class NuimoControllerDelegateClosures : NuimoControllerDelegate {
     }
 
     @objc func nuimoController(controller: NuimoController, didUpdateBatteryLevel bateryLevel: Int) {
-    }
-
-    @objc func nuimoControllerDidInvalidate(controller: NuimoController) {
     }
 }
