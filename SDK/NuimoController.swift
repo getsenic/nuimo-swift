@@ -13,9 +13,6 @@
     var delegate: NuimoControllerDelegate? {get set}
 
     var connectionState: NuimoConnectionState {get}
-    /// Battery level 0..100
-    //TODO: Remove battery level since is emitted through the delegate, that's enough, no need to store it
-    var batteryLevel: Int {get}
     /// Display interval in seconds
     var defaultMatrixDisplayInterval: NSTimeInterval {get set}
     /// Brightness 0..1 (1=max)

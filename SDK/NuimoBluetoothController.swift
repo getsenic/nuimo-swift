@@ -15,7 +15,6 @@ import CoreBluetooth
 public class NuimoBluetoothController: BLEDevice, NuimoController {
     public var delegate: NuimoControllerDelegate?
     public private(set) dynamic var connectionState = NuimoConnectionState.Disconnected
-    public var batteryLevel: Int = -1 { didSet { if self.batteryLevel != oldValue { delegate?.nuimoController?(self, didUpdateBatteryLevel: self.batteryLevel) } } }
     public var defaultMatrixDisplayInterval: NSTimeInterval = 2.0
     public var matrixBrightness: Float = 1.0 { didSet { matrixWriter?.brightness = self.matrixBrightness } }
     public override var connectionTimeoutInterval: NSTimeInterval { get { return 5.0 } }
@@ -107,7 +106,7 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
                 delegate?.nuimoController?(self, didReadFirmwareVersion: firmwareVersion)
             }
         case kBatteryCharacteristicUUID:
-            batteryLevel = Int(UnsafePointer<UInt8>(data.bytes).memory)
+            delegate?.nuimoController?(self, didUpdateBatteryLevel: Int(UnsafePointer<UInt8>(data.bytes).memory))
         default:
             if let event = characteristic.nuimoGestureEvent() {
                 delegate?.nuimoController?(self, didReceiveGestureEvent: event)
