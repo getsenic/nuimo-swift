@@ -75,9 +75,9 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
     public func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval, options: Int) {
         matrixWriter?.writeMatrix(matrix, interval: interval, options: options)
     }
+}
 
-    //MARK: - CBPeripheralDelegate
-
+extension NuimoBluetoothController /* CBPeripheralDelegate */ {
     public override func peripheral(peripheral: CBPeripheral, didDiscoverCharacteristicsForService service: CBService, error: NSError?) {
         super.peripheral(peripheral, didDiscoverCharacteristicsForService: service, error: error)
         service.characteristics?.forEach{ characteristic in

@@ -17,7 +17,7 @@ import CoreBluetooth
     - Automatically discovers its characteristics
     - Automatically subscribes for characteristic change notifications
 */
-public class BLEDevice: NSObject, CBPeripheralDelegate {
+public class BLEDevice: NSObject {
     public let uuid: String
     public var serviceUUIDs: [CBUUID] { get { return [] } }
     public var charactericUUIDsForServiceUUID: [CBUUID : [CBUUID]] { get { return [:] } }
@@ -88,9 +88,9 @@ public class BLEDevice: NSObject, CBPeripheralDelegate {
         peripheral.delegate = nil
         didInvalidate()
     }
+}
 
-    //MARK: - CBPeripheralDelegate
-
+extension BLEDevice: CBPeripheralDelegate {
     @objc public func peripheral(peripheral: CBPeripheral, didDiscoverServices error: NSError?) {
         peripheral.services?
             .flatMap{ ($0, charactericUUIDsForServiceUUID[$0.UUID]) }
