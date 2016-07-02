@@ -66,7 +66,7 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
     }
 
     private func setConnectionState(state: NuimoConnectionState, withError error: NSError? = nil) {
-        assert(state != connectionState, "Nuimo connection state did not change")
+        guard state != connectionState else { return }
         connectionState = state
         delegate?.nuimoController?(self, didChangeConnectionState: connectionState, withError: error)
     }
