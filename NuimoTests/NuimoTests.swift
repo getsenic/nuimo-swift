@@ -99,7 +99,7 @@ class NuimoTests: XCTestCase {
                     displayFrame()
                 },
                 onLEDMatrixDisplayed: {
-                    frameIndex++
+                    frameIndex += 1
                     switch (frameIndex) {
                     case 110: after(2.0) {
                         controller.disconnect()
@@ -144,7 +144,7 @@ class NuimoTests: XCTestCase {
                     nextFrame()
                 },
                 onLEDMatrixDisplayed: {
-                    framesDisplayed++
+                    framesDisplayed += 1
                 }
             )
             controller.connect()
