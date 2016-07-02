@@ -13,11 +13,12 @@ import CoreBluetooth
 // Represents a bluetooth low energy (BLE) Nuimo controller
 //TODO: Internalize CBPeripheralDelegate implementation
 public class NuimoBluetoothController: BLEDevice, NuimoController {
+    public override class var connectionTimeoutInterval: NSTimeInterval { get { return 5.0 } }
+
     public var delegate: NuimoControllerDelegate?
     public private(set) dynamic var connectionState = NuimoConnectionState.Disconnected
     public var defaultMatrixDisplayInterval: NSTimeInterval = 2.0
     public var matrixBrightness: Float = 1.0 { didSet { matrixWriter?.brightness = self.matrixBrightness } }
-    public override var connectionTimeoutInterval: NSTimeInterval { get { return 5.0 } }
 
     public override var serviceUUIDs: [CBUUID] { get { return nuimoServiceUUIDs } }
     public override var charactericUUIDsForServiceUUID: [CBUUID : [CBUUID]] { get { return nuimoCharactericUUIDsForServiceUUID } }

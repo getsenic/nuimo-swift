@@ -18,13 +18,15 @@ import CoreBluetooth
     - Automatically subscribes for characteristic change notifications
 */
 public class BLEDevice: NSObject {
+    /// Interval after that a connection attempt will be considered timed out. If a connection attempt times out, `didFailToConnect` will be called.
+    public class var connectionTimeoutInterval: NSTimeInterval { get { return 5.0 } }
+
     public let uuid: String
     public var serviceUUIDs: [CBUUID] { get { return [] } }
     public var charactericUUIDsForServiceUUID: [CBUUID : [CBUUID]] { get { return [:] } }
     public var notificationCharacteristicUUIDs: [CBUUID] { get { return [] } }
     public let peripheral: CBPeripheral
     public let centralManager: CBCentralManager
-    public var connectionTimeoutInterval: NSTimeInterval { get { return 5.0 } }
     public var reconnectsWhenFirstConnectionAttemptFails = false
 
     private var connectionTimeoutTimer: NSTimer?
@@ -42,7 +44,7 @@ public class BLEDevice: NSObject {
         guard peripheral.state == .Disconnected else { return false }
         centralManager.connectPeripheral(peripheral, options: nil)
         connectionTimeoutTimer?.invalidate()
-        connectionTimeoutTimer = NSTimer.scheduledTimerWithTimeInterval(connectionTimeoutInterval, target: self, selector: #selector(self.didConnectTimeout), userInfo: nil, repeats: false)
+        connectionTimeoutTimer = NSTimer.scheduledTimerWithTimeInterval(self.dynamicType.connectionTimeoutInterval, target: self, selector: #selector(self.didConnectTimeout), userInfo: nil, repeats: false)
         reconnectOnConnectionFailure = reconnectsWhenFirstConnectionAttemptFails
         return true
     }
