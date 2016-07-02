@@ -42,16 +42,6 @@ public protocol BLEDiscoveryManagerDelegate {
     func bleDiscoveryManager(discovery: BLEDiscoveryManager, didDiscoverDevice device: BLEDevice)
 
     func bleDiscoveryManager(discovery: BLEDiscoveryManager, didRestoreDevice device: BLEDevice)
-
-    //TODO: Remove all following delegate methods since they are not related to discovery. These delegate methods shall be only available to BLEDevice delegates.
-
-    func bleDiscoveryManager(discovery: BLEDiscoveryManager, didConnectDevice device: BLEDevice)
-
-    func bleDiscoveryManager(discovery: BLEDiscoveryManager, didFailToConnectDevice device: BLEDevice, error: NSError?)
-
-    func bleDiscoveryManager(discovery: BLEDiscoveryManager, didDisconnectDevice device: BLEDevice, error: NSError?)
-
-    func bleDiscoveryManager(discovery: BLEDiscoveryManager, didInvalidateDevice device: BLEDevice)
 }
 
 /**
@@ -102,7 +92,6 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
 
     private func invalidateDevice(device: BLEDevice) {
         device.invalidate()
-        discovery.delegate?.bleDiscoveryManager(discovery, didInvalidateDevice: device)
         // Remove all peripherals associated with controller (there should be only one)
         deviceForPeripheral
             .filter{ $0.1 == device }
@@ -153,7 +142,6 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
             return
         }
         device.didConnect()
-        discovery.delegate?.bleDiscoveryManager(discovery, didConnectDevice: device)
     }
 
     @objc func centralManager(central: CBCentralManager, didFailToConnectPeripheral peripheral: CBPeripheral, error: NSError?) {
@@ -162,7 +150,6 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
             return
         }
         device.didFailToConnect(error)
-        discovery.delegate?.bleDiscoveryManager(discovery, didFailToConnectDevice: device, error: error)
     }
 
     @objc func centralManager(central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: NSError?) {
@@ -171,7 +158,6 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
             return
         }
         device.didDisconnect(error)
-        discovery.delegate?.bleDiscoveryManager(discovery, didDisconnectDevice: device, error: error)
 
         // Invalid the device (discards its CBPeripheral reference) as a reconnection won't find services and characteristics. See also http://stackoverflow.com/q/28285393/543875
         //TODO: Check if we can reconnect after a regulat call to disconnect(). Invalidating probably makes it impossible without rediscovering it!
