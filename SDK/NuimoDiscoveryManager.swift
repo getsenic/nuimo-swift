@@ -30,13 +30,17 @@ public class NuimoDiscoveryManager: NSObject {
         self.delegate = delegate
     }
     
-    public func startDiscovery() {
+    public func startDiscovery(detectUnreachableControllers: Bool = false) {
         let additionalDiscoverServiceUUIDs = options[NuimoDiscoveryManagerAdditionalDiscoverServiceUUIDsKey] as? [CBUUID] ?? []
-        bleDiscovery.startDiscovery(nuimoServiceUUIDs + additionalDiscoverServiceUUIDs)
+        bleDiscovery.startDiscovery(nuimoServiceUUIDs + additionalDiscoverServiceUUIDs, allowDuplicates: detectUnreachableControllers)
     }
 
     public func stopDiscovery() {
         bleDiscovery.stopDiscovery()
+    }
+
+    private func nuimoBluetoothControllerWithPeripheral(peripheral: CBPeripheral) -> NuimoBluetoothController {
+        return NuimoBluetoothController(discoveryManager: self.bleDiscovery, uuid: peripheral.identifier.UUIDString, peripheral: peripheral)
     }
 }
 
@@ -52,7 +56,7 @@ private class PrivateBLEDiscoveryManagerDelegate: BLEDiscoveryManagerDelegate {
             return device
         }
         guard peripheral.name == "Nuimo" || advertisementData?[CBAdvertisementDataLocalNameKey] as? String == "Nuimo" else { return nil }
-        return NuimoBluetoothController(centralManager: nuimoDiscoveryManager.centralManager, uuid: peripheral.identifier.UUIDString, peripheral: peripheral)
+        return nuimoDiscoveryManager.nuimoBluetoothControllerWithPeripheral(peripheral)
     }
 
     func bleDiscoveryManager(discovery: BLEDiscoveryManager, didDiscoverDevice device: BLEDevice) {

@@ -18,6 +18,8 @@ import CoreBluetooth
     - Automatically subscribes for characteristic change notifications
 */
 public class BLEDevice: NSObject {
+    /// Maximum interval between two advertising packages. If the OS doesn't receive a successive advertisement package after that interval the device is assumed to be unreachable and thus will invalidates. If not overridden, this interval defaults to `nil`, meaning that the device will never be assumed invalid, even in case the OS doesn't receive any more advertising packages.
+    public class var maxAdvertisingPackageInterval: NSTimeInterval? { get { return nil } }
     /// Interval after that a connection attempt will be considered timed out. If a connection attempt times out, `didFailToConnect` will be called.
     public class var connectionTimeoutInterval: NSTimeInterval { get { return 5.0 } }
 
@@ -29,8 +31,16 @@ public class BLEDevice: NSObject {
     public let centralManager: CBCentralManager
     public var reconnectsWhenFirstConnectionAttemptFails = false
 
+    private var discoveryManager: BLEDiscoveryManager?
+    private var advertisingTimeoutTimer: NSTimer?
     private var connectionTimeoutTimer: NSTimer?
     private var reconnectOnConnectionFailure = false
+
+    /// Convenience initializer that takes a BLEDiscoveryManager instead of a CBCentralManager. This initializer allows to detect that the device has disappeared by checking if the OS didn't receive any more advertising packages.
+    public convenience init(discoveryManager: BLEDiscoveryManager, uuid: String, peripheral: CBPeripheral) {
+        self.init(centralManager: discoveryManager.centralManager, uuid: uuid, peripheral: peripheral)
+        self.discoveryManager = discoveryManager
+    }
 
     public required init(centralManager: CBCentralManager, uuid: String, peripheral: CBPeripheral) {
         self.centralManager = centralManager
@@ -40,8 +50,21 @@ public class BLEDevice: NSObject {
         peripheral.delegate = self
     }
 
+    public func didAdvertise(advertisementData: [String: AnyObject], RSSI: NSNumber, willReceiveSuccessiveAdvertisingData: Bool) {
+        // Invalidate device if it stops advertising after a given interval of not sending any other advertising packages. Works only if `discoveryManager` known.
+        advertisingTimeoutTimer?.invalidate()
+        if let maxAdvertisingPackageInterval = self.dynamicType.maxAdvertisingPackageInterval where willReceiveSuccessiveAdvertisingData {
+            advertisingTimeoutTimer = NSTimer.scheduledTimerWithTimeInterval(maxAdvertisingPackageInterval, target: self, selector: #selector(didDisappear), userInfo: nil, repeats: false)
+        }
+    }
+
+    public func didDisappear() {
+        discoveryManager?.invalidateDevice(self)
+    }
+
     public func connect() -> Bool {
         guard peripheral.state == .Disconnected else { return false }
+        advertisingTimeoutTimer?.invalidate()
         centralManager.connectPeripheral(peripheral, options: nil)
         connectionTimeoutTimer?.invalidate()
         connectionTimeoutTimer = NSTimer.scheduledTimerWithTimeInterval(self.dynamicType.connectionTimeoutInterval, target: self, selector: #selector(self.didConnectTimeout), userInfo: nil, repeats: false)
@@ -86,7 +109,8 @@ public class BLEDevice: NSObject {
     public func didInvalidate() {
     }
 
-    internal func invalidate() {
+    @objc internal func invalidate() {
+        advertisingTimeoutTimer?.invalidate()
         peripheral.delegate = nil
         didInvalidate()
     }
