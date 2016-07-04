@@ -32,7 +32,7 @@ public class NuimoDiscoveryManager: NSObject {
     
     public func startDiscovery(detectUnreachableControllers: Bool = false) {
         let additionalDiscoverServiceUUIDs = options[NuimoDiscoveryManagerAdditionalDiscoverServiceUUIDsKey] as? [CBUUID] ?? []
-        bleDiscovery.startDiscovery(nuimoServiceUUIDs + additionalDiscoverServiceUUIDs, allowDuplicates: detectUnreachableControllers)
+        bleDiscovery.startDiscovery(nuimoServiceUUIDs + additionalDiscoverServiceUUIDs, detectUnreachableDevices: detectUnreachableControllers)
     }
 
     public func stopDiscovery() {
