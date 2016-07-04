@@ -13,7 +13,7 @@ import CoreBluetooth
 // Represents a bluetooth low energy (BLE) Nuimo controller
 //TODO: Internalize CBPeripheralDelegate implementation
 public class NuimoBluetoothController: BLEDevice, NuimoController {
-    public override class var connectionTimeoutInterval: NSTimeInterval { get { return 5.0 } }
+    public override class var connectionTimeoutInterval: NSTimeInterval { return 5.0 }
     public override class var maxAdvertisingPackageInterval: NSTimeInterval? { return 5.0 }
 
     public var delegate: NuimoControllerDelegate?

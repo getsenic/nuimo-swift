@@ -21,7 +21,7 @@ public class BLEDevice: NSObject {
     /// Maximum interval between two advertising packages. If the OS doesn't receive a successive advertisement package after that interval the device is assumed to be unreachable and thus will invalidates. If not overridden, this interval defaults to `nil`, meaning that the device will never be assumed invalid, even in case the OS doesn't receive any more advertising packages.
     public class var maxAdvertisingPackageInterval: NSTimeInterval? { get { return nil } }
     /// Interval after that a connection attempt will be considered timed out. If a connection attempt times out, `didFailToConnect` will be called.
-    public class var connectionTimeoutInterval: NSTimeInterval { get { return 5.0 } }
+    public class var connectionTimeoutInterval: NSTimeInterval { return 5.0 }
 
     public let uuid: String
     public var serviceUUIDs: [CBUUID] { get { return [] } }
