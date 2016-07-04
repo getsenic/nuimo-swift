@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "NuimoSwift"
-  s.version      = "0.6.0"
+  s.version      = "0.6.1"
   s.summary      = "Swift library for connecting and communicating with Senic's Nuimo controllers"
   s.description  = <<-DESC
                      Swift library for connecting and communicating with Senic's Nuimo controllers
