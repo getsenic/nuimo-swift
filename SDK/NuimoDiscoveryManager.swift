@@ -17,11 +17,11 @@ public class NuimoDiscoveryManager: NSObject {
 
     public static let sharedManager = NuimoDiscoveryManager()
     public private (set) lazy var centralManager: CBCentralManager = self.bleDiscovery.centralManager
+    public private (set) lazy var bleDiscovery: BLEDiscoveryManager = BLEDiscoveryManager(delegate: self.bleDiscoveryDelegate, options: self.options)
     
     public var delegate: NuimoDiscoveryDelegate?
 
     private let options: [String : AnyObject]
-    private lazy var bleDiscovery: BLEDiscoveryManager = BLEDiscoveryManager(delegate: self.bleDiscoveryDelegate, options: self.options)
     private lazy var bleDiscoveryDelegate: PrivateBLEDiscoveryManagerDelegate = PrivateBLEDiscoveryManagerDelegate(nuimoDiscoveryManager: self)
 
     public init(delegate: NuimoDiscoveryDelegate? = nil, options: [String : AnyObject] = [:]) {
