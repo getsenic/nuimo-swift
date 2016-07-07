@@ -143,26 +143,17 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
     }
 
     @objc func centralManager(central: CBCentralManager, didConnectPeripheral peripheral: CBPeripheral) {
-        guard let device = self.deviceForPeripheral[peripheral] else {
-            assertionFailure("Peripheral not registered")
-            return
-        }
+        guard let device = self.deviceForPeripheral[peripheral] else { return }
         device.didConnect()
     }
 
     @objc func centralManager(central: CBCentralManager, didFailToConnectPeripheral peripheral: CBPeripheral, error: NSError?) {
-        guard let device = self.deviceForPeripheral[peripheral] else {
-            assertionFailure("Peripheral not registered")
-            return
-        }
+        guard let device = self.deviceForPeripheral[peripheral] else { return }
         device.didFailToConnect(error)
     }
 
     @objc func centralManager(central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: NSError?) {
-        guard let device = self.deviceForPeripheral[peripheral] else {
-            assertionFailure("Peripheral not registered")
-            return
-        }
+        guard let device = self.deviceForPeripheral[peripheral] else { return }
         device.didDisconnect(error)
         invalidateDevice(device)
     }
