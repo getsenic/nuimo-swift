@@ -47,7 +47,6 @@ public class BLEDevice: NSObject {
         self.uuid = uuid
         self.peripheral = peripheral
         super.init()
-        peripheral.delegate = self
     }
 
     public func didAdvertise(advertisementData: [String: AnyObject], RSSI: NSNumber, willReceiveSuccessiveAdvertisingData: Bool) {
@@ -74,7 +73,7 @@ public class BLEDevice: NSObject {
 
     public func didConnect() {
         connectionTimeoutTimer?.invalidate()
-        // Discover bluetooth services
+        peripheral.delegate = self
         peripheral.discoverServices(serviceUUIDs)
     }
 
