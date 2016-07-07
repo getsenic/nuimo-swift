@@ -111,7 +111,6 @@ public class BLEDevice: NSObject {
 
     @objc internal func invalidate() {
         advertisingTimeoutTimer?.invalidate()
-        peripheral.delegate = nil
         didInvalidate()
     }
 }
