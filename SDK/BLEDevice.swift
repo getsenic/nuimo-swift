@@ -52,7 +52,7 @@ public class BLEDevice: NSObject {
     public func didAdvertise(advertisementData: [String: AnyObject], RSSI: NSNumber, willReceiveSuccessiveAdvertisingData: Bool) {
         // Invalidate device if it stops advertising after a given interval of not sending any other advertising packages. Works only if `discoveryManager` known.
         advertisingTimeoutTimer?.invalidate()
-        if let maxAdvertisingPackageInterval = self.dynamicType.maxAdvertisingPackageInterval where willReceiveSuccessiveAdvertisingData {
+        if let maxAdvertisingPackageInterval = self.dynamicType.maxAdvertisingPackageInterval where peripheral.state == .Disconnected && willReceiveSuccessiveAdvertisingData {
             advertisingTimeoutTimer = NSTimer.scheduledTimerWithTimeInterval(maxAdvertisingPackageInterval, target: self, selector: #selector(didDisappear), userInfo: nil, repeats: false)
         }
     }
