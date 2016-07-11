@@ -105,12 +105,14 @@ public class BLEDevice: NSObject {
         peripheral.delegate = nil
     }
 
-    public func didInvalidate() {
-    }
-
     @objc internal func invalidate() {
         advertisingTimeoutTimer?.invalidate()
+        centralManager.cancelPeripheralConnection(peripheral)
+        peripheral.delegate = nil
         didInvalidate()
+    }
+
+    public func didInvalidate() {
     }
 }
 
