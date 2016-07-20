@@ -34,7 +34,7 @@ public class BLEDevice: NSObject {
     private var discoveryManager: BLEDiscoveryManager?
     private var advertisingTimeoutTimer: NSTimer?
     private var connectionTimeoutTimer: NSTimer?
-    private var connectionRetryAttempt = 0
+    private var connectionAttempt = 0
 
     /// Convenience initializer that takes a BLEDiscoveryManager instead of a CBCentralManager. This initializer allows to detect that the device has disappeared by checking if the OS didn't receive any more advertising packages.
     public convenience init(discoveryManager: BLEDiscoveryManager, uuid: String, peripheral: CBPeripheral) {
@@ -68,7 +68,7 @@ public class BLEDevice: NSObject {
         centralManager.connectPeripheral(peripheral, options: nil)
         connectionTimeoutTimer?.invalidate()
         connectionTimeoutTimer = NSTimer.scheduledTimerWithTimeInterval(self.dynamicType.connectionTimeoutInterval, target: self, selector: #selector(self.didConnectTimeout), userInfo: nil, repeats: false)
-        connectionRetryAttempt += 1
+        connectionAttempt += 1
         return true
     }
 
@@ -85,8 +85,7 @@ public class BLEDevice: NSObject {
     }
 
     public func didFailToConnect(error: NSError?) {
-        if connectionRetryAttempt < self.dynamicType.connectionRetryCount {
-            print("Connection attempt failed, trying again...", connectionRetryAttempt)
+        if connectionAttempt < self.dynamicType.connectionRetryCount {
             connect()
         }
         else {
