@@ -13,7 +13,8 @@ import CoreBluetooth
 // Represents a bluetooth low energy (BLE) Nuimo controller
 //TODO: Internalize CBPeripheralDelegate implementation
 public class NuimoBluetoothController: BLEDevice, NuimoController {
-    public override class var connectionTimeoutInterval: NSTimeInterval { return 5.0 }
+    public override class var connectionTimeoutInterval:     NSTimeInterval  { return 5.0 }
+    public override class var connectionRetryCount:          Int             { return 5 }
     public override class var maxAdvertisingPackageInterval: NSTimeInterval? { return 5.0 }
 
     public var delegate: NuimoControllerDelegate?
@@ -27,11 +28,6 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
 
     private var matrixWriter: LEDMatrixWriter?
     private var connectTimeoutTimer: NSTimer?
-
-    public required init(centralManager: CBCentralManager, uuid: String, peripheral: CBPeripheral) {
-        super.init(centralManager: centralManager, uuid: uuid, peripheral: peripheral)
-        reconnectsWhenFirstConnectionAttemptFails = true
-    }
 
     public override func connect() -> Bool {
         guard super.connect() else { return false }

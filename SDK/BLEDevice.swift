@@ -22,6 +22,7 @@ public class BLEDevice: NSObject {
     public class var maxAdvertisingPackageInterval: NSTimeInterval? { get { return nil } }
     /// Interval after that a connection attempt will be considered timed out. If a connection attempt times out, `didFailToConnect` will be called.
     public class var connectionTimeoutInterval: NSTimeInterval { return 5.0 }
+    public class var connectionRetryCount: Int { return 0 }
 
     public let uuid: String
     public var serviceUUIDs: [CBUUID] { get { return [] } }
@@ -29,12 +30,11 @@ public class BLEDevice: NSObject {
     public var notificationCharacteristicUUIDs: [CBUUID] { get { return [] } }
     public let peripheral: CBPeripheral
     public let centralManager: CBCentralManager
-    public var reconnectsWhenFirstConnectionAttemptFails = false
 
     private var discoveryManager: BLEDiscoveryManager?
     private var advertisingTimeoutTimer: NSTimer?
     private var connectionTimeoutTimer: NSTimer?
-    private var reconnectOnConnectionFailure = false
+    private var connectionRetryAttempt = 0
 
     /// Convenience initializer that takes a BLEDiscoveryManager instead of a CBCentralManager. This initializer allows to detect that the device has disappeared by checking if the OS didn't receive any more advertising packages.
     public convenience init(discoveryManager: BLEDiscoveryManager, uuid: String, peripheral: CBPeripheral) {
@@ -62,12 +62,13 @@ public class BLEDevice: NSObject {
     }
 
     public func connect() -> Bool {
-        guard peripheral.state == .Disconnected else { return false }
+        if #available(iOS 9.0, *) { guard [CBPeripheralState.Disconnected, CBPeripheralState.Disconnecting].contains(peripheral.state) else { return false } }
+        else {                      guard [CBPeripheralState.Disconnected                                 ].contains(peripheral.state) else { return false } }
         advertisingTimeoutTimer?.invalidate()
         centralManager.connectPeripheral(peripheral, options: nil)
         connectionTimeoutTimer?.invalidate()
         connectionTimeoutTimer = NSTimer.scheduledTimerWithTimeInterval(self.dynamicType.connectionTimeoutInterval, target: self, selector: #selector(self.didConnectTimeout), userInfo: nil, repeats: false)
-        reconnectOnConnectionFailure = reconnectsWhenFirstConnectionAttemptFails
+        connectionRetryAttempt += 1
         return true
     }
 
@@ -84,9 +85,12 @@ public class BLEDevice: NSObject {
     }
 
     public func didFailToConnect(error: NSError?) {
-        if reconnectsWhenFirstConnectionAttemptFails && reconnectOnConnectionFailure {
+        if connectionRetryAttempt < self.dynamicType.connectionRetryCount {
+            print("Connection attempt failed, trying again...", connectionRetryAttempt)
             connect()
-            reconnectOnConnectionFailure = false
+        }
+        else {
+            didDisappear()
         }
     }
 
