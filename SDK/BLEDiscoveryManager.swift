@@ -95,6 +95,8 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
         deviceForPeripheral
             .filter{ $0.1 == device }
             .forEach { deviceForPeripheral.removeValueForKey($0.0) }
+        // Restart discovery if we are not receiving duplicate discovery events for the same peripheral – otherwise we wouldn't detect this invalidated peripheral when it comes back online
+        if !detectUnreachableDevices { startDiscovery() }
     }
 
     @objc func centralManager(central: CBCentralManager, willRestoreState state: [String : AnyObject]) {
