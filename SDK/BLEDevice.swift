@@ -110,6 +110,7 @@ public class BLEDevice: NSObject {
 
     @objc internal func invalidate() {
         advertisingTimeoutTimer?.invalidate()
+        // Cancel connection (if any) if peripheral wasn't "hijacked" by another one (e.g. NuimoDFU) – this is when the delegate isn't any longer `self`
         if peripheral.delegate === self {
             centralManager.cancelPeripheralConnection(peripheral)
         }
