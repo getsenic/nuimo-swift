@@ -63,6 +63,8 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
     var deviceForPeripheral = [CBPeripheral : BLEDevice]()
     var restoredConnectedPeripherals: [CBPeripheral]?
 
+    private var isScanning = false
+
     init(discovery: BLEDiscoveryManager, options: [String : AnyObject]) {
         self.discovery = discovery
         self.options = options
@@ -82,11 +84,13 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
         var options = self.options
         options[CBCentralManagerScanOptionAllowDuplicatesKey] = detectUnreachableDevices
         centralManager.scanForPeripheralsWithServices(discoverServiceUUIDs, options: options)
+        isScanning = true
     }
 
     func stopDiscovery() {
         centralManager.stopScan()
         shouldStartDiscoveryWhenPowerStateTurnsOn = false
+        isScanning = false
     }
 
     func invalidateDevice(device: BLEDevice) {
@@ -96,7 +100,7 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
             .filter{ $0.1 == device }
             .forEach { deviceForPeripheral.removeValueForKey($0.0) }
         // Restart discovery if we are not receiving duplicate discovery events for the same peripheral – otherwise we wouldn't detect this invalidated peripheral when it comes back online
-        if !detectUnreachableDevices { startDiscovery() }
+        if isScanning && !detectUnreachableDevices { startDiscovery() }
     }
 
     @objc func centralManager(central: CBCentralManager, willRestoreState state: [String : AnyObject]) {
