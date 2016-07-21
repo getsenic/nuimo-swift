@@ -62,8 +62,12 @@ public class BLEDevice: NSObject {
     }
 
     public func connect() -> Bool {
-        if #available(iOS 9.0, *) { guard [CBPeripheralState.Disconnected, CBPeripheralState.Disconnecting].contains(peripheral.state) else { return false } }
-        else {                      guard [CBPeripheralState.Disconnected                                 ].contains(peripheral.state) else { return false } }
+        #if os(OSX)
+                                        guard [CBPeripheralState.Disconnected                                 ].contains(peripheral.state) else { return false }
+        #else
+            if #available(iOS 9.0, *) { guard [CBPeripheralState.Disconnected, CBPeripheralState.Disconnecting].contains(peripheral.state) else { return false } }
+            else {                      guard [CBPeripheralState.Disconnected                                 ].contains(peripheral.state) else { return false } }
+        #endif
         advertisingTimeoutTimer?.invalidate()
         centralManager.connectPeripheral(peripheral, options: nil)
         connectionTimeoutTimer?.invalidate()
