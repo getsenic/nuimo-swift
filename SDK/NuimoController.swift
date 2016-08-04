@@ -39,7 +39,7 @@ public extension NuimoController {
 
     /// Writes an LED matrix for an interval and with options
     public func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval, options: NuimoLEDMatrixWriteOptions) {
-        writeMatrix(matrix, interval: defaultMatrixDisplayInterval, options: options.rawValue)
+        writeMatrix(matrix, interval: interval, options: options.rawValue)
     }
 
     /// Writes an LED matrix using the default display interval and with options defaulting to ResendsSameMatrix and WithWriteResponse
