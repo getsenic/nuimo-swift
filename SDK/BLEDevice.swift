@@ -98,8 +98,9 @@ public class BLEDevice: NSObject {
     }
 
     public func didRestore() {
-        //TODO: We might want to check first if re-discovering services is not necessary, this is when all services and characteristics and notification subscriptions are present
-        peripheral.discoverServices(serviceUUIDs)
+        //TODO: Services discovery might or might not be necessary – saw cases where they are already known when restoring. This said, we can directly call peripheral(periphral, didDiscoverServices: nil)
+        //Restoring isn't supported right now – that's whey we're disconnecting the peripheral when it has been restored
+        disconnect()
     }
 
     public func disconnect() -> Bool {
