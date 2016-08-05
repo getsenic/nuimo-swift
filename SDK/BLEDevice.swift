@@ -103,7 +103,7 @@ public class BLEDevice: NSObject {
     }
 
     public func disconnect() -> Bool {
-        guard peripheral.state == .Connected else { return false }
+        guard [CBPeripheralState.Connecting, CBPeripheralState.Connected].contains(peripheral.state) else { return false }
         centralManager.cancelPeripheralConnection(peripheral)
         return true
     }
