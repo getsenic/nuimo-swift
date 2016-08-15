@@ -98,9 +98,17 @@ public class BLEDevice: NSObject {
     }
 
     public func didRestore() {
-        //TODO: Services discovery might or might not be necessary – saw cases where they are already known when restoring. This said, we can directly call peripheral(periphral, didDiscoverServices: nil)
-        //Restoring isn't supported right now – that's whey we're disconnecting the peripheral when it has been restored
-        disconnect()
+        peripheral.delegate = self
+        if peripheral.state == .Connected {
+            peripheral.services?.forEach {
+                // Notify already discovered services, it will discover their characteristics if not already discovered
+                peripheral(peripheral, didDiscoverServices: nil)
+                // Notify already discovered characteristics
+                peripheral(peripheral, didDiscoverCharacteristicsForService: $0, error: nil)
+            }
+            // Discover not yet discovered services
+            peripheral.discoverServices(serviceUUIDs.filter{ !peripheral.serviceUUIDs.contains($0) })
+        }
     }
 
     public func disconnect() -> Bool {
@@ -128,7 +136,7 @@ public class BLEDevice: NSObject {
 extension BLEDevice: CBPeripheralDelegate {
     @objc public func peripheral(peripheral: CBPeripheral, didDiscoverServices error: NSError?) {
         peripheral.services?
-            .flatMap{ ($0, charactericUUIDsForServiceUUID[$0.UUID]) }
+            .flatMap{ service in (service, charactericUUIDsForServiceUUID[service.UUID]?.filter { !service.characteristicUUIDs.contains($0) } ?? [] ) }
             .forEach{ peripheral.discoverCharacteristics($0.1, forService: $0.0) }
     }
 
@@ -148,4 +156,12 @@ extension BLEDevice: CBPeripheralDelegate {
 
     @objc public func peripheral(peripheral: CBPeripheral, didWriteValueForCharacteristic characteristic: CBCharacteristic, error: NSError?) {
     }
+}
+
+private extension CBPeripheral {
+    var serviceUUIDs: [CBUUID] { return services?.map{ $0.UUID } ?? [] }
+}
+
+private extension CBService {
+    var characteristicUUIDs: [CBUUID] { return characteristics?.map{ $0.UUID } ?? [] }
 }
