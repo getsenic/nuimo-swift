@@ -15,14 +15,10 @@
     ButtonDoublePress,
     ButtonRelease,
     Rotate,
-    TouchLeftDown,
-    TouchLeftRelease,
-    TouchRightDown,
-    TouchRightRelease,
-    TouchTopDown,
-    TouchTopRelease,
-    TouchBottomDown,
-    TouchBottomRelease,
+    TouchLeft,
+    TouchRight,
+    TouchTop,
+    TouchBottom,
     SwipeLeft,
     SwipeRight,
     SwipeUp,
@@ -39,15 +35,6 @@
     }
     
     public var identifier: String { return identifierForGesture[self]! }
-    
-    // Returns the corresponding touch down gesture if self is a touch gesture, nil if not
-    public var touchDownGesture: NuimoGesture? { return touchDownGestureForTouchGesture[self] }
-    
-    // Returns the corresponding touch up gesture if self is a touch gesture, nil if not
-    public var touchReleaseGesture: NuimoGesture? { return touchReleaseGestureForTouchGesture[self] }
-    
-    // Returns the corresponding swipe gesture if self is a touch gesture, nil if not
-    public var swipeGesture: NuimoGesture? { return swipeGestureForTouchGesture[self] }
 }
 
 public enum NuimoGestureError: ErrorType {
@@ -60,14 +47,10 @@ private let identifierForGesture: [NuimoGesture : String] = [
     .ButtonRelease      : "ButtonRelease",
     .ButtonDoublePress  : "ButtonDoublePress",
     .Rotate             : "Rotate",
-    .TouchLeftDown      : "TouchLeftDown",
-    .TouchLeftRelease   : "TouchLeftRelease",
-    .TouchRightDown     : "TouchRightDown",
-    .TouchRightRelease  : "TouchRightRelease",
-    .TouchTopDown       : "TouchTopDown",
-    .TouchTopRelease    : "TouchTopRelease",
-    .TouchBottomDown    : "TouchBottomDown",
-    .TouchBottomRelease : "TouchBottomRelease",
+    .TouchLeft          : "TouchLeft",
+    .TouchRight         : "TouchRight",
+    .TouchTop           : "TouchTop",
+    .TouchBottom        : "TouchBottom",
     .SwipeLeft          : "SwipeLeft",
     .SwipeRight         : "SwipeRight",
     .SwipeUp            : "SwipeUp",
@@ -86,48 +69,3 @@ private let gestureForIdentifier: [String : NuimoGesture] = {
     }
     return dictionary
 }()
-
-private let touchDownGestureForTouchGesture: [NuimoGesture : NuimoGesture] = [
-    .TouchLeftDown      : .TouchLeftDown,
-    .TouchLeftRelease   : .TouchLeftDown,
-    .TouchRightDown     : .TouchRightDown,
-    .TouchRightRelease  : .TouchRightDown,
-    .TouchTopDown       : .TouchTopDown,
-    .TouchTopRelease    : .TouchTopDown,
-    .TouchBottomDown    : .TouchBottomDown,
-    .TouchBottomRelease : .TouchBottomDown,
-    .SwipeLeft          : .TouchLeftDown,
-    .SwipeRight         : .TouchRightDown,
-    .SwipeUp            : .TouchTopDown,
-    .SwipeDown          : .TouchBottomDown,
-]
-
-private let touchReleaseGestureForTouchGesture: [NuimoGesture : NuimoGesture] = [
-    .TouchLeftDown      : .TouchLeftRelease,
-    .TouchLeftRelease   : .TouchLeftRelease,
-    .TouchRightDown     : .TouchRightRelease,
-    .TouchRightRelease  : .TouchRightRelease,
-    .TouchTopDown       : .TouchTopRelease,
-    .TouchTopRelease    : .TouchTopRelease,
-    .TouchBottomDown    : .TouchBottomRelease,
-    .TouchBottomRelease : .TouchBottomRelease,
-    .SwipeLeft          : .TouchLeftRelease,
-    .SwipeRight         : .TouchRightRelease,
-    .SwipeUp            : .TouchTopRelease,
-    .SwipeDown          : .TouchBottomRelease,
-]
-
-private let swipeGestureForTouchGesture: [NuimoGesture : NuimoGesture] = [
-    .TouchLeftDown      : .SwipeLeft,
-    .TouchLeftRelease   : .SwipeLeft,
-    .TouchRightDown     : .SwipeRight,
-    .TouchRightRelease  : .SwipeRight,
-    .TouchTopDown       : .SwipeUp,
-    .TouchTopRelease    : .SwipeUp,
-    .TouchBottomDown    : .SwipeDown,
-    .TouchBottomRelease : .SwipeDown,
-    .SwipeLeft          : .SwipeLeft,
-    .SwipeRight         : .SwipeRight,
-    .SwipeUp            : .SwipeUp,
-    .SwipeDown          : .SwipeDown,
-]

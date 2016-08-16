@@ -281,31 +281,7 @@ private extension NuimoGestureEvent {
 
     convenience init(gattTouchData data: NSData) {
         let bytes = UnsafePointer<UInt8>(data.bytes)
-        let gesture: NuimoGesture = {
-            if data.length == 1 {
-                return [0 : .SwipeLeft, 1 : .SwipeRight, 2 : .SwipeUp, 3 : .SwipeDown][bytes.memory] ?? .Undefined
-            }
-            else {
-                //TODO: This is for the previous firmware version. Remove when we have no devices anymore running the old firmware.
-                let bytes = UnsafePointer<Int16>(data.bytes)
-                let buttonByte = bytes.memory
-                let eventByte = bytes.advancedBy(1).memory
-                for i: Int16 in 0...7 where (1 << i) & buttonByte != 0 {
-                    let touchDownGesture: NuimoGesture = [.TouchLeftDown, .TouchTopDown, .TouchRightDown, .TouchBottomDown][Int(i / 2)]
-                    if let eventGesture: NuimoGesture = {
-                            switch eventByte {
-                            case 1:  return touchDownGesture.self
-                            case 2:  return touchDownGesture.touchReleaseGesture //TODO: Move this method here as a private extension method
-                            case 3:  return nil //TODO: Do we need to handle double touch gestures here as well?
-                            case 4:  return touchDownGesture.swipeGesture
-                            default: return nil}}() {
-                        return eventGesture
-                    }
-                }
-                return .Undefined
-            }
-        }()
-
+        let gesture: NuimoGesture = [0 : .SwipeLeft, 1 : .SwipeRight, 2 : .SwipeUp, 3 : .SwipeDown][bytes.memory] ?? .Undefined
         self.init(gesture: gesture, value: nil)
     }
 
