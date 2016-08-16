@@ -26,6 +26,8 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
     public override var charactericUUIDsForServiceUUID: [CBUUID : [CBUUID]] { get { return nuimoCharactericUUIDsForServiceUUID } }
     public override var notificationCharacteristicUUIDs: [CBUUID] { get { return nuimoNotificationCharacteristicnUUIDs } }
 
+    public var heartBeatInterval: NSTimeInterval = 0.0 { didSet { writeHeartBeatInterval() } }
+
     private var matrixWriter: LEDMatrixWriter?
     private var connectTimeoutTimer: NSTimer?
 
@@ -73,7 +75,17 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
     public func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval, options: Int) {
         matrixWriter?.writeMatrix(matrix, interval: interval, options: options)
     }
+
+    private func writeHeartBeatInterval() {
+        guard peripheral.state == .Connected else { return }
+        guard let service = peripheral.services?.filter({ $0.UUID == kSensorServiceUUID }).first else { return }
+        guard let characteristic = service.characteristics?.filter({ $0.UUID == kHeartBeatCharacteristicUUID }).first else { return }
+        let interval = UInt8(max(0, min(255, heartBeatInterval)))
+        peripheral.writeValue(NSData(bytes: [interval], length: 1), forCharacteristic: characteristic, type: .WithResponse)
+    }
 }
+
+public let NuimoBluetoothControllerDidSendHeartBeatNotification = "NuimoBluetoothControllerDidSendHeartBeatNotification"
 
 extension NuimoBluetoothController /* CBPeripheralDelegate */ {
     public override func peripheral(peripheral: CBPeripheral, didDiscoverCharacteristicsForService service: CBService, error: NSError?) {
@@ -87,6 +99,8 @@ extension NuimoBluetoothController /* CBPeripheralDelegate */ {
             case kLEDMatrixCharacteristicUUID:
                 matrixWriter = LEDMatrixWriter(peripheral: peripheral, matrixCharacteristic: characteristic, brightness: matrixBrightness)
                 setConnectionState(.Connected)
+            case kHeartBeatCharacteristicUUID:
+                writeHeartBeatInterval()
             default:
                 break
             }
@@ -105,6 +119,8 @@ extension NuimoBluetoothController /* CBPeripheralDelegate */ {
             }
         case kBatteryCharacteristicUUID:
             delegate?.nuimoController?(self, didUpdateBatteryLevel: Int(UnsafePointer<UInt8>(data.bytes).memory))
+        case kHeartBeatCharacteristicUUID:
+            NSNotificationCenter.defaultCenter().postNotificationName(NuimoBluetoothControllerDidSendHeartBeatNotification, object: self, userInfo: nil)
         default:
             if let event = characteristic.nuimoGestureEvent() {
                 delegate?.nuimoController?(self, didReceiveGestureEvent: event)
@@ -216,6 +232,7 @@ private let kSensorFlyCharacteristicUUID         = CBUUID(string: "F29B1526-CB19
 private let kSensorTouchCharacteristicUUID       = CBUUID(string: "F29B1527-CB19-40F3-BE5C-7241ECB82FD2")
 private let kSensorRotationCharacteristicUUID    = CBUUID(string: "F29B1528-CB19-40F3-BE5C-7241ECB82FD2")
 private let kSensorButtonCharacteristicUUID      = CBUUID(string: "F29B1529-CB19-40F3-BE5C-7241ECB82FD2")
+private let kHeartBeatCharacteristicUUID         = CBUUID(string: "F29B152B-CB19-40F3-BE5C-7241ECB82FD2")
 
 internal let nuimoServiceUUIDs: [CBUUID] = [
     kBatteryServiceUUID,
@@ -232,7 +249,8 @@ private let nuimoCharactericUUIDsForServiceUUID = [
         kSensorFlyCharacteristicUUID,
         kSensorTouchCharacteristicUUID,
         kSensorRotationCharacteristicUUID,
-        kSensorButtonCharacteristicUUID
+        kSensorButtonCharacteristicUUID,
+        kHeartBeatCharacteristicUUID
     ]
 ]
 
@@ -241,7 +259,8 @@ private let nuimoNotificationCharacteristicnUUIDs = [
     kSensorFlyCharacteristicUUID,
     kSensorTouchCharacteristicUUID,
     kSensorRotationCharacteristicUUID,
-    kSensorButtonCharacteristicUUID
+    kSensorButtonCharacteristicUUID,
+    kHeartBeatCharacteristicUUID
 ]
 
 //MARK: - Private extensions
