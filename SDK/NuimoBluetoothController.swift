@@ -275,13 +275,13 @@ private extension NuimoGestureEvent {
         print("direction byte: \(directionByte)")
         print("speed byte: \(speedByte)")
         //TODO: When firmware bug is fixed fallback to .Undefined gesture
-        let gesture: NuimoGesture = [0 : .FlyLeft, 1 : .FlyRight, 2 : .FlyBackwards, 3 : .FlyTowards, 4 : .FlyUpDown][directionByte] ?? .FlyRight //.Undefined
+        let gesture: NuimoGesture = [0: .FlyLeft, 1: .FlyRight, 2: .FlyBackwards, 3: .FlyTowards, 4: .FlyUpDown][directionByte] ?? .FlyRight //.Undefined
         self.init(gesture: gesture, value: gesture == .FlyUpDown ? Int(speedByte) : nil)
     }
 
     convenience init(gattTouchData data: NSData) {
         let bytes = UnsafePointer<UInt8>(data.bytes)
-        let gesture: NuimoGesture = [0 : .SwipeLeft, 1 : .SwipeRight, 2 : .SwipeUp, 3 : .SwipeDown][bytes.memory] ?? .Undefined
+        let gesture: NuimoGesture = [0: .SwipeLeft, 1: .SwipeRight, 2: .SwipeUp, 3: .SwipeDown, 4: .TouchLeft, 5: .TouchRight, 6: .TouchTop, 7: .TouchBottom][bytes.memory] ?? .Undefined
         self.init(gesture: gesture, value: nil)
     }
 
