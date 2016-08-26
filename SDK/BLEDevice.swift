@@ -35,6 +35,7 @@ public class BLEDevice: NSObject {
     private var advertisingTimeoutTimer: NSTimer?
     private var connectionTimeoutTimer: NSTimer?
     private var connectionAttempt = 0
+    private var didInitiateConnection = false
 
     /// Convenience initializer that takes a BLEDiscoveryManager instead of a CBCentralManager. This initializer allows to detect that the device has disappeared by checking if the OS didn't receive any more advertising packages.
     public convenience init(discoveryManager: BLEDiscoveryManager, uuid: String, peripheral: CBPeripheral) {
@@ -70,6 +71,7 @@ public class BLEDevice: NSObject {
         #endif
         advertisingTimeoutTimer?.invalidate()
         centralManager.connectPeripheral(peripheral, options: nil)
+        didInitiateConnection = true
         connectionTimeoutTimer?.invalidate()
         connectionTimeoutTimer = NSTimer.scheduledTimerWithTimeInterval(self.dynamicType.connectionTimeoutInterval, target: self, selector: #selector(self.didConnectTimeout), userInfo: nil, repeats: false)
         connectionAttempt += 1
@@ -112,7 +114,8 @@ public class BLEDevice: NSObject {
     }
 
     public func disconnect() -> Bool {
-        guard [CBPeripheralState.Connecting, CBPeripheralState.Connected].contains(peripheral.state) else { return false }
+        // Only disconnect if connection was initiated by this instance. BLEDevice can also be used to only discover peripherals but somebody else takes then ownership over the `delegate` instance.
+        guard didInitiateConnection && [CBPeripheralState.Connecting, CBPeripheralState.Connected].contains(peripheral.state) else { return false }
         centralManager.cancelPeripheralConnection(peripheral)
         return true
     }
@@ -122,10 +125,7 @@ public class BLEDevice: NSObject {
 
     @objc internal func invalidate() {
         advertisingTimeoutTimer?.invalidate()
-        // Cancel connection (if any) if peripheral wasn't "hijacked" by another one (e.g. NuimoDFU) – this is when the delegate isn't any longer `self`
-        if peripheral.delegate === self {
-            centralManager.cancelPeripheralConnection(peripheral)
-        }
+        disconnect()
         didInvalidate()
     }
 
