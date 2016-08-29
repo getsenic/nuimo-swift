@@ -26,10 +26,12 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
     public override var charactericUUIDsForServiceUUID: [CBUUID : [CBUUID]] { get { return nuimoCharactericUUIDsForServiceUUID } }
     public override var notificationCharacteristicUUIDs: [CBUUID] { get { return nuimoNotificationCharacteristicnUUIDs } }
 
+    public var supportsRebootToDFUMode: Bool { return rebootToDFUModeCharacteristic != nil }
     public var heartBeatInterval: NSTimeInterval = 0.0 { didSet { writeHeartBeatInterval() } }
 
     private var matrixWriter: LEDMatrixWriter?
     private var connectTimeoutTimer: NSTimer?
+    private var rebootToDFUModeCharacteristic: CBCharacteristic? { return peripheral.serviceWithUUID(kSensorServiceUUID)?.characteristicWithUUID(kRebootToDFUModeCharacteristicUUID) }
 
     public override func connect() -> Bool {
         guard super.connect() else { return false }
@@ -74,6 +76,13 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
     //TODO: Rename to displayMatrix
     public func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval, options: Int) {
         matrixWriter?.writeMatrix(matrix, interval: interval, options: options)
+    }
+
+    public func rebootToDFUMode() -> Bool {
+        guard peripheral.state == .Connected else { return false }
+        guard let rebootToDFUModeCharacteristic = rebootToDFUModeCharacteristic else { return false }
+        peripheral.writeValue(NSData(bytes: [UInt8(1)], length: 1), forCharacteristic: rebootToDFUModeCharacteristic, type: .WithResponse)
+        return true
     }
 
     private func writeHeartBeatInterval() {
@@ -130,9 +139,13 @@ extension NuimoBluetoothController /* CBPeripheralDelegate */ {
 
     public override func peripheral(peripheral: CBPeripheral, didWriteValueForCharacteristic characteristic: CBCharacteristic, error: NSError?) {
         super.peripheral(peripheral, didWriteValueForCharacteristic: characteristic, error: error)
-        if characteristic.UUID == kLEDMatrixCharacteristicUUID {
+        switch characteristic.UUID {
+        case kLEDMatrixCharacteristicUUID:
             matrixWriter?.didRetrieveMatrixWriteResponse()
             delegate?.nuimoControllerDidDisplayLEDMatrix?(self)
+        case kRebootToDFUModeCharacteristicUUID:
+            disconnect()
+        default: break
         }
     }
 }
@@ -232,6 +245,7 @@ private let kSensorFlyCharacteristicUUID         = CBUUID(string: "F29B1526-CB19
 private let kSensorTouchCharacteristicUUID       = CBUUID(string: "F29B1527-CB19-40F3-BE5C-7241ECB82FD2")
 private let kSensorRotationCharacteristicUUID    = CBUUID(string: "F29B1528-CB19-40F3-BE5C-7241ECB82FD2")
 private let kSensorButtonCharacteristicUUID      = CBUUID(string: "F29B1529-CB19-40F3-BE5C-7241ECB82FD2")
+private let kRebootToDFUModeCharacteristicUUID   = CBUUID(string: "F29B152A-CB19-40F3-BE5C-7241ECB82FD2")
 private let kHeartBeatCharacteristicUUID         = CBUUID(string: "F29B152B-CB19-40F3-BE5C-7241ECB82FD2")
 
 internal let nuimoServiceUUIDs: [CBUUID] = [
@@ -250,6 +264,7 @@ private let nuimoCharactericUUIDsForServiceUUID = [
         kSensorTouchCharacteristicUUID,
         kSensorRotationCharacteristicUUID,
         kSensorButtonCharacteristicUUID,
+        kRebootToDFUModeCharacteristicUUID,
         kHeartBeatCharacteristicUUID
     ]
 ]

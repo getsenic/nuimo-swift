@@ -158,10 +158,18 @@ extension BLEDevice: CBPeripheralDelegate {
     }
 }
 
-private extension CBPeripheral {
+extension CBPeripheral {
     var serviceUUIDs: [CBUUID] { return services?.map{ $0.UUID } ?? [] }
+
+    func serviceWithUUID(UUID: CBUUID) -> CBService? {
+        return services?.filter{ $0.UUID == UUID }.first
+    }
 }
 
-private extension CBService {
+extension CBService {
     var characteristicUUIDs: [CBUUID] { return characteristics?.map{ $0.UUID } ?? [] }
+
+    func characteristicWithUUID(UUID: CBUUID) -> CBCharacteristic? {
+        return characteristics?.filter{ $0.UUID == UUID }.first
+    }
 }
