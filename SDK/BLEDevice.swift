@@ -101,16 +101,16 @@ public class BLEDevice: NSObject {
 
     public func didRestore() {
         peripheral.delegate = self
-        if peripheral.state == .Connected {
-            peripheral.services?.forEach {
-                // Notify already discovered services, it will discover their characteristics if not already discovered
-                peripheral(peripheral, didDiscoverServices: nil)
-                // Notify already discovered characteristics
-                peripheral(peripheral, didDiscoverCharacteristicsForService: $0, error: nil)
-            }
-            // Discover not yet discovered services
-            peripheral.discoverServices(serviceUUIDs.filter{ !peripheral.serviceUUIDs.contains($0) })
+        guard peripheral.state == .Connected else { return }
+        didInitiateConnection = true
+        peripheral.services?.forEach {
+            // Notify already discovered services, it will discover their characteristics if not already discovered
+            peripheral(peripheral, didDiscoverServices: nil)
+            // Notify already discovered characteristics
+            peripheral(peripheral, didDiscoverCharacteristicsForService: $0, error: nil)
         }
+        // Discover not yet discovered services
+        peripheral.discoverServices(serviceUUIDs.filter{ !peripheral.serviceUUIDs.contains($0) })
     }
 
     public func disconnect() -> Bool {
