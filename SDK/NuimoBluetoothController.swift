@@ -27,11 +27,13 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
     public override var notificationCharacteristicUUIDs: [CBUUID] { get { return nuimoNotificationCharacteristicnUUIDs } }
 
     public var supportsRebootToDFUMode: Bool { return rebootToDFUModeCharacteristic != nil }
+    public var supportsFlySensorCalibration: Bool { return flySensorCalibrationCharacteristic != nil }
     public var heartBeatInterval: NSTimeInterval = 0.0 { didSet { writeHeartBeatInterval() } }
 
     private var matrixWriter: LEDMatrixWriter?
     private var connectTimeoutTimer: NSTimer?
     private var rebootToDFUModeCharacteristic: CBCharacteristic? { return peripheral.serviceWithUUID(kSensorServiceUUID)?.characteristicWithUUID(kRebootToDFUModeCharacteristicUUID) }
+    private var flySensorCalibrationCharacteristic: CBCharacteristic? { return peripheral.serviceWithUUID(kSensorServiceUUID)?.characteristicWithUUID(kFlySensorCalibrationCharacteristicUUID) }
 
     public override func connect() -> Bool {
         guard super.connect() else { return false }
@@ -82,6 +84,13 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
         guard peripheral.state == .Connected else { return false }
         guard let rebootToDFUModeCharacteristic = rebootToDFUModeCharacteristic else { return false }
         peripheral.writeValue(NSData(bytes: [UInt8(1)], length: 1), forCharacteristic: rebootToDFUModeCharacteristic, type: .WithResponse)
+        return true
+    }
+
+    public func calibrateFlySensor() -> Bool {
+        guard peripheral.state == .Connected else { return false }
+        guard let flySensorCalibrationCharacteristic = flySensorCalibrationCharacteristic else { return false }
+        peripheral.writeValue(NSData(bytes: [UInt8(1)], length: 1), forCharacteristic: flySensorCalibrationCharacteristic, type: .WithResponse)
         return true
     }
 
@@ -234,19 +243,20 @@ private class LEDMatrixWriter {
 
 //MARK: Nuimo BLE GATT service and characteristic UUIDs
 
-private let kBatteryServiceUUID                  = CBUUID(string: "180F")
-private let kBatteryCharacteristicUUID           = CBUUID(string: "2A19")
-private let kDeviceInformationServiceUUID        = CBUUID(string: "180A")
-private let kFirmwareVersionCharacteristicUUID   = CBUUID(string: "2A26")
-private let kLEDMatrixServiceUUID                = CBUUID(string: "F29B1523-CB19-40F3-BE5C-7241ECB82FD1")
-private let kLEDMatrixCharacteristicUUID         = CBUUID(string: "F29B1524-CB19-40F3-BE5C-7241ECB82FD1")
-private let kSensorServiceUUID                   = CBUUID(string: "F29B1525-CB19-40F3-BE5C-7241ECB82FD2")
-private let kSensorFlyCharacteristicUUID         = CBUUID(string: "F29B1526-CB19-40F3-BE5C-7241ECB82FD2")
-private let kSensorTouchCharacteristicUUID       = CBUUID(string: "F29B1527-CB19-40F3-BE5C-7241ECB82FD2")
-private let kSensorRotationCharacteristicUUID    = CBUUID(string: "F29B1528-CB19-40F3-BE5C-7241ECB82FD2")
-private let kSensorButtonCharacteristicUUID      = CBUUID(string: "F29B1529-CB19-40F3-BE5C-7241ECB82FD2")
-private let kRebootToDFUModeCharacteristicUUID   = CBUUID(string: "F29B152A-CB19-40F3-BE5C-7241ECB82FD2")
-private let kHeartBeatCharacteristicUUID         = CBUUID(string: "F29B152B-CB19-40F3-BE5C-7241ECB82FD2")
+private let kBatteryServiceUUID                     = CBUUID(string: "180F")
+private let kBatteryCharacteristicUUID              = CBUUID(string: "2A19")
+private let kDeviceInformationServiceUUID           = CBUUID(string: "180A")
+private let kFirmwareVersionCharacteristicUUID      = CBUUID(string: "2A26")
+private let kLEDMatrixServiceUUID                   = CBUUID(string: "F29B1523-CB19-40F3-BE5C-7241ECB82FD1")
+private let kLEDMatrixCharacteristicUUID            = CBUUID(string: "F29B1524-CB19-40F3-BE5C-7241ECB82FD1")
+private let kSensorServiceUUID                      = CBUUID(string: "F29B1525-CB19-40F3-BE5C-7241ECB82FD2")
+private let kSensorFlyCharacteristicUUID            = CBUUID(string: "F29B1526-CB19-40F3-BE5C-7241ECB82FD2")
+private let kSensorTouchCharacteristicUUID          = CBUUID(string: "F29B1527-CB19-40F3-BE5C-7241ECB82FD2")
+private let kSensorRotationCharacteristicUUID       = CBUUID(string: "F29B1528-CB19-40F3-BE5C-7241ECB82FD2")
+private let kSensorButtonCharacteristicUUID         = CBUUID(string: "F29B1529-CB19-40F3-BE5C-7241ECB82FD2")
+private let kRebootToDFUModeCharacteristicUUID      = CBUUID(string: "F29B152A-CB19-40F3-BE5C-7241ECB82FD2")
+private let kHeartBeatCharacteristicUUID            = CBUUID(string: "F29B152B-CB19-40F3-BE5C-7241ECB82FD2")
+private let kFlySensorCalibrationCharacteristicUUID = CBUUID(string: "F29B152C-CB19-40F3-BE5C-7241ECB82FD2")
 
 internal let nuimoServiceUUIDs: [CBUUID] = [
     kBatteryServiceUUID,
@@ -265,7 +275,8 @@ private let nuimoCharactericUUIDsForServiceUUID = [
         kSensorRotationCharacteristicUUID,
         kSensorButtonCharacteristicUUID,
         kRebootToDFUModeCharacteristicUUID,
-        kHeartBeatCharacteristicUUID
+        kHeartBeatCharacteristicUUID,
+        kFlySensorCalibrationCharacteristicUUID
     ]
 ]
 
