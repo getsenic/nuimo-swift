@@ -276,5 +276,28 @@ extension NuimoLEDMatrix {
         "  * * *  " +
         "    **   " +
         "    *    ")}
+        
+    public static var upArrowMatrix: NuimoLEDMatrix {return NuimoLEDMatrix(string:
+        "    .    " +
+        "   ...   " +
+        "  .....  " +
+        " ....... " +
+        "   ...   " +
+        "   ...   " +
+        "   ...   " +
+        "   ...   " +
+        "         ")}   
+        
+    public static var downArrowMatrix: NuimoLEDMatrix {return NuimoLEDMatrix(string:
+        "   ...   " +
+        "   ...   " +
+        "   ...   " +
+        "   ...   " +
+        " ....... " +
+        "  .....  " +
+        "   ...   " +
+        "    .    " +
+        "         ")}   
+                    
 }
 
