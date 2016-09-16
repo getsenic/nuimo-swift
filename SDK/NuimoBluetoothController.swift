@@ -22,11 +22,12 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
     public var defaultMatrixDisplayInterval: NSTimeInterval = 2.0
     public var matrixBrightness: Float = 1.0 { didSet { matrixWriter?.brightness = self.matrixBrightness } }
 
-    public override var serviceUUIDs: [CBUUID] { get { return nuimoServiceUUIDs } }
-    public override var charactericUUIDsForServiceUUID: [CBUUID : [CBUUID]] { get { return nuimoCharactericUUIDsForServiceUUID } }
-    public override var notificationCharacteristicUUIDs: [CBUUID] { get { return nuimoNotificationCharacteristicnUUIDs } }
 
-    public var supportsRebootToDFUMode: Bool { return rebootToDFUModeCharacteristic != nil }
+    public override var serviceUUIDs:                    [CBUUID]            { return nuimoServiceUUIDs }
+    public override var charactericUUIDsForServiceUUID:  [CBUUID : [CBUUID]] { return nuimoCharactericUUIDsForServiceUUID }
+    public override var notificationCharacteristicUUIDs: [CBUUID]            { return nuimoNotificationCharacteristicnUUIDs }
+
+    public var supportsRebootToDFUMode:      Bool { return rebootToDFUModeCharacteristic != nil }
     public var supportsFlySensorCalibration: Bool { return flySensorCalibrationCharacteristic != nil }
     public var heartBeatInterval: NSTimeInterval = 0.0 { didSet { writeHeartBeatInterval() } }
 
@@ -135,14 +136,9 @@ extension NuimoBluetoothController /* CBPeripheralDelegate */ {
             if let firmwareVersion = String(data: data, encoding: NSUTF8StringEncoding) {
                 delegate?.nuimoController?(self, didReadFirmwareVersion: firmwareVersion)
             }
-        case kBatteryCharacteristicUUID:
-            delegate?.nuimoController?(self, didUpdateBatteryLevel: Int(UnsafePointer<UInt8>(data.bytes).memory))
-        case kHeartBeatCharacteristicUUID:
-            NSNotificationCenter.defaultCenter().postNotificationName(NuimoBluetoothControllerDidSendHeartBeatNotification, object: self, userInfo: nil)
-        default:
-            if let event = characteristic.nuimoGestureEvent() {
-                delegate?.nuimoController?(self, didReceiveGestureEvent: event)
-            }
+        case kBatteryCharacteristicUUID:         delegate?.nuimoController?(self, didUpdateBatteryLevel: Int(UnsafePointer<UInt8>(data.bytes).memory))
+        case kHeartBeatCharacteristicUUID:       NSNotificationCenter.defaultCenter().postNotificationName(NuimoBluetoothControllerDidSendHeartBeatNotification, object: self, userInfo: nil)
+        default:                                 if let event = characteristic.nuimoGestureEvent() { delegate?.nuimoController?(self, didReceiveGestureEvent: event) }
         }
     }
 
