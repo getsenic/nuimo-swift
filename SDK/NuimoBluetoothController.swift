@@ -22,6 +22,9 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
     public var defaultMatrixDisplayInterval: NSTimeInterval = 2.0
     public var matrixBrightness: Float = 1.0 { didSet { matrixWriter?.brightness = self.matrixBrightness } }
 
+    public private(set) var hardwareVersion: String?
+    public private(set) var firmwareVersion: String? { didSet { setConnectionState(.Connected) } }
+    public private(set) var color:           String?
 
     public override var serviceUUIDs:                    [CBUUID]            { return nuimoServiceUUIDs }
     public override var charactericUUIDsForServiceUUID:  [CBUUID : [CBUUID]] { return nuimoCharactericUUIDsForServiceUUID }
@@ -111,15 +114,12 @@ extension NuimoBluetoothController /* CBPeripheralDelegate */ {
         super.peripheral(peripheral, didDiscoverCharacteristicsForService: service, error: error)
         service.characteristics?.forEach{ characteristic in
             switch characteristic.UUID {
-            case kFirmwareVersionCharacteristicUUID:
-                peripheral.readValueForCharacteristic(characteristic)
-            case kBatteryCharacteristicUUID:
-                peripheral.readValueForCharacteristic(characteristic)
-            case kLEDMatrixCharacteristicUUID:
-                matrixWriter = LEDMatrixWriter(peripheral: peripheral, matrixCharacteristic: characteristic, brightness: matrixBrightness)
-                setConnectionState(.Connected)
-            case kHeartBeatCharacteristicUUID:
-                writeHeartBeatInterval()
+            case kHardwareVersionCharacteristicUUID: fallthrough
+            case kFirmwareVersionCharacteristicUUID: fallthrough
+            case kModelNumberCharacteristicUUID:     fallthrough
+            case kBatteryCharacteristicUUID:         peripheral.readValueForCharacteristic(characteristic)
+            case kLEDMatrixCharacteristicUUID:       matrixWriter = LEDMatrixWriter(peripheral: peripheral, matrixCharacteristic: characteristic, brightness: matrixBrightness)
+            case kHeartBeatCharacteristicUUID:       writeHeartBeatInterval()
             default:
                 break
             }
@@ -132,10 +132,9 @@ extension NuimoBluetoothController /* CBPeripheralDelegate */ {
         guard let data = characteristic.value else { return }
 
         switch characteristic.UUID {
-        case kFirmwareVersionCharacteristicUUID:
-            if let firmwareVersion = String(data: data, encoding: NSUTF8StringEncoding) {
-                delegate?.nuimoController?(self, didReadFirmwareVersion: firmwareVersion)
-            }
+        case kHardwareVersionCharacteristicUUID: hardwareVersion = String(data: data, encoding: NSUTF8StringEncoding)
+        case kFirmwareVersionCharacteristicUUID: firmwareVersion = String(data: data, encoding: NSUTF8StringEncoding)
+        case kModelNumberCharacteristicUUID:     color           = String(data: data, encoding: NSUTF8StringEncoding)
         case kBatteryCharacteristicUUID:         delegate?.nuimoController?(self, didUpdateBatteryLevel: Int(UnsafePointer<UInt8>(data.bytes).memory))
         case kHeartBeatCharacteristicUUID:       NSNotificationCenter.defaultCenter().postNotificationName(NuimoBluetoothControllerDidSendHeartBeatNotification, object: self, userInfo: nil)
         default:                                 if let event = characteristic.nuimoGestureEvent() { delegate?.nuimoController?(self, didReceiveGestureEvent: event) }
@@ -242,7 +241,9 @@ private class LEDMatrixWriter {
 private let kBatteryServiceUUID                     = CBUUID(string: "180F")
 private let kBatteryCharacteristicUUID              = CBUUID(string: "2A19")
 private let kDeviceInformationServiceUUID           = CBUUID(string: "180A")
+private let kHardwareVersionCharacteristicUUID      = CBUUID(string: "2A27")
 private let kFirmwareVersionCharacteristicUUID      = CBUUID(string: "2A26")
+private let kModelNumberCharacteristicUUID          = CBUUID(string: "2A24")
 private let kLEDMatrixServiceUUID                   = CBUUID(string: "F29B1523-CB19-40F3-BE5C-7241ECB82FD1")
 private let kLEDMatrixCharacteristicUUID            = CBUUID(string: "F29B1524-CB19-40F3-BE5C-7241ECB82FD1")
 private let kSensorServiceUUID                      = CBUUID(string: "F29B1525-CB19-40F3-BE5C-7241ECB82FD2")
@@ -263,7 +264,11 @@ internal let nuimoServiceUUIDs: [CBUUID] = [
 
 private let nuimoCharactericUUIDsForServiceUUID = [
     kBatteryServiceUUID: [kBatteryCharacteristicUUID],
-    kDeviceInformationServiceUUID: [kFirmwareVersionCharacteristicUUID],
+    kDeviceInformationServiceUUID: [
+        kHardwareVersionCharacteristicUUID,
+        kFirmwareVersionCharacteristicUUID,
+        kModelNumberCharacteristicUUID
+    ],
     kLEDMatrixServiceUUID: [kLEDMatrixCharacteristicUUID],
     kSensorServiceUUID: [
         kSensorFlyCharacteristicUUID,

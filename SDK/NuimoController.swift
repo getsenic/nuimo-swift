@@ -18,6 +18,10 @@
     /// Brightness 0..1 (1=max)
     var matrixBrightness: Float {get set}
 
+    var hardwareVersion: String? {get}
+    var firmwareVersion: String? {get}
+    var color:           String? {get}
+
     func connect() -> Bool
 
     func disconnect() -> Bool
@@ -77,7 +81,6 @@ public struct NuimoLEDMatrixWriteOptions: OptionSetType {
 
 @objc public protocol NuimoControllerDelegate {
     optional func nuimoController(controller: NuimoController, didChangeConnectionState state: NuimoConnectionState, withError error: NSError?)
-    optional func nuimoController(controller: NuimoController, didReadFirmwareVersion firmwareVersion: String)
     optional func nuimoController(controller: NuimoController, didUpdateBatteryLevel batteryLevel: Int)
     optional func nuimoController(controller: NuimoController, didReceiveGestureEvent event: NuimoGestureEvent)
     optional func nuimoControllerDidDisplayLEDMatrix(controller: NuimoController)
