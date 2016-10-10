@@ -30,12 +30,12 @@ public class BLEDevice: NSObject {
     public var notificationCharacteristicUUIDs: [CBUUID] { get { return [] } }
     public let peripheral: CBPeripheral
     public let centralManager: CBCentralManager
+    public private(set) var didInitiateConnection = false
 
     private var discoveryManager: BLEDiscoveryManager?
     private var advertisingTimeoutTimer: NSTimer?
     private var connectionTimeoutTimer: NSTimer?
     private var connectionAttempt = 0
-    private var didInitiateConnection = false
 
     /// Convenience initializer that takes a BLEDiscoveryManager instead of a CBCentralManager. This initializer allows to detect that the device has disappeared by checking if the OS didn't receive any more advertising packages.
     public convenience init(discoveryManager: BLEDiscoveryManager, uuid: String, peripheral: CBPeripheral) {

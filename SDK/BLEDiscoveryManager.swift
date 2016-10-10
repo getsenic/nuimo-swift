@@ -99,8 +99,13 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
         deviceForPeripheral
             .filter{ $0.1 == device }
             .forEach { deviceForPeripheral.removeValueForKey($0.0) }
-        // Restart discovery if we are not receiving duplicate discovery events for the same peripheral – otherwise we wouldn't detect this invalidated peripheral when it comes back online
-        if isScanning && !detectUnreachableDevices { startDiscovery() }
+        // Restart discovery if the device was connected before and if we are not receiving duplicate discovery events for the same peripheral – otherwise we wouldn't detect this invalidated peripheral when it comes back online. iOS and tvOS only report duplicate discovery events if the app is active (i.e. independently from the "allow duplicates" flag) – this said, we don't need to restart the discovery if the app is active and we're already getting duplicate discovery events for the same peripheral
+        #if os(iOS) || os(tvOS)
+        let appIsActive = UIApplication.sharedApplication().applicationState == .Active
+        #else
+        let appIsActive = true
+        #endif
+        if isScanning && device.didInitiateConnection && !(appIsActive && detectUnreachableDevices) { startDiscovery() }
     }
 
     @objc func centralManager(central: CBCentralManager, willRestoreState state: [String : AnyObject]) {
