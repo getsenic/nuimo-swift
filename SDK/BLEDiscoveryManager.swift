@@ -88,8 +88,9 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
     }
 
     func stopDiscovery() {
-        centralManager.stopScan()
         shouldStartDiscoveryWhenPowerStateTurnsOn = false
+        guard isScanning else { return }
+        centralManager.stopScan()
         isScanning = false
     }
 
