@@ -16,7 +16,7 @@ import CoreBluetooth
 */
 public class BLEDiscoveryManager: NSObject {
     public private(set) lazy var centralManager: CBCentralManager = self.discovery.centralManager
-    public var delegate: BLEDiscoveryManagerDelegate?
+    public weak var delegate: BLEDiscoveryManagerDelegate?
 
     private let options: [String : AnyObject]
     private lazy var discovery: BLEDiscoveryManagerPrivate = BLEDiscoveryManagerPrivate(discovery: self, options: self.options)
@@ -41,7 +41,7 @@ public class BLEDiscoveryManager: NSObject {
     }
 }
 
-public protocol BLEDiscoveryManagerDelegate {
+@objc public protocol BLEDiscoveryManagerDelegate: class {
     func bleDiscoveryManager(discovery: BLEDiscoveryManager, deviceWithPeripheral peripheral: CBPeripheral, advertisementData: [String : AnyObject]?) -> BLEDevice?
 
     func bleDiscoveryManager(discovery: BLEDiscoveryManager, didDiscoverDevice device: BLEDevice)

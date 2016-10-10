@@ -19,7 +19,7 @@ public class NuimoDiscoveryManager: NSObject {
     public private (set) lazy var centralManager: CBCentralManager = self.bleDiscovery.centralManager
     public private (set) lazy var bleDiscovery: BLEDiscoveryManager = BLEDiscoveryManager(delegate: self.bleDiscoveryDelegate, options: self.options)
     
-    public var delegate: NuimoDiscoveryDelegate?
+    public weak var delegate: NuimoDiscoveryDelegate?
 
     private let options: [String : AnyObject]
     private lazy var bleDiscoveryDelegate: PrivateBLEDiscoveryManagerDelegate = PrivateBLEDiscoveryManagerDelegate(nuimoDiscoveryManager: self)
@@ -51,7 +51,7 @@ private class PrivateBLEDiscoveryManagerDelegate: BLEDiscoveryManagerDelegate {
         self.nuimoDiscoveryManager = nuimoDiscoveryManager
     }
 
-    func bleDiscoveryManager(discovery: BLEDiscoveryManager, deviceWithPeripheral peripheral: CBPeripheral, advertisementData: [String : AnyObject]?) -> BLEDevice? {
+    @objc func bleDiscoveryManager(discovery: BLEDiscoveryManager, deviceWithPeripheral peripheral: CBPeripheral, advertisementData: [String : AnyObject]?) -> BLEDevice? {
         if let device = nuimoDiscoveryManager.delegate?.nuimoDiscoveryManager?(nuimoDiscoveryManager, deviceForPeripheral: peripheral) {
             return device
         }
@@ -59,16 +59,16 @@ private class PrivateBLEDiscoveryManagerDelegate: BLEDiscoveryManagerDelegate {
         return nuimoDiscoveryManager.nuimoBluetoothControllerWithPeripheral(peripheral)
     }
 
-    func bleDiscoveryManager(discovery: BLEDiscoveryManager, didDiscoverDevice device: BLEDevice) {
+    @objc func bleDiscoveryManager(discovery: BLEDiscoveryManager, didDiscoverDevice device: BLEDevice) {
         nuimoDiscoveryManager.delegate?.nuimoDiscoveryManager(nuimoDiscoveryManager, didDiscoverNuimoController: device as! NuimoController)
     }
 
-    func bleDiscoveryManager(discovery: BLEDiscoveryManager, didRestoreDevice device: BLEDevice) {
+    @objc func bleDiscoveryManager(discovery: BLEDiscoveryManager, didRestoreDevice device: BLEDevice) {
         nuimoDiscoveryManager.delegate?.nuimoDiscoveryManager?(nuimoDiscoveryManager, didRestoreNuimoController: device as! NuimoController)
     }
 }
 
-@objc public protocol NuimoDiscoveryDelegate {
+@objc public protocol NuimoDiscoveryDelegate: class {
     optional func nuimoDiscoveryManager(discovery: NuimoDiscoveryManager, deviceForPeripheral peripheral: CBPeripheral) -> BLEDevice?
     func nuimoDiscoveryManager(discovery: NuimoDiscoveryManager, didDiscoverNuimoController controller: NuimoController)
     optional func nuimoDiscoveryManager(discovery: NuimoDiscoveryManager, didRestoreNuimoController controller: NuimoController)
