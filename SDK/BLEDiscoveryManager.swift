@@ -43,10 +43,10 @@ public class BLEDiscoveryManager: NSObject {
 
 @objc public protocol BLEDiscoveryManagerDelegate: class {
     func bleDiscoveryManager(discovery: BLEDiscoveryManager, deviceWithPeripheral peripheral: CBPeripheral, advertisementData: [String : AnyObject]?) -> BLEDevice?
-
     func bleDiscoveryManager(discovery: BLEDiscoveryManager, didDiscoverDevice device: BLEDevice)
-
     func bleDiscoveryManager(discovery: BLEDiscoveryManager, didRestoreDevice device: BLEDevice)
+    optional func bleDiscoveryManagerDidStartDiscovery(discovery: BLEDiscoveryManager)
+    optional func bleDiscoveryManagerDidStopDiscovery(discovery: BLEDiscoveryManager)
 }
 
 /**
@@ -85,6 +85,7 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
         options[CBCentralManagerScanOptionAllowDuplicatesKey] = detectUnreachableDevices
         centralManager.scanForPeripheralsWithServices(discoverServiceUUIDs, options: options)
         isScanning = true
+        discovery.delegate?.bleDiscoveryManagerDidStartDiscovery?(discovery)
     }
 
     func stopDiscovery() {
@@ -92,6 +93,7 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
         guard isScanning else { return }
         centralManager.stopScan()
         isScanning = false
+        discovery.delegate?.bleDiscoveryManagerDidStopDiscovery?(discovery)
     }
 
     func invalidateDevice(device: BLEDevice) {

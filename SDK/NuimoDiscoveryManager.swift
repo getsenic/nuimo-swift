@@ -66,10 +66,20 @@ private class PrivateBLEDiscoveryManagerDelegate: BLEDiscoveryManagerDelegate {
     @objc func bleDiscoveryManager(discovery: BLEDiscoveryManager, didRestoreDevice device: BLEDevice) {
         nuimoDiscoveryManager.delegate?.nuimoDiscoveryManager?(nuimoDiscoveryManager, didRestoreNuimoController: device as! NuimoController)
     }
+
+    @objc private func bleDiscoveryManagerDidStartDiscovery(discovery: BLEDiscoveryManager) {
+        nuimoDiscoveryManager.delegate?.nuimoDiscoveryManagerDidStartDiscovery?(nuimoDiscoveryManager)
+    }
+
+    @objc private func bleDiscoveryManagerDidStopDiscovery(discovery: BLEDiscoveryManager) {
+        nuimoDiscoveryManager.delegate?.nuimoDiscoveryManagerDidStopDiscovery?(nuimoDiscoveryManager)
+    }
 }
 
 @objc public protocol NuimoDiscoveryDelegate: class {
     optional func nuimoDiscoveryManager(discovery: NuimoDiscoveryManager, deviceForPeripheral peripheral: CBPeripheral) -> BLEDevice?
     func nuimoDiscoveryManager(discovery: NuimoDiscoveryManager, didDiscoverNuimoController controller: NuimoController)
     optional func nuimoDiscoveryManager(discovery: NuimoDiscoveryManager, didRestoreNuimoController controller: NuimoController)
+    optional func nuimoDiscoveryManagerDidStartDiscovery(discovery: NuimoDiscoveryManager)
+    optional func nuimoDiscoveryManagerDidStopDiscovery(discovery: NuimoDiscoveryManager)
 }
