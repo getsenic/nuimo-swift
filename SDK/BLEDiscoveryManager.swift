@@ -80,7 +80,7 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
         startDiscovery()
     }
 
-    func startDiscovery() {
+    private func startDiscovery() {
         var options = self.options
         options[CBCentralManagerScanOptionAllowDuplicatesKey] = detectUnreachableDevices
         centralManager.scanForPeripheralsWithServices(discoverServiceUUIDs, options: options)
