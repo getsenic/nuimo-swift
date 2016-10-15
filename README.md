@@ -24,7 +24,7 @@ If you haven't set up your project yet to use CocoaPods, please follow these ste
 ##### Add a dependency to the NuimoSwift SDK
 Edit your project's `Podfile` to add the following line:
 ```
-pod 'NuimoSwift', '~> 0.5.0'
+pod 'NuimoSwift', '~> 0.7.1'
 ```
 Then from a terminal within your project's root folder run:
 ```bash
