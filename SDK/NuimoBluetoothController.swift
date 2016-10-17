@@ -17,7 +17,7 @@ public class NuimoBluetoothController: BLEDevice, NuimoController {
     public override class var connectionRetryCount:          Int             { return 5 }
     public override class var maxAdvertisingPackageInterval: NSTimeInterval? { return 10.0 }
 
-    public var delegate: NuimoControllerDelegate?
+    public weak var delegate: NuimoControllerDelegate?
     public private(set) dynamic var connectionState = NuimoConnectionState.Disconnected
     public var defaultMatrixDisplayInterval: NSTimeInterval = 2.0
     public var matrixBrightness: Float = 1.0 { didSet { matrixWriter?.brightness = self.matrixBrightness } }

@@ -79,7 +79,7 @@ public struct NuimoLEDMatrixWriteOptions: OptionSetType {
     Invalidated
 }
 
-@objc public protocol NuimoControllerDelegate {
+@objc public protocol NuimoControllerDelegate: class {
     optional func nuimoController(controller: NuimoController, didChangeConnectionState state: NuimoConnectionState, withError error: NSError?)
     optional func nuimoController(controller: NuimoController, didUpdateBatteryLevel batteryLevel: Int)
     optional func nuimoController(controller: NuimoController, didReceiveGestureEvent event: NuimoGestureEvent)
