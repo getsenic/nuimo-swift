@@ -30,6 +30,10 @@ public class NuimoLEDMatrix: NSObject {
             .map{!NuimoLEDMatrixLEDOffCharacters.contains($0)}
     }
 
+    public init(leds: [Bool]) {
+        self.leds = leds.prefix(81) + (leds.count < 81 ? Array(count: 81 - leds.count, repeatedValue: false) : [])
+    }
+
     //TODO: Have only one init(progress) method and pass presentation style as 2nd argument
     public convenience init(progressWithVerticalBar progress: Double) {
         let string = (0..<9)
@@ -50,41 +54,11 @@ public class NuimoLEDMatrix: NSObject {
             .reduce("", combine: +)
         self.init(string: string)
     }
-}
 
-public func ==(left: NuimoLEDMatrix, right: NuimoLEDMatrix) -> Bool {
-    return left.leds == right.leds
-}
-
-public func ==(left: NuimoLEDMatrix?, right: NuimoLEDMatrix) -> Bool {
-    guard let left = left else {return false}
-    return left == right
-}
-
-public func ==(left: NuimoLEDMatrix, right: NuimoLEDMatrix?) -> Bool {
-    guard let right = right else {return false}
-    return left == right
-}
-
-public func ==(left: NuimoLEDMatrix?, right: NuimoLEDMatrix?) -> Bool {
-    guard let left = left else {return right == nil}
-    return left == right
-}
-
-public func !=(left: NuimoLEDMatrix, right: NuimoLEDMatrix) -> Bool {
-    return !(left == right)
-}
-
-public func !=(left: NuimoLEDMatrix?, right: NuimoLEDMatrix) -> Bool {
-    return !(left == right)
-}
-
-public func !=(left: NuimoLEDMatrix, right: NuimoLEDMatrix?) -> Bool {
-    return !(left == right)
-}
-
-public func !=(left: NuimoLEDMatrix?, right: NuimoLEDMatrix?) -> Bool {
-    return !(left == right)
+    public override func isEqual(object: AnyObject?) -> Bool {
+        guard let object = object as? NuimoLEDMatrix else { return false }
+        return leds == object.leds
+    }
 }
 
 //MARK: Predefined matrices

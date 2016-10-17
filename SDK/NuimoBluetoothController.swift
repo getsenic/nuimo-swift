@@ -164,7 +164,7 @@ private class LEDMatrixWriter {
     private var currentMatrix: NuimoLEDMatrix?
     private var currentMatrixDisplayInterval: NSTimeInterval = 0.0
     private var currentMatrixWithFadeTransition = false
-    private var lastWrittenMatrix: NuimoLEDMatrix?
+    private var lastWrittenMatrix = NuimoLEDMatrix(string: "")
     private var lastWrittenMatrixDate = NSDate(timeIntervalSince1970: 0.0)
     private var lastWrittenMatrixDisplayInterval: NSTimeInterval = 0.0
     private var isWaitingForMatrixWriteResponse = false
@@ -184,9 +184,9 @@ private class LEDMatrixWriter {
 
         guard
             resendsSameMatrix ||
-            lastWrittenMatrix != matrix ||
+            !lastWrittenMatrix.isEqual(matrix) ||
             (lastWrittenMatrixDisplayInterval > 0 && -lastWrittenMatrixDate.timeIntervalSinceNow >= lastWrittenMatrixDisplayInterval)
-            else { return }
+        else { return }
 
         currentMatrix                   = matrix
         currentMatrixDisplayInterval    = interval
@@ -201,9 +201,13 @@ private class LEDMatrixWriter {
     }
 
     private func writeMatrixNow(withWriteResponse: Bool) {
-        guard var matrixBytes = currentMatrix?.matrixBytes where matrixBytes.count == 11 && !(withWriteResponse && isWaitingForMatrixWriteResponse) else { fatalError("Invalid matrix write request") }
+        guard let currentMatrix = currentMatrix else { fatalError("Invalid matrix write request") }
+        var matrixBytes = currentMatrix.matrixBytes
+        guard currentMatrix.matrixBytes.count == 11 && !(withWriteResponse && isWaitingForMatrixWriteResponse) else { fatalError("Invalid matrix write request") }
 
-        matrixBytes[10] = matrixBytes[10] + (currentMatrixWithFadeTransition ? UInt8(1 << 4) : 0)
+        matrixBytes[10] = matrixBytes[10] +
+            (currentMatrixWithFadeTransition        ? UInt8(1 << 4) : 0) +
+            (currentMatrix is NuimoBuiltInLEDMatrix ? UInt8(1 << 5) : 0)
         matrixBytes += [UInt8(min(max(brightness, 0.0), 1.0) * 255), UInt8(currentMatrixDisplayInterval * 10.0)]
         peripheral.writeValue(NSData(bytes: matrixBytes, length: matrixBytes.count), forCharacteristic: matrixCharacteristic, type: withWriteResponse ? .WithResponse : .WithoutResponse)
 
