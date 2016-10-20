@@ -198,9 +198,11 @@
 					46FB8E821C1B06EA00ED88DE = {
 						CreatedOnToolsVersion = 7.2;
 						DevelopmentTeam = 326587HQT3;
+						LastSwiftMigration = 0800;
 					};
 					46FB8E8C1C1B06EA00ED88DE = {
 						CreatedOnToolsVersion = 7.2;
+						LastSwiftMigration = 0800;
 					};
 				};
 			};
@@ -380,6 +382,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.senic.Nuimo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 2.3;
 			};
 			name = Debug;
 		};
@@ -398,6 +401,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.senic.Nuimo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 2.3;
 			};
 			name = Release;
 		};
@@ -413,6 +417,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks ";
 				PRODUCT_BUNDLE_IDENTIFIER = com.senic.NuimoTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 2.3;
 			};
 			name = Debug;
 		};
@@ -428,6 +433,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks @loader_path/Frameworks @executable_path/Frameworks ";
 				PRODUCT_BUNDLE_IDENTIFIER = com.senic.NuimoTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 2.3;
 			};
 			name = Release;
 		};
