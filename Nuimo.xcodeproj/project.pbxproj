@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		46427FFC1DB8B04000A4C354 /* NuimoBuiltInLEDMatrix.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46427FFB1DB8B04000A4C354 /* NuimoBuiltInLEDMatrix.swift */; };
 		46FB8E871C1B06EA00ED88DE /* Nuimo.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FB8E861C1B06EA00ED88DE /* Nuimo.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		46FB8E8E1C1B06EA00ED88DE /* Nuimo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 46FB8E831C1B06EA00ED88DE /* Nuimo.framework */; };
 		46FB8E931C1B06EA00ED88DE /* NuimoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46FB8E921C1B06EA00ED88DE /* NuimoTests.swift */; };
@@ -32,6 +33,7 @@
 
 /* Begin PBXFileReference section */
 		3CC3C9C54E9948600B67A0F4 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
+		46427FFB1DB8B04000A4C354 /* NuimoBuiltInLEDMatrix.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NuimoBuiltInLEDMatrix.swift; sourceTree = "<group>"; };
 		46FB8E831C1B06EA00ED88DE /* Nuimo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Nuimo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		46FB8E861C1B06EA00ED88DE /* Nuimo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Nuimo.h; sourceTree = "<group>"; };
 		46FB8E881C1B06EA00ED88DE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -107,6 +109,7 @@
 				46FB8E9E1C1B086600ED88DE /* BLEDevice.swift */,
 				46FB8E9F1C1B086600ED88DE /* BLEDiscoveryManager.swift */,
 				46FB8EA01C1B086600ED88DE /* NuimoBluetoothController.swift */,
+				46427FFB1DB8B04000A4C354 /* NuimoBuiltInLEDMatrix.swift */,
 				46FB8EA11C1B086600ED88DE /* NuimoController.swift */,
 				46FB8EA21C1B086600ED88DE /* NuimoDiscoveryManager.swift */,
 				46FB8EA31C1B086600ED88DE /* NuimoGesture.swift */,
@@ -245,6 +248,7 @@
 				46FB8EAF1C1B086600ED88DE /* NuimoLEDMatrix.swift in Sources */,
 				46FB8EAB1C1B086600ED88DE /* NuimoController.swift in Sources */,
 				46FB8EAA1C1B086600ED88DE /* NuimoBluetoothController.swift in Sources */,
+				46427FFC1DB8B04000A4C354 /* NuimoBuiltInLEDMatrix.swift in Sources */,
 				46FB8EAC1C1B086600ED88DE /* NuimoDiscoveryManager.swift in Sources */,
 				46FB8EA91C1B086600ED88DE /* BLEDiscoveryManager.swift in Sources */,
 				46FB8EAE1C1B086600ED88DE /* NuimoGestureEvent.swift in Sources */,
