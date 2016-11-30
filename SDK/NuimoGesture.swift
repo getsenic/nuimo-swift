@@ -12,7 +12,6 @@
     case
     Undefined = 0, // TODO: Do we really need this enum value? We don't need to handle an "undefined" gesture
     ButtonPress,
-    ButtonDoublePress,
     ButtonRelease,
     Rotate,
     TouchLeft,
@@ -25,8 +24,6 @@
     SwipeDown,
     FlyLeft,
     FlyRight,
-    FlyBackwards,
-    FlyTowards,
     FlyUpDown
     
     public init?(identifier: String) {
@@ -45,7 +42,6 @@ private let identifierForGesture: [NuimoGesture : String] = [
     .Undefined          : "Undefined",
     .ButtonPress        : "ButtonPress",
     .ButtonRelease      : "ButtonRelease",
-    .ButtonDoublePress  : "ButtonDoublePress",
     .Rotate             : "Rotate",
     .TouchLeft          : "TouchLeft",
     .TouchRight         : "TouchRight",
@@ -57,8 +53,6 @@ private let identifierForGesture: [NuimoGesture : String] = [
     .SwipeDown          : "SwipeDown",
     .FlyLeft            : "FlyLeft",
     .FlyRight           : "FlyRight",
-    .FlyBackwards       : "FlyBackwards",
-    .FlyTowards         : "FlyTowards",
     .FlyUpDown          : "FlyUpDown"
 ]
 

@@ -303,10 +303,8 @@ private extension NuimoGestureEvent {
         let bytes = UnsafePointer<UInt8>(data.bytes)
         let directionByte = bytes.memory
         let speedByte = bytes.advancedBy(1).memory
-        print("direction byte: \(directionByte)")
-        print("speed byte: \(speedByte)")
         //TODO: When firmware bug is fixed fallback to .Undefined gesture
-        let gesture: NuimoGesture = [0: .FlyLeft, 1: .FlyRight, 2: .FlyBackwards, 3: .FlyTowards, 4: .FlyUpDown][directionByte] ?? .FlyRight //.Undefined
+        let gesture: NuimoGesture = [0: .FlyLeft, 1: .FlyRight, 4: .FlyUpDown][directionByte] ?? .FlyRight
         self.init(gesture: gesture, value: gesture == .FlyUpDown ? Int(speedByte) : nil)
     }
 
