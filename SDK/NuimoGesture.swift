@@ -17,6 +17,10 @@
     TouchRight,
     TouchTop,
     TouchBottom,
+    LongTouchLeft,
+    LongTouchRight,
+    LongTouchTop,
+    LongTouchBottom,
     SwipeLeft,
     SwipeRight,
     SwipeUp,
@@ -33,10 +37,6 @@
     public var identifier: String { return identifierForGesture[self]! }
 }
 
-public enum NuimoGestureError: ErrorType {
-    case InvalidIdentifier
-}
-
 private let identifierForGesture: [NuimoGesture : String] = [
     .ButtonPress        : "ButtonPress",
     .ButtonRelease      : "ButtonRelease",
@@ -45,6 +45,10 @@ private let identifierForGesture: [NuimoGesture : String] = [
     .TouchRight         : "TouchRight",
     .TouchTop           : "TouchTop",
     .TouchBottom        : "TouchBottom",
+    .LongTouchLeft      : "LongTouchLeft",
+    .LongTouchRight     : "LongTouchRight",
+    .LongTouchTop       : "LongTouchTop",
+    .LongTouchBottom    : "LongTouchBottom",
     .SwipeLeft          : "SwipeLeft",
     .SwipeRight         : "SwipeRight",
     .SwipeUp            : "SwipeUp",

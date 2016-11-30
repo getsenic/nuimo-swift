@@ -309,7 +309,20 @@ private extension NuimoGestureEvent {
 
     convenience init?(gattTouchData data: NSData) {
         let bytes = UnsafePointer<UInt8>(data.bytes)
-        guard let gesture: NuimoGesture = [0: .SwipeLeft, 1: .SwipeRight, 2: .SwipeUp, 3: .SwipeDown, 4: .TouchLeft, 5: .TouchRight, 6: .TouchTop, 7: .TouchBottom][bytes.memory] else { return nil }
+        guard let gesture: NuimoGesture = [
+            0:  .SwipeLeft,
+            1:  .SwipeRight,
+            2:  .SwipeUp,
+            3:  .SwipeDown,
+            4:  .TouchLeft,
+            5:  .TouchRight,
+            6:  .TouchTop,
+            7:  .TouchBottom,
+            8:  .LongTouchLeft,
+            9:  .LongTouchRight,
+            10: .LongTouchTop,
+            11: .LongTouchBottom
+        ][bytes.memory] else { return nil }
         self.init(gesture: gesture, value: nil)
     }
 
