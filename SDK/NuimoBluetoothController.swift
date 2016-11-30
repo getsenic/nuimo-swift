@@ -299,18 +299,17 @@ private let nuimoNotificationCharacteristicnUUIDs = [
 //MARK: Initializers for NuimoGestureEvents from BLE GATT data
 
 private extension NuimoGestureEvent {
-    convenience init(gattFlyData data: NSData) {
+    convenience init?(gattFlyData data: NSData) {
         let bytes = UnsafePointer<UInt8>(data.bytes)
         let directionByte = bytes.memory
         let speedByte = bytes.advancedBy(1).memory
-        //TODO: When firmware bug is fixed fallback to .Undefined gesture
-        let gesture: NuimoGesture = [0: .FlyLeft, 1: .FlyRight, 4: .FlyUpDown][directionByte] ?? .FlyRight
+        guard let gesture: NuimoGesture = [0: .FlyLeft, 1: .FlyRight, 4: .FlyUpDown][directionByte] else { return nil }
         self.init(gesture: gesture, value: gesture == .FlyUpDown ? Int(speedByte) : nil)
     }
 
-    convenience init(gattTouchData data: NSData) {
+    convenience init?(gattTouchData data: NSData) {
         let bytes = UnsafePointer<UInt8>(data.bytes)
-        let gesture: NuimoGesture = [0: .SwipeLeft, 1: .SwipeRight, 2: .SwipeUp, 3: .SwipeDown, 4: .TouchLeft, 5: .TouchRight, 6: .TouchTop, 7: .TouchBottom][bytes.memory] ?? .Undefined
+        guard let gesture: NuimoGesture = [0: .SwipeLeft, 1: .SwipeRight, 2: .SwipeUp, 3: .SwipeDown, 4: .TouchLeft, 5: .TouchRight, 6: .TouchTop, 7: .TouchBottom][bytes.memory] else { return nil }
         self.init(gesture: gesture, value: nil)
     }
 
@@ -321,7 +320,6 @@ private extension NuimoGestureEvent {
 
     convenience init(gattButtonData data: NSData) {
         let value = Int(UnsafePointer<UInt8>(data.bytes).memory)
-        //TODO: Evaluate double press events
         self.init(gesture: value == 1 ? .ButtonPress : .ButtonRelease, value: value)
     }
 }
@@ -336,7 +334,7 @@ private extension NuimoLEDMatrix {
                 .enumerate()
                 .map{(i: Int, b: Bool) -> Int in return b ? 1 << i : 0}
                 .reduce(UInt8(0), combine: {(s: UInt8, v: Int) -> UInt8 in s + UInt8(v)})
-        }
+            }
     }
 }
 

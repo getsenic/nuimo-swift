@@ -10,8 +10,7 @@
 
 @objc public enum NuimoGesture : Int {
     case
-    Undefined = 0, // TODO: Do we really need this enum value? We don't need to handle an "undefined" gesture
-    ButtonPress,
+    ButtonPress = 0,
     ButtonRelease,
     Rotate,
     TouchLeft,
@@ -39,7 +38,6 @@ public enum NuimoGestureError: ErrorType {
 }
 
 private let identifierForGesture: [NuimoGesture : String] = [
-    .Undefined          : "Undefined",
     .ButtonPress        : "ButtonPress",
     .ButtonRelease      : "ButtonRelease",
     .Rotate             : "Rotate",
