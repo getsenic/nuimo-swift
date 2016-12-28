@@ -10,24 +10,24 @@
 
 @objc public enum NuimoGesture : Int {
     case
-    ButtonPress = 0,
-    ButtonRelease,
-    Rotate,
-    TouchLeft,
-    TouchRight,
-    TouchTop,
-    TouchBottom,
-    LongTouchLeft,
-    LongTouchRight,
-    LongTouchTop,
-    LongTouchBottom,
-    SwipeLeft,
-    SwipeRight,
-    SwipeUp,
-    SwipeDown,
-    FlyLeft,
-    FlyRight,
-    FlyUpDown
+    buttonPress = 0,
+    buttonRelease,
+    rotate,
+    touchLeft,
+    touchRight,
+    touchTop,
+    touchBottom,
+    longTouchLeft,
+    longTouchRight,
+    longTouchTop,
+    longTouchBottom,
+    swipeLeft,
+    swipeRight,
+    swipeUp,
+    swipeDown,
+    flyLeft,
+    flyRight,
+    flyUpDown
     
     public init?(identifier: String) {
         guard let gesture = gestureForIdentifier[identifier] else { return nil }
@@ -38,24 +38,24 @@
 }
 
 private let identifierForGesture: [NuimoGesture : String] = [
-    .ButtonPress        : "ButtonPress",
-    .ButtonRelease      : "ButtonRelease",
-    .Rotate             : "Rotate",
-    .TouchLeft          : "TouchLeft",
-    .TouchRight         : "TouchRight",
-    .TouchTop           : "TouchTop",
-    .TouchBottom        : "TouchBottom",
-    .LongTouchLeft      : "LongTouchLeft",
-    .LongTouchRight     : "LongTouchRight",
-    .LongTouchTop       : "LongTouchTop",
-    .LongTouchBottom    : "LongTouchBottom",
-    .SwipeLeft          : "SwipeLeft",
-    .SwipeRight         : "SwipeRight",
-    .SwipeUp            : "SwipeUp",
-    .SwipeDown          : "SwipeDown",
-    .FlyLeft            : "FlyLeft",
-    .FlyRight           : "FlyRight",
-    .FlyUpDown          : "FlyUpDown"
+    .buttonPress        : "ButtonPress",
+    .buttonRelease      : "ButtonRelease",
+    .rotate             : "Rotate",
+    .touchLeft          : "TouchLeft",
+    .touchRight         : "TouchRight",
+    .touchTop           : "TouchTop",
+    .touchBottom        : "TouchBottom",
+    .longTouchLeft      : "LongTouchLeft",
+    .longTouchRight     : "LongTouchRight",
+    .longTouchTop       : "LongTouchTop",
+    .longTouchBottom    : "LongTouchBottom",
+    .swipeLeft          : "SwipeLeft",
+    .swipeRight         : "SwipeRight",
+    .swipeUp            : "SwipeUp",
+    .swipeDown          : "SwipeDown",
+    .flyLeft            : "FlyLeft",
+    .flyRight           : "FlyRight",
+    .flyUpDown          : "FlyUpDown"
 ]
 
 private let gestureForIdentifier: [String : NuimoGesture] = {

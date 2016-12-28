@@ -10,7 +10,7 @@ public class NuimoBuiltInLEDMatrix: NuimoLEDMatrix {
     public static let busy = NuimoBuiltInLEDMatrix(identifier: 1)
 
     private init(identifier: UInt8) {
-        var leds = Array(count: 81, repeatedValue: false)
+        var leds = Array(repeating: false, count: 81)
         var n = identifier
         var i = 0
         while n > 0 {
@@ -21,7 +21,7 @@ public class NuimoBuiltInLEDMatrix: NuimoLEDMatrix {
         super.init(leds: leds)
     }
 
-    public override func isEqual(object: AnyObject?) -> Bool {
+    public override func isEqual(_ object: Any?) -> Bool {
         guard let object = object as? NuimoBuiltInLEDMatrix else { return false }
         return super.isEqual(object)
     }

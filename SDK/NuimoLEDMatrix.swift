@@ -13,7 +13,7 @@ public let NuimoLEDMatrixLEDOffCharacters: [Character] = [" ", "0"]
 public let NuimoLEDMatrixDefaultLEDOffCharacter = NuimoLEDMatrixLEDOffCharacters[0]
 public let NuimoLEDMatrixDefaultLEDOnCharacter: Character = "."
 
-public class NuimoLEDMatrix: NSObject {
+open class NuimoLEDMatrix: NSObject {
     public let leds: [Bool]
 
     public init(matrix: NuimoLEDMatrix) {
@@ -23,39 +23,39 @@ public class NuimoLEDMatrix: NSObject {
     public init(string: String) {
         leds = string
             // Cut off after count of LEDs
-            .substringToIndex(string.startIndex.advancedBy(min(string.characters.count, NuimoLEDMatrixLEDCount)))
+            .substring(to: string.characters.index(string.startIndex, offsetBy: min(string.characters.count, NuimoLEDMatrixLEDCount)))
             // Right fill up to count of LEDs
-            .stringByPaddingToLength(NuimoLEDMatrixLEDCount, withString: " ", startingAtIndex: 0)
+            .padding(toLength: NuimoLEDMatrixLEDCount, withPad: " ", startingAt: 0)
             .characters
             .map{!NuimoLEDMatrixLEDOffCharacters.contains($0)}
     }
 
     public init(leds: [Bool]) {
-        self.leds = leds.prefix(81) + (leds.count < 81 ? Array(count: 81 - leds.count, repeatedValue: false) : [])
+        self.leds = leds.prefix(81) + (leds.count < 81 ? Array(repeating: false, count: 81 - leds.count) : [])
     }
 
     //TODO: Have only one init(progress) method and pass presentation style as 2nd argument
     public convenience init(progressWithVerticalBar progress: Double) {
         let string = (0..<9)
-            .reverse()
+            .reversed()
             .map{progress > Double($0) / 9.0 ? "    .    " : "         "}
-            .reduce("", combine: +)
+            .reduce("", +)
         self.init(string: string)
     }
 
     public convenience init(progressWithVolumeBar progress: Double) {
         let width = Int(ceil(max(0.0, min(1.0, progress)) * 9))
         let string = (0..<9)
-            .map{String(count: 9 - ($0 + 1), repeatedValue: Character(" ")) + String(count: $0 + 1, repeatedValue: Character("."))}
-            .enumerate()
+            .map{String(repeating: " ", count: 9 - ($0 + 1)) + String(repeating: ".", count: $0 + 1)}
+            .enumerated()
             .map{$0.element
-                .substringToIndex($0.element.startIndex.advancedBy(width))
-                .stringByPaddingToLength(9, withString: " ", startingAtIndex: 0)}
-            .reduce("", combine: +)
+                .substring(to: $0.element.characters.index($0.element.startIndex, offsetBy: width))
+                .padding(toLength: 9, withPad: " ", startingAt: 0)}
+            .reduce("", +)
         self.init(string: string)
     }
 
-    public override func isEqual(object: AnyObject?) -> Bool {
+    open override func isEqual(_ object: Any?) -> Bool {
         guard let object = object as? NuimoLEDMatrix else { return false }
         return leds == object.leds
     }

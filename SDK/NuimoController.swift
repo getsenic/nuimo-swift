@@ -14,7 +14,7 @@
 
     var connectionState: NuimoConnectionState {get}
     /// Display interval in seconds
-    var defaultMatrixDisplayInterval: NSTimeInterval {get set}
+    var defaultMatrixDisplayInterval: TimeInterval {get set}
     /// Brightness 0..1 (1=max)
     var matrixBrightness: Float {get set}
 
@@ -22,66 +22,66 @@
     var firmwareVersion: String? {get}
     var color:           String? {get}
 
-    func connect() -> Bool
+    @discardableResult func connect() -> Bool
 
-    func disconnect() -> Bool
+    @discardableResult func disconnect() -> Bool
 
-    /// Writes an LED matrix for an interval with options (options is of type Int for compatibility with Objective-C)
-    func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval, options: Int)
+    /// Displays an LED matrix for an interval with options (options is of type Int for compatibility with Objective-C)
+    func display(matrix: NuimoLEDMatrix, interval: TimeInterval, options: Int)
 }
 
 public extension NuimoController {
-    /// Writes an LED matrix with options defaulting to ResendsSameMatrix and WithWriteResponse
-    func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval) {
-        writeMatrix(matrix, interval: interval, options: 0)
+    /// Displays an LED matrix with options defaulting to ResendsSameMatrix and WithWriteResponse
+    public func display(matrix: NuimoLEDMatrix, interval: TimeInterval) {
+        display(matrix: matrix, interval: interval, options: 0)
     }
 
-    /// Writes an LED matrix using the default display interval and with options defaulting to ResendsSameMatrix and WithWriteResponse
-    public func writeMatrix(matrix: NuimoLEDMatrix) {
-        writeMatrix(matrix, interval: defaultMatrixDisplayInterval)
+    /// Displays an LED matrix using the default display interval and with options defaulting to ResendsSameMatrix and WithWriteResponse
+    public func display(matrix: NuimoLEDMatrix) {
+        display(matrix: matrix, interval: defaultMatrixDisplayInterval)
     }
 
-    /// Writes an LED matrix for an interval and with options
-    public func writeMatrix(matrix: NuimoLEDMatrix, interval: NSTimeInterval, options: NuimoLEDMatrixWriteOptions) {
-        writeMatrix(matrix, interval: interval, options: options.rawValue)
+    /// Displays an LED matrix for an interval and with options
+    public func display(matrix: NuimoLEDMatrix, interval: TimeInterval, options: NuimoLEDMatrixWriteOptions) {
+        display(matrix: matrix, interval: interval, options: options.rawValue)
     }
 
-    /// Writes an LED matrix using the default display interval and with options defaulting to ResendsSameMatrix and WithWriteResponse
-    public func writeMatrix(matrix: NuimoLEDMatrix, options: NuimoLEDMatrixWriteOptions) {
-        writeMatrix(matrix, interval: defaultMatrixDisplayInterval, options: options)
+    /// Displays an LED matrix using the default display interval and with options defaulting to ResendsSameMatrix and WithWriteResponse
+    public func display(matrix: NuimoLEDMatrix, options: NuimoLEDMatrixWriteOptions) {
+        display(matrix: matrix, interval: defaultMatrixDisplayInterval, options: options)
     }
 }
 
 @objc public enum NuimoLEDMatrixWriteOption: Int {
-    case IgnoreDuplicates     = 1
-    case WithFadeTransition   = 2
-    case WithoutWriteResponse = 4
+    case ignoreDuplicates     = 1
+    case withFadeTransition   = 2
+    case withoutWriteResponse = 4
 }
 
-public struct NuimoLEDMatrixWriteOptions: OptionSetType {
+public struct NuimoLEDMatrixWriteOptions: OptionSet {
     public let rawValue: Int
 
     public init(rawValue: Int) {
         self.rawValue = rawValue
     }
 
-    public static let IgnoreDuplicates     = NuimoLEDMatrixWriteOptions(rawValue: NuimoLEDMatrixWriteOption.IgnoreDuplicates.rawValue)
-    public static let WithFadeTransition   = NuimoLEDMatrixWriteOptions(rawValue: NuimoLEDMatrixWriteOption.WithFadeTransition.rawValue)
-    public static let WithoutWriteResponse = NuimoLEDMatrixWriteOptions(rawValue: NuimoLEDMatrixWriteOption.WithoutWriteResponse.rawValue)
+    public static let IgnoreDuplicates     = NuimoLEDMatrixWriteOptions(rawValue: NuimoLEDMatrixWriteOption.ignoreDuplicates.rawValue)
+    public static let WithFadeTransition   = NuimoLEDMatrixWriteOptions(rawValue: NuimoLEDMatrixWriteOption.withFadeTransition.rawValue)
+    public static let WithoutWriteResponse = NuimoLEDMatrixWriteOptions(rawValue: NuimoLEDMatrixWriteOption.withoutWriteResponse.rawValue)
 }
 
 @objc public enum NuimoConnectionState: Int {
     case
-    Connecting,
-    Connected,
-    Disconnecting,
-    Disconnected,
-    Invalidated
+    connecting,
+    connected,
+    disconnecting,
+    disconnected,
+    invalidated
 }
 
 @objc public protocol NuimoControllerDelegate: class {
-    optional func nuimoController(controller: NuimoController, didChangeConnectionState state: NuimoConnectionState, withError error: NSError?)
-    optional func nuimoController(controller: NuimoController, didUpdateBatteryLevel batteryLevel: Int)
-    optional func nuimoController(controller: NuimoController, didReceiveGestureEvent event: NuimoGestureEvent)
-    optional func nuimoControllerDidDisplayLEDMatrix(controller: NuimoController)
+    @objc optional func nuimoController(_ controller: NuimoController, didChangeConnectionState state: NuimoConnectionState, withError error: Error?)
+    @objc optional func nuimoController(_ controller: NuimoController, didUpdateBatteryLevel batteryLevel: Int)
+    @objc optional func nuimoController(_ controller: NuimoController, didReceiveGestureEvent event: NuimoGestureEvent)
+    @objc optional func nuimoControllerDidDisplayLEDMatrix(_ controller: NuimoController)
 }
