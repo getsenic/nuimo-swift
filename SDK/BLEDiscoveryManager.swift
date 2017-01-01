@@ -114,7 +114,7 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
     @objc func centralManager(_ central: CBCentralManager, willRestoreState state: [String : Any]) {
         //TODO: Should work on OSX as well. http://stackoverflow.com/q/33210078/543875
         #if os(iOS) || os(tvOS)
-            restoredConnectedPeripherals = (state[CBCentralManagerRestoredStatePeripheralsKey] as? [CBPeripheral])?.filter{ $0.state == .connected }
+            restoredConnectedPeripherals = state[CBCentralManagerRestoredStatePeripheralsKey] as? [CBPeripheral]
         #endif
     }
 
