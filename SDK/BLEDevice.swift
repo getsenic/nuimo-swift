@@ -124,7 +124,7 @@ open class BLEDevice: NSObject {
     open func didDisconnect(error: Error?) {
     }
 
-    @objc internal func invalidate() {
+    internal func invalidate() {
         advertisingTimeoutTimer?.invalidate()
         disconnect()
         didInvalidate()
@@ -135,13 +135,13 @@ open class BLEDevice: NSObject {
 }
 
 extension BLEDevice: CBPeripheralDelegate {
-    @objc open func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
+    open func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         peripheral.services?
             .flatMap{ service in (service, charactericUUIDsForServiceUUID[service.uuid]?.filter { !service.characteristicUUIDs.contains($0) } ?? [] ) }
             .forEach{ peripheral.discoverCharacteristics($0.1, for: $0.0) }
     }
 
-    @objc open func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
+    open func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         service.characteristics?.forEach{ characteristic in
             if notificationCharacteristicUUIDs.contains(characteristic.uuid) {
                 peripheral.setNotifyValue(true, for: characteristic)
@@ -149,13 +149,13 @@ extension BLEDevice: CBPeripheralDelegate {
         }
     }
 
-    @objc open func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
+    open func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
     }
 
-    @objc open func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
+    open func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
     }
 
-    @objc open func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
+    open func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
     }
 }
 

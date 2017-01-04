@@ -51,7 +51,7 @@ private class PrivateBLEDiscoveryManagerDelegate: BLEDiscoveryManagerDelegate {
         self.nuimoDiscoveryManager = nuimoDiscoveryManager
     }
 
-    @objc func bleDiscoveryManager(_ discovery: BLEDiscoveryManager, didDiscoverPeripheral peripheral: CBPeripheral, advertisementData: [String : Any]) -> BLEDevice? {
+    func bleDiscoveryManager(_ discovery: BLEDiscoveryManager, didDiscoverPeripheral peripheral: CBPeripheral, advertisementData: [String : Any]) -> BLEDevice? {
         if let device = nuimoDiscoveryManager.delegate?.nuimoDiscoveryManager?(nuimoDiscoveryManager, deviceForPeripheral: peripheral) {
             return device
         }
@@ -59,19 +59,19 @@ private class PrivateBLEDiscoveryManagerDelegate: BLEDiscoveryManagerDelegate {
         return nuimoDiscoveryManager.nuimoBluetoothController(with: peripheral)
     }
 
-    @objc func bleDiscoveryManager(_ discovery: BLEDiscoveryManager, didDiscoverDevice device: BLEDevice) {
+    func bleDiscoveryManager(_ discovery: BLEDiscoveryManager, didDiscoverDevice device: BLEDevice) {
         nuimoDiscoveryManager.delegate?.nuimoDiscoveryManager(nuimoDiscoveryManager, didDiscoverNuimoController: device as! NuimoController)
     }
 
-    @objc func bleDiscoveryManager(_ discovery: BLEDiscoveryManager, didRestoreDevice device: BLEDevice) {
+    func bleDiscoveryManager(_ discovery: BLEDiscoveryManager, didRestoreDevice device: BLEDevice) {
         nuimoDiscoveryManager.delegate?.nuimoDiscoveryManager?(nuimoDiscoveryManager, didRestoreNuimoController: device as! NuimoController)
     }
 
-    @objc fileprivate func bleDiscoveryManagerDidStartDiscovery(_ discovery: BLEDiscoveryManager) {
+    fileprivate func bleDiscoveryManagerDidStartDiscovery(_ discovery: BLEDiscoveryManager) {
         nuimoDiscoveryManager.delegate?.nuimoDiscoveryManagerDidStartDiscovery?(nuimoDiscoveryManager)
     }
 
-    @objc fileprivate func bleDiscoveryManagerDidStopDiscovery(_ discovery: BLEDiscoveryManager) {
+    fileprivate func bleDiscoveryManagerDidStopDiscovery(_ discovery: BLEDiscoveryManager) {
         nuimoDiscoveryManager.delegate?.nuimoDiscoveryManagerDidStopDiscovery?(nuimoDiscoveryManager)
     }
 }
