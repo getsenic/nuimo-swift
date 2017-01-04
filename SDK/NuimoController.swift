@@ -52,7 +52,7 @@ public extension NuimoController {
     }
 }
 
-@objc public enum NuimoLEDMatrixWriteOption: Int {
+public enum NuimoLEDMatrixWriteOption: Int {
     case ignoreDuplicates     = 1
     case withFadeTransition   = 2
     case withoutWriteResponse = 4
@@ -70,13 +70,12 @@ public struct NuimoLEDMatrixWriteOptions: OptionSet {
     public static let WithoutWriteResponse = NuimoLEDMatrixWriteOptions(rawValue: NuimoLEDMatrixWriteOption.withoutWriteResponse.rawValue)
 }
 
-@objc public enum NuimoConnectionState: Int {
-    case
-    connecting,
-    connected,
-    disconnecting,
-    disconnected,
-    invalidated
+public enum NuimoConnectionState {
+    case connecting
+    case connected
+    case disconnecting
+    case disconnected
+    case invalidated
 }
 
 public protocol NuimoControllerDelegate: class {

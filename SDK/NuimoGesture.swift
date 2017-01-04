@@ -8,26 +8,25 @@
 //  This software may be modified and distributed under the terms
 //  of the MIT license.  See the LICENSE file for details.
 
-@objc public enum NuimoGesture : Int {
-    case
-    buttonPress = 0,
-    buttonRelease,
-    rotate,
-    touchLeft,
-    touchRight,
-    touchTop,
-    touchBottom,
-    longTouchLeft,
-    longTouchRight,
-    longTouchTop,
-    longTouchBottom,
-    swipeLeft,
-    swipeRight,
-    swipeUp,
-    swipeDown,
-    flyLeft,
-    flyRight,
-    flyUpDown
+public enum NuimoGesture {
+    case buttonPress
+    case buttonRelease
+    case rotate
+    case touchLeft
+    case touchRight
+    case touchTop
+    case touchBottom
+    case longTouchLeft
+    case longTouchRight
+    case longTouchTop
+    case longTouchBottom
+    case swipeLeft
+    case swipeRight
+    case swipeUp
+    case swipeDown
+    case flyLeft
+    case flyRight
+    case flyUpDown
     
     public init?(identifier: String) {
         guard let gesture = gestureForIdentifier[identifier] else { return nil }
