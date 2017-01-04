@@ -232,7 +232,7 @@ private class LEDMatrixWriter {
         }
     }
 
-    @objc func didRetrieveMatrixWriteResponse() {
+    dynamic func didRetrieveMatrixWriteResponse() {
         guard isWaitingForMatrixWriteResponse else { return }
         isWaitingForMatrixWriteResponse = false
         DispatchQueue.main.async {
