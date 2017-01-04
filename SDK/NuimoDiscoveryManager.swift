@@ -22,7 +22,7 @@ public class NuimoDiscoveryManager: NSObject {
     public weak var delegate: NuimoDiscoveryDelegate?
 
     private let options: [String : Any]
-    private lazy var bleDiscoveryDelegate: PrivateBLEDiscoveryManagerDelegate = PrivateBLEDiscoveryManagerDelegate(nuimoDiscoveryManager: self)
+    private lazy var bleDiscoveryDelegate: NuimoDiscoveryManagerPrivate = NuimoDiscoveryManagerPrivate(nuimoDiscoveryManager: self)
 
     public init(delegate: NuimoDiscoveryDelegate? = nil, options: [String : Any] = [:]) {
         self.options = options
@@ -44,35 +44,40 @@ public class NuimoDiscoveryManager: NSObject {
     }
 }
 
-private class PrivateBLEDiscoveryManagerDelegate: BLEDiscoveryManagerDelegate {
-    let nuimoDiscoveryManager: NuimoDiscoveryManager
+private class NuimoDiscoveryManagerPrivate: BLEDiscoveryManagerDelegate {
+    weak var manager: NuimoDiscoveryManager?
 
     init(nuimoDiscoveryManager: NuimoDiscoveryManager) {
-        self.nuimoDiscoveryManager = nuimoDiscoveryManager
+        self.manager = nuimoDiscoveryManager
     }
 
     func bleDiscoveryManager(_ discovery: BLEDiscoveryManager, didDiscoverPeripheral peripheral: CBPeripheral, advertisementData: [String : Any]) -> BLEDevice? {
-        if let device = nuimoDiscoveryManager.delegate?.nuimoDiscoveryManager(nuimoDiscoveryManager, deviceForPeripheral: peripheral) {
+        guard let manager = manager else { return nil }
+        if let device = manager.delegate?.nuimoDiscoveryManager(manager, deviceForPeripheral: peripheral) {
             return device
         }
         guard peripheral.name == "Nuimo" || advertisementData[CBAdvertisementDataLocalNameKey] as? String == "Nuimo" else { return nil }
-        return nuimoDiscoveryManager.nuimoBluetoothController(with: peripheral)
+        return manager.nuimoBluetoothController(with: peripheral)
     }
 
     func bleDiscoveryManager(_ discovery: BLEDiscoveryManager, didDiscoverDevice device: BLEDevice) {
-        nuimoDiscoveryManager.delegate?.nuimoDiscoveryManager(nuimoDiscoveryManager, didDiscoverNuimoController: device as! NuimoController)
+        guard let manager = manager else { return }
+        manager.delegate?.nuimoDiscoveryManager(manager, didDiscoverNuimoController: device as! NuimoController)
     }
 
     func bleDiscoveryManager(_ discovery: BLEDiscoveryManager, didRestoreDevice device: BLEDevice) {
-        nuimoDiscoveryManager.delegate?.nuimoDiscoveryManager(nuimoDiscoveryManager, didRestoreNuimoController: device as! NuimoController)
+        guard let manager = manager else { return }
+        manager.delegate?.nuimoDiscoveryManager(manager, didRestoreNuimoController: device as! NuimoController)
     }
 
-    fileprivate func bleDiscoveryManagerDidStartDiscovery(_ discovery: BLEDiscoveryManager) {
-        nuimoDiscoveryManager.delegate?.nuimoDiscoveryManagerDidStartDiscovery(nuimoDiscoveryManager)
+    func bleDiscoveryManagerDidStartDiscovery(_ discovery: BLEDiscoveryManager) {
+        guard let manager = manager else { return }
+        manager.delegate?.nuimoDiscoveryManagerDidStartDiscovery(manager)
     }
 
-    fileprivate func bleDiscoveryManagerDidStopDiscovery(_ discovery: BLEDiscoveryManager) {
-        nuimoDiscoveryManager.delegate?.nuimoDiscoveryManagerDidStopDiscovery(nuimoDiscoveryManager)
+    func bleDiscoveryManagerDidStopDiscovery(_ discovery: BLEDiscoveryManager) {
+        guard let manager = manager else { return }
+        manager.delegate?.nuimoDiscoveryManagerDidStopDiscovery(manager)
     }
 }
 
