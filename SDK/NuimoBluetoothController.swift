@@ -75,7 +75,7 @@ open class NuimoBluetoothController: BLEDevice, NuimoController {
     private func setConnectionState(_ state: NuimoConnectionState, withError error: Error? = nil) {
         guard state != connectionState else { return }
         connectionState = state
-        delegate?.nuimoController?(self, didChangeConnectionState: connectionState, withError: error)
+        delegate?.nuimoController(self, didChangeConnectionState: connectionState, withError: error)
     }
 
     public func display(matrix: NuimoLEDMatrix, interval: TimeInterval, options: Int) {
@@ -135,9 +135,9 @@ open class NuimoBluetoothController: BLEDevice, NuimoController {
         case kHardwareVersionCharacteristicUUID: hardwareVersion = String(data: data, encoding: .utf8)
         case kFirmwareVersionCharacteristicUUID: firmwareVersion = String(data: data, encoding: .utf8)
         case kModelNumberCharacteristicUUID:     color           = String(data: data, encoding: .utf8)
-        case kBatteryCharacteristicUUID:         delegate?.nuimoController?(self, didUpdateBatteryLevel: Int((data as NSData).bytes.bindMemory(to: UInt8.self, capacity: data.count).pointee))
+        case kBatteryCharacteristicUUID:         delegate?.nuimoController(self, didUpdateBatteryLevel: Int((data as NSData).bytes.bindMemory(to: UInt8.self, capacity: data.count).pointee))
         case kHeartBeatCharacteristicUUID:       NotificationCenter.default.post(name: .NuimoBluetoothControllerDidSendHeartBeat, object: self, userInfo: nil)
-        default:                                 if let event = characteristic.nuimoGestureEvent() { delegate?.nuimoController?(self, didReceiveGestureEvent: event) }
+        default:                                 if let event = characteristic.nuimoGestureEvent() { delegate?.nuimoController(self, didReceiveGestureEvent: event) }
         }
     }
 
@@ -146,7 +146,7 @@ open class NuimoBluetoothController: BLEDevice, NuimoController {
         switch characteristic.uuid {
         case kLEDMatrixCharacteristicUUID:
             matrixWriter?.didRetrieveMatrixWriteResponse()
-            delegate?.nuimoControllerDidDisplayLEDMatrix?(self)
+            delegate?.nuimoControllerDidDisplayLEDMatrix(self)
         case kRebootToDFUModeCharacteristicUUID:
             disconnect()
         default: break

@@ -8,7 +8,7 @@
 //  This software may be modified and distributed under the terms
 //  of the MIT license.  See the LICENSE file for details.
 
-@objc public protocol NuimoController {
+public protocol NuimoController: class {
     var uuid: String {get}
     var delegate: NuimoControllerDelegate? {get set}
 
@@ -79,9 +79,16 @@ public struct NuimoLEDMatrixWriteOptions: OptionSet {
     invalidated
 }
 
-@objc public protocol NuimoControllerDelegate: class {
-    @objc optional func nuimoController(_ controller: NuimoController, didChangeConnectionState state: NuimoConnectionState, withError error: Error?)
-    @objc optional func nuimoController(_ controller: NuimoController, didUpdateBatteryLevel batteryLevel: Int)
-    @objc optional func nuimoController(_ controller: NuimoController, didReceiveGestureEvent event: NuimoGestureEvent)
-    @objc optional func nuimoControllerDidDisplayLEDMatrix(_ controller: NuimoController)
+public protocol NuimoControllerDelegate: class {
+    func nuimoController(_ controller: NuimoController, didChangeConnectionState state: NuimoConnectionState, withError error: Error?)
+    func nuimoController(_ controller: NuimoController, didUpdateBatteryLevel batteryLevel: Int)
+    func nuimoController(_ controller: NuimoController, didReceiveGestureEvent event: NuimoGestureEvent)
+    func nuimoControllerDidDisplayLEDMatrix(_ controller: NuimoController)
+}
+
+public extension NuimoControllerDelegate {
+    func nuimoController(_ controller: NuimoController, didChangeConnectionState state: NuimoConnectionState, withError error: Error?) {}
+    func nuimoController(_ controller: NuimoController, didUpdateBatteryLevel batteryLevel: Int) {}
+    func nuimoController(_ controller: NuimoController, didReceiveGestureEvent event: NuimoGestureEvent) {}
+    func nuimoControllerDidDisplayLEDMatrix(_ controller: NuimoController) {}
 }

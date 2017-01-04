@@ -52,7 +52,7 @@ private class PrivateBLEDiscoveryManagerDelegate: BLEDiscoveryManagerDelegate {
     }
 
     func bleDiscoveryManager(_ discovery: BLEDiscoveryManager, didDiscoverPeripheral peripheral: CBPeripheral, advertisementData: [String : Any]) -> BLEDevice? {
-        if let device = nuimoDiscoveryManager.delegate?.nuimoDiscoveryManager?(nuimoDiscoveryManager, deviceForPeripheral: peripheral) {
+        if let device = nuimoDiscoveryManager.delegate?.nuimoDiscoveryManager(nuimoDiscoveryManager, deviceForPeripheral: peripheral) {
             return device
         }
         guard peripheral.name == "Nuimo" || advertisementData[CBAdvertisementDataLocalNameKey] as? String == "Nuimo" else { return nil }
@@ -64,22 +64,29 @@ private class PrivateBLEDiscoveryManagerDelegate: BLEDiscoveryManagerDelegate {
     }
 
     func bleDiscoveryManager(_ discovery: BLEDiscoveryManager, didRestoreDevice device: BLEDevice) {
-        nuimoDiscoveryManager.delegate?.nuimoDiscoveryManager?(nuimoDiscoveryManager, didRestoreNuimoController: device as! NuimoController)
+        nuimoDiscoveryManager.delegate?.nuimoDiscoveryManager(nuimoDiscoveryManager, didRestoreNuimoController: device as! NuimoController)
     }
 
     fileprivate func bleDiscoveryManagerDidStartDiscovery(_ discovery: BLEDiscoveryManager) {
-        nuimoDiscoveryManager.delegate?.nuimoDiscoveryManagerDidStartDiscovery?(nuimoDiscoveryManager)
+        nuimoDiscoveryManager.delegate?.nuimoDiscoveryManagerDidStartDiscovery(nuimoDiscoveryManager)
     }
 
     fileprivate func bleDiscoveryManagerDidStopDiscovery(_ discovery: BLEDiscoveryManager) {
-        nuimoDiscoveryManager.delegate?.nuimoDiscoveryManagerDidStopDiscovery?(nuimoDiscoveryManager)
+        nuimoDiscoveryManager.delegate?.nuimoDiscoveryManagerDidStopDiscovery(nuimoDiscoveryManager)
     }
 }
 
-@objc public protocol NuimoDiscoveryDelegate: class {
-    @objc optional func nuimoDiscoveryManager(_ discovery: NuimoDiscoveryManager, deviceForPeripheral peripheral: CBPeripheral) -> BLEDevice?
+public protocol NuimoDiscoveryDelegate: class {
+    func nuimoDiscoveryManagerDidStartDiscovery(_ discovery: NuimoDiscoveryManager)
+    func nuimoDiscoveryManagerDidStopDiscovery(_ discovery: NuimoDiscoveryManager)
+    func nuimoDiscoveryManager(_ discovery: NuimoDiscoveryManager, deviceForPeripheral peripheral: CBPeripheral) -> BLEDevice?
     func nuimoDiscoveryManager(_ discovery: NuimoDiscoveryManager, didDiscoverNuimoController controller: NuimoController)
-    @objc optional func nuimoDiscoveryManager(_ discovery: NuimoDiscoveryManager, didRestoreNuimoController controller: NuimoController)
-    @objc optional func nuimoDiscoveryManagerDidStartDiscovery(_ discovery: NuimoDiscoveryManager)
-    @objc optional func nuimoDiscoveryManagerDidStopDiscovery(_ discovery: NuimoDiscoveryManager)
+    func nuimoDiscoveryManager(_ discovery: NuimoDiscoveryManager, didRestoreNuimoController controller: NuimoController)
+}
+
+public extension NuimoDiscoveryDelegate {
+    func nuimoDiscoveryManagerDidStartDiscovery(_ discovery: NuimoDiscoveryManager) {}
+    func nuimoDiscoveryManagerDidStopDiscovery(_ discovery: NuimoDiscoveryManager) {}
+    func nuimoDiscoveryManager(_ discovery: NuimoDiscoveryManager, deviceForPeripheral peripheral: CBPeripheral) -> BLEDevice? { return nil }
+    func nuimoDiscoveryManager(_ discovery: NuimoDiscoveryManager, didRestoreNuimoController controller: NuimoController) {}
 }

@@ -41,12 +41,17 @@ public class BLEDiscoveryManager: NSObject {
     }
 }
 
-@objc public protocol BLEDiscoveryManagerDelegate: class {
+public protocol BLEDiscoveryManagerDelegate: class {
     func bleDiscoveryManager(_ discovery: BLEDiscoveryManager, didDiscoverPeripheral peripheral: CBPeripheral, advertisementData: [String : Any]) -> BLEDevice?
     func bleDiscoveryManager(_ discovery: BLEDiscoveryManager, didDiscoverDevice device: BLEDevice)
     func bleDiscoveryManager(_ discovery: BLEDiscoveryManager, didRestoreDevice device: BLEDevice)
-    @objc optional func bleDiscoveryManagerDidStartDiscovery(_ discovery: BLEDiscoveryManager)
-    @objc optional func bleDiscoveryManagerDidStopDiscovery(_ discovery: BLEDiscoveryManager)
+    func bleDiscoveryManagerDidStartDiscovery(_ discovery: BLEDiscoveryManager)
+    func bleDiscoveryManagerDidStopDiscovery(_ discovery: BLEDiscoveryManager)
+}
+
+public extension BLEDiscoveryManagerDelegate {
+    func bleDiscoveryManagerDidStartDiscovery(_ discovery: BLEDiscoveryManager) {}
+    func bleDiscoveryManagerDidStopDiscovery(_ discovery: BLEDiscoveryManager) {}
 }
 
 /**
@@ -85,7 +90,7 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
         options[CBCentralManagerScanOptionAllowDuplicatesKey] = detectUnreachableDevices as AnyObject?
         centralManager.scanForPeripherals(withServices: serviceUUIDs, options: options)
         isScanning = true
-        discovery.delegate?.bleDiscoveryManagerDidStartDiscovery?(discovery)
+        discovery.delegate?.bleDiscoveryManagerDidStartDiscovery(discovery)
     }
 
     func stopDiscovery() {
@@ -93,7 +98,7 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
         guard isScanning else { return }
         centralManager.stopScan()
         isScanning = false
-        discovery.delegate?.bleDiscoveryManagerDidStopDiscovery?(discovery)
+        discovery.delegate?.bleDiscoveryManagerDidStopDiscovery(discovery)
     }
 
     func invalidateDevice(_ device: BLEDevice) {
