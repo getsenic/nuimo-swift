@@ -18,12 +18,18 @@ public class BLEDiscoveryManager: NSObject {
     public private(set) lazy var centralManager: CBCentralManager = self.discovery.centralManager
     public weak var delegate: BLEDiscoveryManagerDelegate?
 
-    private let options: [String : Any]
-    private lazy var discovery: BLEDiscoveryManagerPrivate = BLEDiscoveryManagerPrivate(discovery: self, options: self.options)
+    private let centralManagerOptions: [String : Any]
+    private lazy var discovery: BLEDiscoveryManagerPrivate = BLEDiscoveryManagerPrivate(discovery: self, centralManagerOptions: self.centralManagerOptions)
 
-    public init(delegate: BLEDiscoveryManagerDelegate? = nil, options: [String : Any] = [:]) {
+    public init(delegate: BLEDiscoveryManagerDelegate? = nil, restoreIdentifier: String? = nil) {
+        var centralManagerOptions: [String : Any] = [:]
+        if let restoreIdentifier = restoreIdentifier {
+            #if os(iOS) || os(tvOS)
+            centralManagerOptions[CBCentralManagerOptionRestoreIdentifierKey] = restoreIdentifier
+            #endif
+        }
+        self.centralManagerOptions = centralManagerOptions
         self.delegate = delegate
-        self.options = options
         super.init()
     }
 
@@ -60,8 +66,8 @@ public extension BLEDiscoveryManagerDelegate {
 */
 private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
     weak var discovery: BLEDiscoveryManager?
-    let options: [String : Any]
-    lazy var centralManager: CBCentralManager = CBCentralManager(delegate: self, queue: nil, options: self.options)
+    let centralManagerOptions: [String : Any]
+    lazy var centralManager: CBCentralManager = CBCentralManager(delegate: self, queue: nil, options: self.centralManagerOptions)
     var serviceUUIDs = [CBUUID]()
     var detectUnreachableDevices = false
     var shouldStartDiscoveryWhenPowerStateTurnsOn = false
@@ -70,9 +76,9 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
 
     private var isScanning = false
 
-    init(discovery: BLEDiscoveryManager, options: [String : Any]) {
+    init(discovery: BLEDiscoveryManager, centralManagerOptions: [String : Any]) {
         self.discovery = discovery
-        self.options = options
+        self.centralManagerOptions = centralManagerOptions
         super.init()
     }
 
@@ -87,9 +93,7 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
 
     private func startDiscovery() {
         guard let discovery = discovery else { return }
-        var options = self.options
-        options[CBCentralManagerScanOptionAllowDuplicatesKey] = detectUnreachableDevices as AnyObject?
-        centralManager.scanForPeripherals(withServices: serviceUUIDs, options: options)
+        centralManager.scanForPeripherals(withServices: serviceUUIDs, options: [CBCentralManagerScanOptionAllowDuplicatesKey : detectUnreachableDevices])
         isScanning = true
         discovery.delegate?.bleDiscoveryManagerDidStartDiscovery(discovery)
     }

@@ -10,29 +10,26 @@
 
 import CoreBluetooth
 
-public let NuimoDiscoveryManagerAdditionalDiscoverServiceUUIDsKey = "NuimoDiscoveryManagerAdditionalDiscoverServiceUUIDs"
-
 // Allows for discovering Nuimo BLE hardware controllers and virtual (websocket) controllers
 public class NuimoDiscoveryManager: NSObject {
 
     public static let sharedManager = NuimoDiscoveryManager()
-    public private (set) lazy var centralManager: CBCentralManager = self.bleDiscovery.centralManager
-    public private (set) lazy var bleDiscovery: BLEDiscoveryManager = BLEDiscoveryManager(delegate: self.bleDiscoveryDelegate, options: self.options)
-    
+
+    public private(set) lazy var bleDiscovery: BLEDiscoveryManager = BLEDiscoveryManager(delegate: self.bleDiscoveryDelegate, restoreIdentifier: self.restoreIdentifier)
+    public var centralManager: CBCentralManager { return self.bleDiscovery.centralManager }
     public weak var delegate: NuimoDiscoveryDelegate?
 
-    private let options: [String : Any]
+    private var restoreIdentifier: String?
     private lazy var bleDiscoveryDelegate: NuimoDiscoveryManagerPrivate = NuimoDiscoveryManagerPrivate(nuimoDiscoveryManager: self)
 
-    public init(delegate: NuimoDiscoveryDelegate? = nil, options: [String : Any] = [:]) {
-        self.options = options
-        super.init()
+    public init(delegate: NuimoDiscoveryDelegate? = nil, restoreIdentifier: String? = nil) {
         self.delegate = delegate
+        self.restoreIdentifier = restoreIdentifier
+        super.init()
     }
     
-    public func startDiscovery(detectUnreachableControllers: Bool = false) {
-        let additionalDiscoverServiceUUIDs = options[NuimoDiscoveryManagerAdditionalDiscoverServiceUUIDsKey] as? [CBUUID] ?? []
-        bleDiscovery.startDiscovery(serviceUUIDs: nuimoServiceUUIDs + additionalDiscoverServiceUUIDs, detectUnreachableDevices: detectUnreachableControllers)
+    public func startDiscovery(extraServiceUUIDs: [CBUUID] = [], detectUnreachableControllers: Bool = false) {
+        bleDiscovery.startDiscovery(serviceUUIDs: nuimoServiceUUIDs + extraServiceUUIDs, detectUnreachableDevices: detectUnreachableControllers)
     }
 
     public func stopDiscovery() {
