@@ -15,17 +15,17 @@ public class NuimoDiscoveryManager: NSObject {
 
     public static let sharedManager = NuimoDiscoveryManager()
 
-    public private(set) lazy var bleDiscovery: BLEDiscoveryManager = BLEDiscoveryManager(delegate: self.bleDiscoveryDelegate, restoreIdentifier: self.restoreIdentifier)
+    public private(set) var bleDiscovery: BLEDiscoveryManager!
     public var centralManager: CBCentralManager { return self.bleDiscovery.centralManager }
     public weak var delegate: NuimoDiscoveryDelegate?
 
-    private var restoreIdentifier: String?
-    private lazy var bleDiscoveryDelegate: NuimoDiscoveryManagerPrivate = NuimoDiscoveryManagerPrivate(nuimoDiscoveryManager: self)
+    private var bleDiscoveryDelegate: NuimoDiscoveryManagerPrivate!
 
     public init(delegate: NuimoDiscoveryDelegate? = nil, restoreIdentifier: String? = nil) {
         self.delegate = delegate
-        self.restoreIdentifier = restoreIdentifier
         super.init()
+        self.bleDiscoveryDelegate = NuimoDiscoveryManagerPrivate(nuimoDiscoveryManager: self)
+        self.bleDiscovery = BLEDiscoveryManager(delegate: self.bleDiscoveryDelegate, restoreIdentifier: restoreIdentifier)
     }
     
     public func startDiscovery(extraServiceUUIDs: [CBUUID] = [], detectUnreachableControllers: Bool = false) {

@@ -18,19 +18,19 @@ public class BLEDiscoveryManager: NSObject {
     public private(set) lazy var centralManager: CBCentralManager = self.discovery.centralManager
     public weak var delegate: BLEDiscoveryManagerDelegate?
 
-    private let centralManagerOptions: [String : Any]
-    private lazy var discovery: BLEDiscoveryManagerPrivate = BLEDiscoveryManagerPrivate(discovery: self, centralManagerOptions: self.centralManagerOptions)
+    private var discovery: BLEDiscoveryManagerPrivate!
 
     public init(delegate: BLEDiscoveryManagerDelegate? = nil, restoreIdentifier: String? = nil) {
+        self.delegate = delegate
+        super.init()
+
         var centralManagerOptions: [String : Any] = [:]
         if let restoreIdentifier = restoreIdentifier {
             #if os(iOS) || os(tvOS)
             centralManagerOptions[CBCentralManagerOptionRestoreIdentifierKey] = restoreIdentifier
             #endif
         }
-        self.centralManagerOptions = centralManagerOptions
-        self.delegate = delegate
-        super.init()
+        self.discovery = BLEDiscoveryManagerPrivate(discovery: self, centralManagerOptions: centralManagerOptions)
     }
 
     /// If detectUnreachableDevices is set to true, it will invalidate devices if they stop advertising. Consumes more energy since `CBCentralManagerScanOptionAllowDuplicatesKey` is set to true.
@@ -66,8 +66,8 @@ public extension BLEDiscoveryManagerDelegate {
 */
 private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
     weak var discovery: BLEDiscoveryManager?
-    let centralManagerOptions: [String : Any]
-    lazy var centralManager: CBCentralManager = CBCentralManager(delegate: self, queue: nil, options: self.centralManagerOptions)
+
+    var centralManager: CBCentralManager!
     var serviceUUIDs = [CBUUID]()
     var detectUnreachableDevices = false
     var shouldStartDiscoveryWhenPowerStateTurnsOn = false
@@ -78,8 +78,8 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
 
     init(discovery: BLEDiscoveryManager, centralManagerOptions: [String : Any]) {
         self.discovery = discovery
-        self.centralManagerOptions = centralManagerOptions
         super.init()
+        self.centralManager = CBCentralManager(delegate: self, queue: nil, options: centralManagerOptions)
     }
 
     func startDiscovery(serviceUUIDs: [CBUUID], detectUnreachableDevices: Bool) {
