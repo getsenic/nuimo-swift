@@ -45,11 +45,11 @@ public class BLEDiscoveryManager: NSObject {
         self.detectUnreachableDevices = detectUnreachableDevices
         self.shouldDiscover = true
 
-        guard centralManager.state == .poweredOn else { return }
         startDiscovery()
     }
 
     fileprivate func startDiscovery() {
+        guard centralManager.state == .poweredOn else { return }
         centralManager.scanForPeripherals(withServices: serviceUUIDs, options: [CBCentralManagerScanOptionAllowDuplicatesKey : detectUnreachableDevices])
     }
 
