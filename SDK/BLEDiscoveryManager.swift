@@ -46,13 +46,6 @@ public protocol BLEDiscoveryManagerDelegate: class {
     func bleDiscoveryManager(_ discovery: BLEDiscoveryManager, didDiscoverPeripheral peripheral: CBPeripheral, advertisementData: [String : Any]) -> BLEDevice?
     func bleDiscoveryManager(_ discovery: BLEDiscoveryManager, didDiscoverDevice device: BLEDevice)
     func bleDiscoveryManager(_ discovery: BLEDiscoveryManager, didRestoreDevice device: BLEDevice)
-    func bleDiscoveryManagerDidStartDiscovery(_ discovery: BLEDiscoveryManager)
-    func bleDiscoveryManagerDidStopDiscovery(_ discovery: BLEDiscoveryManager)
-}
-
-public extension BLEDiscoveryManagerDelegate {
-    func bleDiscoveryManagerDidStartDiscovery(_ discovery: BLEDiscoveryManager) {}
-    func bleDiscoveryManagerDidStopDiscovery(_ discovery: BLEDiscoveryManager) {}
 }
 
 /**
@@ -69,8 +62,6 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
     var peripheralForUUID:            [UUID : CBPeripheral] = [:]
     var deviceForPeripheral:          [CBPeripheral : BLEDevice] = [:]
     var restoredConnectedPeripherals: [CBPeripheral]?
-
-    private var isScanning = false
 
     init(discovery: BLEDiscoveryManager, centralManagerOptions: [String : Any]) {
         self.discovery = discovery
@@ -90,17 +81,11 @@ private class BLEDiscoveryManagerPrivate: NSObject, CBCentralManagerDelegate {
     private func startDiscovery() {
         guard let discovery = discovery else { return }
         centralManager.scanForPeripherals(withServices: serviceUUIDs, options: [CBCentralManagerScanOptionAllowDuplicatesKey : detectUnreachableDevices])
-        isScanning = true
-        discovery.delegate?.bleDiscoveryManagerDidStartDiscovery(discovery)
     }
 
     func stopDiscovery() {
         guard let discovery = discovery else { return }
         shouldDiscover = false
-        guard isScanning else { return }
-        centralManager.stopScan()
-        isScanning = false
-        discovery.delegate?.bleDiscoveryManagerDidStopDiscovery(discovery)
     }
 
     func centralManager(_ central: CBCentralManager, willRestoreState state: [String : Any]) {

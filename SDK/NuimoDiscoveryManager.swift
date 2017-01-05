@@ -65,29 +65,15 @@ private class NuimoDiscoveryManagerPrivate: BLEDiscoveryManagerDelegate {
         guard let manager = manager else { return }
         manager.delegate?.nuimoDiscoveryManager(manager, didRestoreNuimoController: device as! NuimoController)
     }
-
-    func bleDiscoveryManagerDidStartDiscovery(_ discovery: BLEDiscoveryManager) {
-        guard let manager = manager else { return }
-        manager.delegate?.nuimoDiscoveryManagerDidStartDiscovery(manager)
-    }
-
-    func bleDiscoveryManagerDidStopDiscovery(_ discovery: BLEDiscoveryManager) {
-        guard let manager = manager else { return }
-        manager.delegate?.nuimoDiscoveryManagerDidStopDiscovery(manager)
-    }
 }
 
 public protocol NuimoDiscoveryDelegate: class {
-    func nuimoDiscoveryManagerDidStartDiscovery(_ discovery: NuimoDiscoveryManager)
-    func nuimoDiscoveryManagerDidStopDiscovery(_ discovery: NuimoDiscoveryManager)
     func nuimoDiscoveryManager(_ discovery: NuimoDiscoveryManager, deviceForPeripheral peripheral: CBPeripheral) -> BLEDevice?
     func nuimoDiscoveryManager(_ discovery: NuimoDiscoveryManager, didDiscoverNuimoController controller: NuimoController)
     func nuimoDiscoveryManager(_ discovery: NuimoDiscoveryManager, didRestoreNuimoController controller: NuimoController)
 }
 
 public extension NuimoDiscoveryDelegate {
-    func nuimoDiscoveryManagerDidStartDiscovery(_ discovery: NuimoDiscoveryManager) {}
-    func nuimoDiscoveryManagerDidStopDiscovery(_ discovery: NuimoDiscoveryManager) {}
     func nuimoDiscoveryManager(_ discovery: NuimoDiscoveryManager, deviceForPeripheral peripheral: CBPeripheral) -> BLEDevice? { return nil }
     func nuimoDiscoveryManager(_ discovery: NuimoDiscoveryManager, didRestoreNuimoController controller: NuimoController) {}
 }
