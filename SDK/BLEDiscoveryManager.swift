@@ -25,7 +25,7 @@ public class BLEDiscoveryManager: NSObject {
     fileprivate var deviceForPeripheral:          [CBPeripheral : BLEDevice] = [:]
     fileprivate var restoredConnectedPeripherals: [CBPeripheral]?
 
-    public init(delegate: BLEDiscoveryManagerDelegate? = nil, restoreIdentifier: String? = nil) {
+    public init(delegate: BLEDiscoveryManagerDelegate, restoreIdentifier: String? = nil) {
         self.delegate = delegate
         super.init()
 
