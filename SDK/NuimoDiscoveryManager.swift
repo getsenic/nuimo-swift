@@ -11,7 +11,7 @@
 import CoreBluetooth
 
 // Allows for discovering Nuimo BLE hardware controllers and virtual (websocket) controllers
-public class NuimoDiscoveryManager: NSObject {
+public class NuimoDiscoveryManager {
 
     public static let sharedManager = NuimoDiscoveryManager()
 
@@ -23,7 +23,6 @@ public class NuimoDiscoveryManager: NSObject {
 
     public init(delegate: NuimoDiscoveryDelegate? = nil, restoreIdentifier: String? = nil) {
         self.delegate = delegate
-        super.init()
         self.bleDiscoveryDelegate = NuimoDiscoveryManagerPrivate(nuimoDiscoveryManager: self)
         self.bleDiscovery = BLEDiscoveryManager(delegate: self.bleDiscoveryDelegate, restoreIdentifier: restoreIdentifier)
     }

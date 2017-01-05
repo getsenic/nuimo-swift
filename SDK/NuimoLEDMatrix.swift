@@ -8,7 +8,7 @@
 //  This software may be modified and distributed under the terms
 //  of the MIT license.  See the LICENSE file for details.
 
-open class NuimoLEDMatrix: NSObject {
+open class NuimoLEDMatrix {
     public static let ledCount = 81
     public static let ledOffCharacters: [Character] = [" ", "0"]
 
@@ -53,10 +53,15 @@ open class NuimoLEDMatrix: NSObject {
         self.init(string: string)
     }
 
-    open override func isEqual(_ object: Any?) -> Bool {
-        guard let object = object as? NuimoLEDMatrix else { return false }
-        return leds == object.leds
+    internal func equals(_ other: NuimoLEDMatrix) -> Bool {
+        return leds == other.leds
     }
+}
+
+extension NuimoLEDMatrix: Equatable {}
+
+public func ==(lhs: NuimoLEDMatrix, rhs: NuimoLEDMatrix) -> Bool {
+    return lhs.equals(rhs)
 }
 
 //MARK: Predefined matrices

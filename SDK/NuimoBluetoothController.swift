@@ -189,7 +189,7 @@ private class LEDMatrixWriter {
 
         guard
             resendsSameMatrix ||
-            !lastWrittenMatrix.isEqual(matrix) ||
+            lastWrittenMatrix != matrix ||
             (lastWrittenMatrixDisplayInterval > 0 && -lastWrittenMatrixDate.timeIntervalSinceNow >= lastWrittenMatrixDisplayInterval)
         else {
             return

@@ -21,8 +21,8 @@ public class NuimoBuiltInLEDMatrix: NuimoLEDMatrix {
         super.init(leds: leds)
     }
 
-    public override func isEqual(_ object: Any?) -> Bool {
-        guard let object = object as? NuimoBuiltInLEDMatrix else { return false }
-        return super.isEqual(object)
+    internal override func equals(_ other: NuimoLEDMatrix) -> Bool {
+        guard let other = other as? NuimoBuiltInLEDMatrix else { return false }
+        return super.equals(other)
     }
 }

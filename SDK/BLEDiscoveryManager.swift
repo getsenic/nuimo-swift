@@ -14,7 +14,7 @@ import CoreBluetooth
     Allows for easy discovering bluetooth devices.
     Automatically re-starts discovery if bluetooth was disabled for a previous discovery.
 */
-public class BLEDiscoveryManager: NSObject {
+public class BLEDiscoveryManager {
     public private(set) lazy var centralManager: CBCentralManager = self.discovery.centralManager
     public weak var delegate: BLEDiscoveryManagerDelegate?
 
@@ -22,7 +22,6 @@ public class BLEDiscoveryManager: NSObject {
 
     public init(delegate: BLEDiscoveryManagerDelegate? = nil, restoreIdentifier: String? = nil) {
         self.delegate = delegate
-        super.init()
 
         var centralManagerOptions: [String : Any] = [:]
         if let restoreIdentifier = restoreIdentifier {
