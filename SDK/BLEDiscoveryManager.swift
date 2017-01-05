@@ -18,12 +18,12 @@ public class BLEDiscoveryManager: NSObject {
     public weak var delegate: BLEDiscoveryManagerDelegate?
     public private(set) var centralManager: CBCentralManager!
 
-    fileprivate var serviceUUIDs: [CBUUID] =      []
-    fileprivate var detectUnreachableDevices =    false
-    fileprivate var shouldDiscover =              false
-    fileprivate var peripheralForUUID:            [UUID : CBPeripheral] = [:]
-    fileprivate var deviceForPeripheral:          [CBPeripheral : BLEDevice] = [:]
-    fileprivate var restoredConnectedPeripherals: [CBPeripheral]?
+    fileprivate var serviceUUIDs: [CBUUID] =    []
+    fileprivate var detectUnreachableDevices = false
+    fileprivate var shouldDiscover =           false
+    fileprivate var peripheralForUUID:         [UUID : CBPeripheral] = [:]
+    fileprivate var deviceForPeripheral:       [CBPeripheral : BLEDevice] = [:]
+    fileprivate var restoredPeripherals:       [CBPeripheral]?
 
     public init(delegate: BLEDiscoveryManagerDelegate, restoreIdentifier: String? = nil) {
         self.delegate = delegate
@@ -60,17 +60,18 @@ public class BLEDiscoveryManager: NSObject {
 
 extension BLEDiscoveryManager: CBCentralManagerDelegate {
     public func centralManager(_ central: CBCentralManager, willRestoreState state: [String : Any]) {
+
         //TODO: Should work on OSX as well. http://stackoverflow.com/q/33210078/543875
         #if os(iOS) || os(tvOS)
-            restoredConnectedPeripherals = state[CBCentralManagerRestoredStatePeripheralsKey] as? [CBPeripheral]
+        restoredPeripherals = state[CBCentralManagerRestoredStatePeripheralsKey] as? [CBPeripheral]
         #endif
     }
 
     public func centralManagerDidUpdateState(_ central: CBCentralManager) {
         switch central.state {
         case .poweredOn:
-            restoredConnectedPeripherals?.forEach{ centralManager(central, didRestorePeripheral: $0) }
-            restoredConnectedPeripherals = nil
+            restoredPeripherals?.forEach{ centralManager(central, didRestorePeripheral: $0) }
+            restoredPeripherals = nil
             // When bluetooth turned on and discovery start had already been triggered before, start discovery now
             shouldDiscover
                 ? startDiscovery()
