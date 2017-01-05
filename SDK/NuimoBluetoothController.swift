@@ -12,7 +12,6 @@ import CoreBluetooth
 
 // Represents a bluetooth low energy (BLE) Nuimo controller
 open class NuimoBluetoothController: BLEDevice, NuimoController {
-    open override class var connectionTimeoutInterval:     TimeInterval  { return 5.0 }
     open override class var connectionRetryCount:          Int           { return 5 }
     open override class var maxAdvertisingPackageInterval: TimeInterval? { return 10.0 }
 
@@ -38,10 +37,9 @@ open class NuimoBluetoothController: BLEDevice, NuimoController {
     private var rebootToDFUModeCharacteristic: CBCharacteristic? { return peripheral.service(with: kSensorServiceUUID)?.characteristic(with: kRebootToDFUModeCharacteristicUUID) }
     private var flySensorCalibrationCharacteristic: CBCharacteristic? { return peripheral.service(with: kSensorServiceUUID)?.characteristic(with: kFlySensorCalibrationCharacteristicUUID) }
 
-    open override func connect() -> Bool {
-        guard super.connect() else { return false }
+    open override func connect() {
+        super.connect()
         setConnectionState(.connecting)
-        return true
     }
 
     open override func didConnect() {
@@ -55,21 +53,15 @@ open class NuimoBluetoothController: BLEDevice, NuimoController {
         setConnectionState(.disconnected, withError: error)
     }
 
-    open override func disconnect() -> Bool {
-        guard super.disconnect() else { return false }
+    open override func disconnect() {
+        super.disconnect()
         setConnectionState(.disconnecting)
-        return true
     }
 
     open override func didDisconnect(error: Error?) {
         super.didDisconnect(error: error)
         matrixWriter = nil
         setConnectionState(.disconnected, withError: error)
-    }
-
-    open override func didInvalidate() {
-        super.didInvalidate()
-        setConnectionState(.invalidated)
     }
 
     private func setConnectionState(_ state: NuimoConnectionState, withError error: Error? = nil) {

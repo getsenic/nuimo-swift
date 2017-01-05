@@ -36,7 +36,7 @@ public class NuimoDiscoveryManager {
     }
 
     fileprivate func nuimoBluetoothController(with peripheral: CBPeripheral) -> NuimoBluetoothController {
-        return NuimoBluetoothController(discoveryManager: self.bleDiscovery, uuid: peripheral.identifier.uuidString, peripheral: peripheral)
+        return NuimoBluetoothController(discoveryManager: self.bleDiscovery, peripheral: peripheral)
     }
 }
 
