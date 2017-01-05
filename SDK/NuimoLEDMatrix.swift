@@ -8,12 +8,10 @@
 //  This software may be modified and distributed under the terms
 //  of the MIT license.  See the LICENSE file for details.
 
-public let NuimoLEDMatrixLEDCount = 81
-public let NuimoLEDMatrixLEDOffCharacters: [Character] = [" ", "0"]
-public let NuimoLEDMatrixDefaultLEDOffCharacter = NuimoLEDMatrixLEDOffCharacters[0]
-public let NuimoLEDMatrixDefaultLEDOnCharacter: Character = "."
-
 open class NuimoLEDMatrix: NSObject {
+    public static let ledCount = 81
+    public static let ledOffCharacters: [Character] = [" ", "0"]
+
     public let leds: [Bool]
 
     public init(matrix: NuimoLEDMatrix) {
@@ -23,11 +21,11 @@ open class NuimoLEDMatrix: NSObject {
     public init(string: String) {
         leds = string
             // Cut off after count of LEDs
-            .substring(to: string.characters.index(string.startIndex, offsetBy: min(string.characters.count, NuimoLEDMatrixLEDCount)))
+            .substring(to: string.characters.index(string.startIndex, offsetBy: min(string.characters.count, NuimoLEDMatrix.ledCount)))
             // Right fill up to count of LEDs
-            .padding(toLength: NuimoLEDMatrixLEDCount, withPad: " ", startingAt: 0)
+            .padding(toLength: NuimoLEDMatrix.ledCount, withPad: " ", startingAt: 0)
             .characters
-            .map{!NuimoLEDMatrixLEDOffCharacters.contains($0)}
+            .map{!NuimoLEDMatrix.ledOffCharacters.contains($0)}
     }
 
     public init(leds: [Bool]) {
