@@ -15,8 +15,8 @@ import CoreBluetooth
     Automatically re-starts discovery if bluetooth was disabled for a previous discovery.
 */
 public class BLEDiscoveryManager {
-    public private(set) lazy var centralManager: CBCentralManager = self.discovery.centralManager
     public weak var delegate: BLEDiscoveryManagerDelegate?
+    public var centralManager: CBCentralManager { return self.discovery.centralManager }
 
     private var discovery: BLEDiscoveryManagerPrivate!
 
