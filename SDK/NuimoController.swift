@@ -22,7 +22,7 @@ public protocol NuimoController: class {
     var firmwareVersion: String? {get}
     var color:           String? {get}
 
-    func connect()
+    func connect(autoReconnect: Bool)
 
     func disconnect()
 
@@ -31,6 +31,10 @@ public protocol NuimoController: class {
 }
 
 public extension NuimoController {
+    public func connect() {
+        self.connect(autoReconnect: false)
+    }
+
     /// Displays an LED matrix with options defaulting to ResendsSameMatrix and WithWriteResponse
     public func display(matrix: NuimoLEDMatrix, interval: TimeInterval) {
         display(matrix: matrix, interval: interval, options: 0)

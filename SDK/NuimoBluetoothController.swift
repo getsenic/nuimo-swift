@@ -34,18 +34,29 @@ open class NuimoBluetoothController: BLEDevice, NuimoController {
 
     private var matrixWriter: LEDMatrixWriter?
     private var connectTimeoutTimer: Timer?
-    private var rebootToDFUModeCharacteristic: CBCharacteristic? { return peripheral.service(with: kSensorServiceUUID)?.characteristic(with: kRebootToDFUModeCharacteristicUUID) }
-    private var flySensorCalibrationCharacteristic: CBCharacteristic? { return peripheral.service(with: kSensorServiceUUID)?.characteristic(with: kFlySensorCalibrationCharacteristicUUID) }
+    private var rebootToDFUModeCharacteristic: CBCharacteristic? { return peripheral?.service(with: kSensorServiceUUID)?.characteristic(with: kRebootToDFUModeCharacteristicUUID) }
+    private var flySensorCalibrationCharacteristic: CBCharacteristic? { return peripheral?.service(with: kSensorServiceUUID)?.characteristic(with: kFlySensorCalibrationCharacteristicUUID) }
 
-    open override func connect() {
-        super.connect()
-        setConnectionState(.connecting)
+    open override func didRestore() {
+        super.didRestore()
+        if let peripheral = peripheral {
+            switch peripheral.state {
+            case .connected: setConnectionState(.connected)
+            case .connecting: setConnectionState(.connecting)
+            case .disconnected: setConnectionState(.disconnected)
+            case .disconnecting: setConnectionState(.disconnecting)
+            }
+        }
+        else {
+            setConnectionState(.invalidated)
+        }
     }
 
     open override func didConnect() {
         matrixWriter = nil
         super.didConnect()
         //TODO: When the matrix characteristic is being found, didConnect() is fired. But if matrix characteristic is not found, didFailToConnect() should be fired instead!
+        setConnectionState(.connected)
     }
 
     open override func didFailToConnect(error: Error?) {
@@ -75,14 +86,14 @@ open class NuimoBluetoothController: BLEDevice, NuimoController {
     }
 
     @discardableResult public func rebootToDFUMode() -> Bool {
-        guard peripheral.state == .connected else { return false }
+        guard let peripheral = peripheral, peripheral.state == .connected else { return false }
         guard let rebootToDFUModeCharacteristic = rebootToDFUModeCharacteristic else { return false }
         peripheral.writeValue(Data(bytes: UnsafePointer<UInt8>([UInt8(1)]), count: 1), for: rebootToDFUModeCharacteristic, type: .withResponse)
         return true
     }
 
     @discardableResult public func calibrateFlySensor() -> Bool {
-        guard peripheral.state == .connected else { return false }
+        guard let peripheral = peripheral, peripheral.state == .connected else { return false }
         guard let flySensorCalibrationCharacteristic = flySensorCalibrationCharacteristic else { return false }
         peripheral.writeValue(Data(bytes: UnsafePointer<UInt8>([UInt8(1)]), count: 1), for: flySensorCalibrationCharacteristic, type: .withResponse)
         return true
@@ -90,6 +101,7 @@ open class NuimoBluetoothController: BLEDevice, NuimoController {
 
     fileprivate func writeHeartBeatInterval() {
         guard
+            let peripheral = peripheral,
             peripheral.state == .connected,
             let service = peripheral.services?.filter({ $0.uuid == kSensorServiceUUID }).first,
             let characteristic = service.characteristics?.filter({ $0.uuid == kHeartBeatCharacteristicUUID }).first
