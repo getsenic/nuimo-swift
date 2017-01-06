@@ -54,6 +54,11 @@ open class NuimoBluetoothController: BLEDevice, NuimoController {
         delegate?.nuimoController(self, didChangeConnectionState: connectionState, withError: error)
     }
 
+    open override func discoverServices() {
+        matrixWriter = nil
+        super.discoverServices()
+    }
+
     public func display(matrix: NuimoLEDMatrix, interval: TimeInterval, options: Int) {
         matrixWriter?.write(matrix: matrix, interval: interval, options: options)
     }
