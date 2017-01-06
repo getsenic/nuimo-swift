@@ -125,7 +125,7 @@ open class BLEDevice: NSObject {
 
     private dynamic func updateReachability() {
         isReachable = {
-            if centralManager.state == .poweredOn { return false }
+            if centralManager.state != .poweredOn { return false }
             if peripheral?.state == .connected { return true }
             if let lastAdvertisingDate = lastAdvertisingDate, let maxAdvertisingPackageInterval = type(of: self).maxAdvertisingPackageInterval, -lastAdvertisingDate.timeIntervalSinceNow < maxAdvertisingPackageInterval { return true }
             return false
