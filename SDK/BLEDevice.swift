@@ -31,13 +31,11 @@ open class BLEDevice: NSObject {
     public let uuid: UUID
     public private(set) var peripheral: CBPeripheral? { didSet { updateReachability() } }
     public var centralManager: CBCentralManager { return discoveryManager.centralManager }
-    public private(set) var isReachable = false
-
+    public internal(set) var isReachable = false
     public private(set) var didInitiateConnection = false
 
     private var lastAdvertisingDate: Date?      { didSet { updateReachability() } }
     private var advertisingTimeoutTimer: Timer?
-    private var connectionTimeoutTimer: Timer?
     private var connectionAttempt = 0
     private var autoReconnect = false
 
@@ -89,9 +87,8 @@ open class BLEDevice: NSObject {
 
     open func didConnect() {
         guard let peripheral = peripheral else { return }
-        connectionTimeoutTimer?.invalidate()
-        peripheral.delegate = self
         peripheral.discoverServices(serviceUUIDs)
+        updateReachability()
     }
 
     open func didFailToConnect(error: Error?) {
