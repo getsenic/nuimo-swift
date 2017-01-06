@@ -12,6 +12,8 @@ import CoreBluetooth
 
 // Represents a bluetooth low energy (BLE) Nuimo controller
 open class NuimoBluetoothController: BLEDevice, NuimoController {
+    public static let serviceUUIDs = nuimoServiceUUIDs
+
     open override class var connectionRetryCount:          Int           { return 5 }
     open override class var maxAdvertisingPackageInterval: TimeInterval? { return 10.0 }
 
