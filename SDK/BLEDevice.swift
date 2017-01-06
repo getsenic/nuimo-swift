@@ -55,6 +55,7 @@ open class BLEDevice: NSObject {
         self.peripheral = peripheral
         peripheral.delegate = self
         defer { didChangeState() }
+        invalidateAdvertisingState()
         guard peripheral.state == .connected else { return }
         discoverServices()
     }
@@ -78,8 +79,7 @@ open class BLEDevice: NSObject {
     open func didConnect() {
         guard let peripheral = peripheral else { return }
         discoverServices()
-        advertisingTimeoutTimer?.invalidate()
-        lastAdvertisingDate = nil
+        invalidateAdvertisingState()
         didChangeState()
     }
 
@@ -89,8 +89,7 @@ open class BLEDevice: NSObject {
             connectionAttempt += 1
             centralManager.connect(peripheral, options: nil)
         }
-        advertisingTimeoutTimer?.invalidate()
-        lastAdvertisingDate = nil
+        invalidateAdvertisingState()
         didChangeState(error: error)
     }
 
@@ -118,6 +117,11 @@ open class BLEDevice: NSObject {
         }
         // Discover not yet discovered services and characteristics
         peripheral.discoverServices(serviceUUIDs.filter{ !peripheral.serviceUUIDs.contains($0) })
+    }
+
+    private func invalidateAdvertisingState() {
+        advertisingTimeoutTimer?.invalidate()
+        lastAdvertisingDate = nil
     }
 
     open func didChangeState(error: Error? = nil) {
