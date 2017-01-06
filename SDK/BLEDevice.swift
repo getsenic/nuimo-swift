@@ -54,20 +54,9 @@ open class BLEDevice: NSObject {
     internal func restore(from peripheral: CBPeripheral) {
         self.peripheral = peripheral
         peripheral.delegate = self
-        defer { didRestore() }
+        defer { didChangeState() }
         guard peripheral.state == .connected else { return }
-        peripheral.services?.forEach {
-            // Notify already discovered services, it will discover their characteristics if not already discovered
-            self.peripheral(peripheral, didDiscoverServices: nil)
-            // Notify already discovered characteristics
-            self.peripheral(peripheral, didDiscoverCharacteristicsFor: $0, error: nil)
-        }
-        // Discover not yet discovered services
-        peripheral.discoverServices(serviceUUIDs.filter{ !peripheral.serviceUUIDs.contains($0) })
-    }
-
-    open func didRestore() {
-        didChangeState()
+        discoverServices()
     }
 
     open func didAdvertise(_ advertisementData: [String: Any], RSSI: NSNumber, willReceiveSuccessiveAdvertisingData: Bool) {
@@ -88,7 +77,7 @@ open class BLEDevice: NSObject {
 
     open func didConnect() {
         guard let peripheral = peripheral else { return }
-        peripheral.discoverServices(serviceUUIDs)
+        discoverServices()
         advertisingTimeoutTimer?.invalidate()
         lastAdvertisingDate = nil
         didChangeState()
@@ -116,6 +105,19 @@ open class BLEDevice: NSObject {
             connect(autoReconnect: true)
         }
         didChangeState(error: error)
+    }
+
+    open func discoverServices() {
+        guard let peripheral = peripheral else { return }
+        // Collect any already known service and characterstic (i.e. from device restoring)
+        peripheral.services?.forEach {
+            // Notify already discovered services, it will discover their characteristics if not already discovered
+            self.peripheral(peripheral, didDiscoverServices: nil)
+            // Notify already discovered characteristics
+            self.peripheral(peripheral, didDiscoverCharacteristicsFor: $0, error: nil)
+        }
+        // Discover not yet discovered services and characteristics
+        peripheral.discoverServices(serviceUUIDs.filter{ !peripheral.serviceUUIDs.contains($0) })
     }
 
     open func didChangeState(error: Error? = nil) {
