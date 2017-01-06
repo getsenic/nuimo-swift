@@ -29,11 +29,11 @@ open class BLEDevice: NSObject {
 
     public let discoveryManager: BLEDiscoveryManager
     public let uuid: UUID
-    public private(set) var peripheral: CBPeripheral? { didSet { updateReachability() } }
+    public private(set) var peripheral: CBPeripheral?
     public var centralManager: CBCentralManager { return discoveryManager.centralManager }
     public internal(set) var isReachable = false
 
-    private var lastAdvertisingDate: Date?      { didSet { updateReachability() } }
+    private var lastAdvertisingDate: Date?
     private var advertisingTimeoutTimer: Timer?
     private var connectionAttempt = 0
     private var autoReconnect = false
@@ -49,9 +49,8 @@ open class BLEDevice: NSObject {
     internal func restore(from peripheral: CBPeripheral) {
         self.peripheral = peripheral
         peripheral.delegate = self
-
+        defer { didRestore() }
         guard peripheral.state == .connected else { return }
-
         peripheral.services?.forEach {
             // Notify already discovered services, it will discover their characteristics if not already discovered
             self.peripheral(peripheral, didDiscoverServices: nil)
@@ -63,16 +62,16 @@ open class BLEDevice: NSObject {
     }
 
     open func didRestore() {
+        updateReachability()
     }
 
     open func didAdvertise(_ advertisementData: [String: Any], RSSI: NSNumber, willReceiveSuccessiveAdvertisingData: Bool) {
         guard let peripheral = peripheral else { return }
-        // Invalidate device if it stops advertising after a given interval of not sending any other advertising packages. Works only if `discoveryManager` known.
-        advertisingTimeoutTimer?.invalidate()
-
         guard willReceiveSuccessiveAdvertisingData, let maxAdvertisingPackageInterval = type(of: self).maxAdvertisingPackageInterval else { return }
-        lastAdvertisingDate = Date()
+        advertisingTimeoutTimer?.invalidate()
         advertisingTimeoutTimer = Timer.scheduledTimer(timeInterval: maxAdvertisingPackageInterval, target: self, selector: #selector(updateReachability), userInfo: nil, repeats: false)
+        lastAdvertisingDate = Date()
+        updateReachability()
     }
 
     open func connect(autoReconnect: Bool = false) {
@@ -85,6 +84,8 @@ open class BLEDevice: NSObject {
     open func didConnect() {
         guard let peripheral = peripheral else { return }
         peripheral.discoverServices(serviceUUIDs)
+        advertisingTimeoutTimer?.invalidate()
+        lastAdvertisingDate = nil
         updateReachability()
     }
 
@@ -94,6 +95,9 @@ open class BLEDevice: NSObject {
             connectionAttempt += 1
             centralManager.connect(peripheral, options: nil)
         }
+        advertisingTimeoutTimer?.invalidate()
+        lastAdvertisingDate = nil
+        updateReachability()
     }
 
     open func disconnect() {
@@ -106,6 +110,7 @@ open class BLEDevice: NSObject {
         if autoReconnect {
             connect(autoReconnect: true)
         }
+        updateReachability()
     }
 
     internal func centralManagerDidUpdateState() {
@@ -114,13 +119,13 @@ open class BLEDevice: NSObject {
             if autoReconnect {
                 connect(autoReconnect: true)
             }
-            updateReachability()
             break
         case .poweredOff:
-            updateReachability()
+            break
         default:
             peripheral = nil
         }
+        updateReachability()
     }
 
     private dynamic func updateReachability() {
