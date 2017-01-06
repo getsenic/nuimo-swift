@@ -21,7 +21,7 @@ open class NuimoBluetoothController: BLEDevice, NuimoController {
     public var matrixBrightness: Float = 1.0 { didSet { matrixWriter?.brightness = self.matrixBrightness } }
 
     public private(set) var hardwareVersion: String?
-    public private(set) var firmwareVersion: String? { didSet { setConnectionState(.connected) } }
+    public private(set) var firmwareVersion: String? { didSet { didChangeState() } }
     public private(set) var color:           String?
 
     open override var serviceUUIDs:                    [CBUUID]            { return nuimoServiceUUIDs }
@@ -37,47 +37,20 @@ open class NuimoBluetoothController: BLEDevice, NuimoController {
     private var rebootToDFUModeCharacteristic: CBCharacteristic? { return peripheral?.service(with: kSensorServiceUUID)?.characteristic(with: kRebootToDFUModeCharacteristicUUID) }
     private var flySensorCalibrationCharacteristic: CBCharacteristic? { return peripheral?.service(with: kSensorServiceUUID)?.characteristic(with: kFlySensorCalibrationCharacteristicUUID) }
 
-    open override func didRestore() {
-        super.didRestore()
-        if let peripheral = peripheral {
+    open override func didChangeState(error: Error? = nil) {
+        super.didChangeState()
+        let newState: NuimoConnectionState =  {
+            guard isReachable, let peripheral = peripheral else { return .invalidated }
             switch peripheral.state {
-            case .connected: setConnectionState(.connected)
-            case .connecting: setConnectionState(.connecting)
-            case .disconnected: setConnectionState(.disconnected)
-            case .disconnecting: setConnectionState(.disconnecting)
+            case .connected:     return  firmwareVersion == nil ? .connecting : .connected
+            case .connecting:    return .connecting
+            case .disconnected:  return .disconnected
+            case .disconnecting: return .disconnecting
             }
-        }
-        else {
-            setConnectionState(.invalidated)
-        }
-    }
-
-    open override func didConnect() {
-        matrixWriter = nil
-        super.didConnect()
-        //TODO: When the matrix characteristic is being found, didConnect() is fired. But if matrix characteristic is not found, didFailToConnect() should be fired instead!
-        setConnectionState(.connected)
-    }
-
-    open override func didFailToConnect(error: Error?) {
-        super.didFailToConnect(error: error)
-        setConnectionState(.disconnected, withError: error)
-    }
-
-    open override func disconnect() {
-        super.disconnect()
-        setConnectionState(.disconnecting)
-    }
-
-    open override func didDisconnect(error: Error?) {
-        super.didDisconnect(error: error)
-        matrixWriter = nil
-        setConnectionState(.disconnected, withError: error)
-    }
-
-    private func setConnectionState(_ state: NuimoConnectionState, withError error: Error? = nil) {
-        guard state != connectionState else { return }
-        connectionState = state
+        }()
+        print("CONNECTION STATE", connectionState, "->", newState)
+        guard newState != connectionState else { return }
+        connectionState = newState
         delegate?.nuimoController(self, didChangeConnectionState: connectionState, withError: error)
     }
 
