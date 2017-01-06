@@ -32,7 +32,6 @@ open class BLEDevice: NSObject {
     public private(set) var peripheral: CBPeripheral? { didSet { updateReachability() } }
     public var centralManager: CBCentralManager { return discoveryManager.centralManager }
     public internal(set) var isReachable = false
-    public private(set) var didInitiateConnection = false
 
     private var lastAdvertisingDate: Date?      { didSet { updateReachability() } }
     private var advertisingTimeoutTimer: Timer?
@@ -53,7 +52,6 @@ open class BLEDevice: NSObject {
 
         guard peripheral.state == .connected else { return }
 
-        didInitiateConnection = true
         peripheral.services?.forEach {
             // Notify already discovered services, it will discover their characteristics if not already discovered
             self.peripheral(peripheral, didDiscoverServices: nil)
@@ -80,7 +78,6 @@ open class BLEDevice: NSObject {
     open func connect(autoReconnect: Bool = false) {
         self.autoReconnect = autoReconnect
         guard let peripheral = peripheral, centralManager.state == .poweredOn else { return }
-        didInitiateConnection = true
         connectionAttempt = 0
         centralManager.connect(peripheral, options: nil)
     }
@@ -102,8 +99,6 @@ open class BLEDevice: NSObject {
     open func disconnect() {
         autoReconnect = false
         guard let peripheral = peripheral else { return }
-        // Only disconnect if connection was initiated by this instance. BLEDevice can also be used to only discover peripherals but somebody else takes then ownership over the `delegate` instance.
-        guard didInitiateConnection else { return }
         centralManager.cancelPeripheralConnection(peripheral)
     }
 
