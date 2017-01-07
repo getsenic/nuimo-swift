@@ -108,8 +108,12 @@ open class BLEDevice: NSObject {
         didUpdateState(error: error)
     }
 
-    open func discoverServices() {
+    open func willDiscoverServices() {
+    }
+
+    private func discoverServices() {
         guard let peripheral = peripheral else { return }
+        willDiscoverServices()
         // Collect any already known service and characterstic (i.e. from device restoring)
         peripheral.services?.forEach {
             // Notify already discovered services, it will discover their characteristics if not already discovered
