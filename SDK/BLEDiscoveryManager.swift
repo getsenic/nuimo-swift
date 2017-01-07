@@ -69,8 +69,8 @@ extension BLEDiscoveryManager: CBCentralManagerDelegate {
         restorablePeripherals += state[CBCentralManagerRestoredStatePeripheralsKey] as? [CBPeripheral] ?? []
         #endif
 
-        restorablePeripherals += centralManager.retrievePeripherals(withIdentifiers: knownPeripheralUUIDs).filter {
-            peripheral in !restorablePeripherals.contains(where: { $0.identifier == peripheral.identifier })
+        restorablePeripherals += centralManager.retrievePeripherals(withIdentifiers: knownPeripheralUUIDs).filter { peripheral in
+            !restorablePeripherals.contains(where: { $0.identifier == peripheral.identifier })
         }
 
         restorablePeripherals
