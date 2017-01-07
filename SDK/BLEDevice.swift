@@ -58,7 +58,7 @@ open class BLEDevice: NSObject {
         peripheral.delegate = self
         defer { didUpdateState() }
         invalidateAdvertisingState()
-        guard peripheral.state == .connected else { return }
+        guard centralManager.state == .poweredOn, peripheral.state == .connected else { return }
         discoverServices()
     }
 
