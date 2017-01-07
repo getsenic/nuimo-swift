@@ -76,6 +76,7 @@ open class BLEDevice: NSObject {
         guard let peripheral = peripheral, centralManager.state == .poweredOn else { return }
         connectionAttempt = 0
         centralManager.connect(peripheral, options: nil)
+        didUpdateState()
     }
 
     open func didConnect() {
