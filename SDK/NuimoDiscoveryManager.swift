@@ -60,6 +60,12 @@ private class NuimoDiscoveryManagerPrivate: BLEDiscoveryManagerDelegate {
         print("DID RESTORE", device.uuid.uuidString)
         manager.delegate?.nuimoDiscoveryManager(manager, didRestoreNuimoController: device as! NuimoController)
     }
+
+    func bleDiscoveryManager(_ discovery: BLEDiscoveryManager, didStopAdvertising device: BLEDevice) {
+        guard let manager = manager else { return }
+        print("DID STOP ADVERTISING", device.uuid.uuidString)
+        manager.delegate?.nuimoDiscoveryManager(manager, didStopAdvertising: device as! NuimoController)
+    }
 }
 
 public protocol NuimoDiscoveryDelegate: class {
@@ -67,6 +73,7 @@ public protocol NuimoDiscoveryDelegate: class {
     func nuimoDiscoveryManager(_ discovery: NuimoDiscoveryManager, deviceForPeripheral peripheral: CBPeripheral, advertisementData: [String : Any]) -> BLEDevice?
     func nuimoDiscoveryManager(_ discovery: NuimoDiscoveryManager, didDiscoverNuimoController controller: NuimoController)
     func nuimoDiscoveryManager(_ discovery: NuimoDiscoveryManager, didRestoreNuimoController controller: NuimoController)
+    func nuimoDiscoveryManager(_ discovery: NuimoDiscoveryManager, didStopAdvertising controller: NuimoController)
 }
 
 public extension NuimoDiscoveryDelegate {
@@ -75,4 +82,5 @@ public extension NuimoDiscoveryDelegate {
         return NuimoBluetoothController(discoveryManager: discovery.bleDiscoveryManager, peripheral: peripheral)
     }
     func nuimoDiscoveryManager(_ discovery: NuimoDiscoveryManager, didRestoreNuimoController controller: NuimoController) {}
+    func nuimoDiscoveryManager(_ discovery: NuimoDiscoveryManager, didStopAdvertising controller: NuimoController) {}
 }

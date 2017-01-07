@@ -131,4 +131,5 @@ public protocol BLEDiscoveryManagerDelegate: class {
     func bleDiscoveryManager(_ discovery: BLEDiscoveryManager, deviceFor peripheral: CBPeripheral, advertisementData: [String : Any]) -> BLEDevice?
     func bleDiscoveryManager(_ discovery: BLEDiscoveryManager, didDiscover device: BLEDevice)
     func bleDiscoveryManager(_ discovery: BLEDiscoveryManager, didRestore device: BLEDevice)
+    func bleDiscoveryManager(_ discovery: BLEDiscoveryManager, didStopAdvertising device: BLEDevice)
 }
