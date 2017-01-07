@@ -107,12 +107,9 @@ extension BLEDiscoveryManager: CBCentralManagerDelegate {
         if !alreadyDiscoveredUUIDs.contains(peripheral.identifier) {
             alreadyDiscoveredUUIDs.insert(peripheral.identifier)
 
-            if device == nil {
-                device = delegate?.bleDiscoveryManager(self, deviceFor: peripheral, advertisementData: advertisementData)
-                if let device = device {
-                    deviceForUUID[peripheral.identifier] = device
-                    delegate?.bleDiscoveryManager(self, didDiscover: device)
-                }
+            if let device = device ?? delegate?.bleDiscoveryManager(self, deviceFor: peripheral, advertisementData: advertisementData) {
+                deviceForUUID[peripheral.identifier] = device
+                delegate?.bleDiscoveryManager(self, didDiscover: device)
             }
         }
 
