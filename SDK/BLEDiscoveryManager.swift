@@ -57,6 +57,11 @@ public class BLEDiscoveryManager: NSObject {
     public func stopDiscovery() {
         shouldDiscover = false
     }
+
+    internal func deviceDidStopAdvertising(_ device: BLEDevice) {
+        alreadyDiscoveredUUIDs.remove(device.uuid)
+        delegate?.bleDiscoveryManager(self, didStopAdvertising: device)
+    }
 }
 
 extension BLEDiscoveryManager: CBCentralManagerDelegate {

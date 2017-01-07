@@ -71,7 +71,7 @@ open class BLEDevice: NSObject {
 
     open func didStopAdvertising() {
         advertisingTimeoutTimer = nil
-        discoveryManager.delegate?.bleDiscoveryManager(discoveryManager, didStopAdvertising: self)
+        discoveryManager.deviceDidStopAdvertising(self)
         didUpdateState()
     }
 
