@@ -61,8 +61,6 @@ public class BLEDiscoveryManager: NSObject {
 
 extension BLEDiscoveryManager: CBCentralManagerDelegate {
     public func centralManager(_ central: CBCentralManager, willRestoreState state: [String : Any]) {
-        print("CENTRAL WILL RESTORE STATE")
-
         var restorablePeripherals: [CBPeripheral] = []
 
         #if os(iOS) || os(tvOS)
@@ -79,15 +77,9 @@ extension BLEDiscoveryManager: CBCentralManagerDelegate {
                 deviceForUUID[$0.uuid] = $0
                 delegate?.bleDiscoveryManager(self, didRestore: $0)
             }
-
-        deviceForUUID.keys.forEach { print("RESTORED", $0) }
     }
 
     public func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        //TODO: Is this method started on every app start into foreground? Currently we assume yes, but what if bluetooth was already on? Do wo then still restore all peripherals?
-
-        print("CENTRAL DID UPDATE STATE", central.state.rawValue)
-
         if centralManager.state.rawValue >= CBCentralManagerState.poweredOff.rawValue {
             // Update all devices with a freshly retrieved peripheral from central manager for those which have an invalidated peripheral
             centralManager.retrievePeripherals(withIdentifiers: Array(deviceForUUID.keys)).forEach {
