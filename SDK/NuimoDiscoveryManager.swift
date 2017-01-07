@@ -45,25 +45,21 @@ private class NuimoDiscoveryManagerPrivate: BLEDiscoveryManagerDelegate {
 
     func bleDiscoveryManager(_ discovery: BLEDiscoveryManager, deviceFor peripheral: CBPeripheral, advertisementData: [String : Any]) -> BLEDevice? {
         guard let manager = manager else { return nil }
-        print("DEVICE FOR", peripheral.identifier.uuidString)
         return manager.delegate?.nuimoDiscoveryManager(manager, deviceForPeripheral: peripheral, advertisementData: advertisementData)
     }
 
     func bleDiscoveryManager(_ discovery: BLEDiscoveryManager, didDiscover device: BLEDevice) {
         guard let manager = manager else { return }
-        print("DID DISCOVER", device.uuid.uuidString)
         manager.delegate?.nuimoDiscoveryManager(manager, didDiscoverNuimoController: device as! NuimoController)
     }
 
     func bleDiscoveryManager(_ discovery: BLEDiscoveryManager, didRestore device: BLEDevice) {
         guard let manager = manager else { return }
-        print("DID RESTORE", device.uuid.uuidString)
         manager.delegate?.nuimoDiscoveryManager(manager, didRestoreNuimoController: device as! NuimoController)
     }
 
     func bleDiscoveryManager(_ discovery: BLEDiscoveryManager, didStopAdvertising device: BLEDevice) {
         guard let manager = manager else { return }
-        print("DID STOP ADVERTISING", device.uuid.uuidString)
         manager.delegate?.nuimoDiscoveryManager(manager, didStopAdvertising: device as! NuimoController)
     }
 }
