@@ -16,121 +16,136 @@ import CoreBluetooth
     - Automatically discovers its services when connected
     - Automatically discovers its characteristics
     - Automatically subscribes for characteristic change notifications
+    - Automatically updates its reachability
+    - Automatically reconnects if peripheral becomes reachable again (if `autoReconnect` was set to true)
 */
 open class BLEDevice: NSObject {
-    /// Maximum interval between two advertising packages. If the OS doesn't receive a successive advertisement package after that interval the device is assumed to be unreachable and thus will invalidates. If not overridden, this interval defaults to `nil`, meaning that the device will never be assumed invalid, even in case the OS doesn't receive any more advertising packages.
+    /// Maximum interval between two advertising packages. If the OS doesn't receive a successive advertisement package after that interval the device is assumed to be unreachable. If not overridden, this interval defaults to `nil`, meaning that the device will never be assumed unreachable, even in case the OS doesn't receive any more advertising packages.
+    //TODO: Make this an instance variable, so subclasses can update it on the fly if necessary or provide different values for the same device type
     open class var maxAdvertisingPackageInterval: TimeInterval? { get { return nil } }
-    /// Interval after that a connection attempt will be considered timed out. If a connection attempt times out, `didFailToConnect` will be called.
-    open class var connectionTimeoutInterval: TimeInterval { return 5.0 }
     open class var connectionRetryCount: Int { return 0 }
 
     open var serviceUUIDs: [CBUUID] { get { return [] } }
     open var charactericUUIDsForServiceUUID: [CBUUID : [CBUUID]] { get { return [:] } }
     open var notificationCharacteristicUUIDs: [CBUUID] { get { return [] } }
 
-    public let uuid: String
-    public let peripheral: CBPeripheral
-    public let centralManager: CBCentralManager
-    public private(set) var didInitiateConnection = false
-
-    private var discoveryManager: BLEDiscoveryManager?
-    private var advertisingTimeoutTimer: Timer?
-    private var connectionTimeoutTimer: Timer?
-    private var connectionAttempt = 0
-
-    /// Convenience initializer that takes a BLEDiscoveryManager instead of a CBCentralManager. This initializer allows to detect that the device has disappeared by checking if the OS didn't receive any more advertising packages.
-    public convenience init(discoveryManager: BLEDiscoveryManager, uuid: String, peripheral: CBPeripheral) {
-        self.init(centralManager: discoveryManager.centralManager, uuid: uuid, peripheral: peripheral)
-        self.discoveryManager = discoveryManager
+    public let discoveryManager: BLEDiscoveryManager
+    public let uuid: UUID
+    public private(set) var peripheral: CBPeripheral?
+    public var centralManager: CBCentralManager { return discoveryManager.centralManager }
+    public var isReachable: Bool {
+        if centralManager.state != .poweredOn { return false }
+        if peripheral?.state == .connected { return true }
+        return advertisingTimeoutTimer?.isValid ?? false
     }
 
-    public required init(centralManager: CBCentralManager, uuid: String, peripheral: CBPeripheral) {
-        self.centralManager = centralManager
-        self.uuid = uuid
-        self.peripheral = peripheral
+    private var lastAdvertisingDate: Date?
+    private var advertisingTimeoutTimer: Timer?
+    private var connectionAttempt = 0
+    private var autoReconnect = false
+
+    /// Convenience initializer that takes a BLEDiscoveryManager instead of a CBCentralManager. This initializer allows to detect that the device has disappeared by checking if the OS didn't receive any more advertising packages.
+    public required init(discoveryManager: BLEDiscoveryManager, peripheral: CBPeripheral) {
+        self.discoveryManager = discoveryManager
+        self.uuid = peripheral.identifier
         super.init()
+        restore(from: peripheral)
+    }
+
+    internal func restore(from peripheral: CBPeripheral) {
+        self.peripheral = peripheral
+        peripheral.delegate = self
+        defer { didUpdateState() }
+        advertisingTimeoutTimer?.invalidate()
+        guard centralManager.state == .poweredOn, peripheral.state == .connected else { return }
+        discoverServices()
     }
 
     open func didAdvertise(_ advertisementData: [String: Any], RSSI: NSNumber, willReceiveSuccessiveAdvertisingData: Bool) {
-        // Invalidate device if it stops advertising after a given interval of not sending any other advertising packages. Works only if `discoveryManager` known.
+        guard let peripheral = peripheral else { return }
+        guard willReceiveSuccessiveAdvertisingData, let maxAdvertisingPackageInterval = type(of: self).maxAdvertisingPackageInterval else { return }
         advertisingTimeoutTimer?.invalidate()
-        if let maxAdvertisingPackageInterval = type(of: self).maxAdvertisingPackageInterval, peripheral.state == .disconnected && willReceiveSuccessiveAdvertisingData {
-            advertisingTimeoutTimer = Timer.scheduledTimer(timeInterval: maxAdvertisingPackageInterval, target: self, selector: #selector(didDisappear), userInfo: nil, repeats: false)
-        }
+        advertisingTimeoutTimer = Timer.scheduledTimer(timeInterval: maxAdvertisingPackageInterval, target: self, selector: #selector(didStopAdvertising), userInfo: nil, repeats: false)
+        didUpdateState()
     }
 
-    open func didDisappear() {
-        discoveryManager?.invalidateDevice(self)
+    open func didStopAdvertising() {
+        advertisingTimeoutTimer = nil
+        discoveryManager.delegate?.bleDiscoveryManager(discoveryManager, didStopAdvertising: self)
+        didUpdateState()
     }
 
-    open func connect() -> Bool {
-        #if os(OSX)
-                                        guard [CBPeripheralState.disconnected                                 ].contains(peripheral.state) else { return false }
-        #else
-            if #available(iOS 9.0, *) { guard [CBPeripheralState.disconnected, CBPeripheralState.disconnecting].contains(peripheral.state) else { return false } }
-            else {                      guard [CBPeripheralState.disconnected                                 ].contains(peripheral.state) else { return false } }
-        #endif
-        advertisingTimeoutTimer?.invalidate()
+    open func connect(autoReconnect: Bool = false) {
+        self.autoReconnect = autoReconnect
+        guard let peripheral = peripheral, centralManager.state == .poweredOn else { return }
+        connectionAttempt = 0
         centralManager.connect(peripheral, options: nil)
-        didInitiateConnection = true
-        connectionTimeoutTimer?.invalidate()
-        connectionTimeoutTimer = Timer.scheduledTimer(timeInterval: type(of: self).connectionTimeoutInterval, target: self, selector: #selector(self.didConnectTimeout), userInfo: nil, repeats: false)
-        connectionAttempt += 1
-        return true
+        didUpdateState()
     }
 
     open func didConnect() {
-        connectionTimeoutTimer?.invalidate()
-        peripheral.delegate = self
-        peripheral.discoverServices(serviceUUIDs)
-    }
-
-    open func didConnectTimeout() {
-        centralManager.cancelPeripheralConnection(peripheral)
-        // CoreBluetooth doesn't call didFailToConnectPeripheral delegate method – that's why we call it here
-        centralManager.delegate?.centralManager?(centralManager, didFailToConnect: peripheral, error: NSError(domain: "BLEDevice", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to connect to peripheral", NSLocalizedFailureReasonErrorKey: "Connection attempt timed out"]))
+        guard let peripheral = peripheral else { return }
+        advertisingTimeoutTimer?.invalidate()
+        discoverServices()
+        didUpdateState()
     }
 
     open func didFailToConnect(error: Error?) {
+        guard let peripheral = peripheral else { return }
         if connectionAttempt < type(of: self).connectionRetryCount {
-            connect()
+            connectionAttempt += 1
+            centralManager.connect(peripheral, options: nil)
         }
-        else {
-            didDisappear()
-        }
+        advertisingTimeoutTimer?.invalidate()
+        didUpdateState(error: error)
     }
 
-    open func didRestore() {
-        peripheral.delegate = self
-        guard peripheral.state == .connected else { return }
-        didInitiateConnection = true
-        peripheral.services?.forEach {
-            // Notify already discovered services, it will discover their characteristics if not already discovered
-            peripheral(peripheral, didDiscoverServices: nil)
-            // Notify already discovered characteristics
-            peripheral(peripheral, didDiscoverCharacteristicsFor: $0, error: nil)
-        }
-        // Discover not yet discovered services
-        peripheral.discoverServices(serviceUUIDs.filter{ !peripheral.serviceUUIDs.contains($0) })
-    }
-
-    open func disconnect() -> Bool {
-        // Only disconnect if connection was initiated by this instance. BLEDevice can also be used to only discover peripherals but somebody else takes then ownership over the `delegate` instance.
-        guard didInitiateConnection && [CBPeripheralState.connecting, CBPeripheralState.connected].contains(peripheral.state) else { return false }
+    open func disconnect() {
+        autoReconnect = false
+        guard let peripheral = peripheral else { return }
         centralManager.cancelPeripheralConnection(peripheral)
-        return true
     }
 
     open func didDisconnect(error: Error?) {
+        if autoReconnect {
+            connect(autoReconnect: true)
+        }
+        didUpdateState(error: error)
     }
 
-    internal func invalidate() {
-        advertisingTimeoutTimer?.invalidate()
-        disconnect()
-        didInvalidate()
+    open func willDiscoverServices() {
     }
 
-    open func didInvalidate() {
+    private func discoverServices() {
+        guard let peripheral = peripheral else { return }
+        willDiscoverServices()
+        // Collect any already known service and characterstic (i.e. from device restoring)
+        peripheral.services?.forEach {
+            // Notify already discovered services, it will discover their characteristics if not already discovered
+            self.peripheral(peripheral, didDiscoverServices: nil)
+            // Notify already discovered characteristics
+            self.peripheral(peripheral, didDiscoverCharacteristicsFor: $0, error: nil)
+        }
+        // Discover not yet discovered services and characteristics
+        peripheral.discoverServices(serviceUUIDs.filter{ !peripheral.serviceUUIDs.contains($0) })
+    }
+
+    open func didUpdateState(error: Error? = nil) {
+    }
+
+    internal func centralManagerDidUpdateState() {
+        switch centralManager.state {
+        case .poweredOn:
+            if autoReconnect {
+                connect(autoReconnect: true)
+            }
+            break
+        case .poweredOff:
+            break
+        default:
+            peripheral = nil
+        }
+        didUpdateState()
     }
 }
 

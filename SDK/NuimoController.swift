@@ -9,7 +9,7 @@
 //  of the MIT license.  See the LICENSE file for details.
 
 public protocol NuimoController: class {
-    var uuid: String {get}
+    var uuid: UUID {get}
     var delegate: NuimoControllerDelegate? {get set}
 
     var connectionState: NuimoConnectionState {get}
@@ -22,15 +22,19 @@ public protocol NuimoController: class {
     var firmwareVersion: String? {get}
     var color:           String? {get}
 
-    @discardableResult func connect() -> Bool
+    func connect(autoReconnect: Bool)
 
-    @discardableResult func disconnect() -> Bool
+    func disconnect()
 
     /// Displays an LED matrix for an interval with options (options is of type Int for compatibility with Objective-C)
     func display(matrix: NuimoLEDMatrix, interval: TimeInterval, options: Int)
 }
 
 public extension NuimoController {
+    public func connect() {
+        self.connect(autoReconnect: false)
+    }
+
     /// Displays an LED matrix with options defaulting to ResendsSameMatrix and WithWriteResponse
     public func display(matrix: NuimoLEDMatrix, interval: TimeInterval) {
         display(matrix: matrix, interval: interval, options: 0)

@@ -12,7 +12,8 @@ import CoreBluetooth
 
 // Represents a bluetooth low energy (BLE) Nuimo controller
 open class NuimoBluetoothController: BLEDevice, NuimoController {
-    open override class var connectionTimeoutInterval:     TimeInterval  { return 5.0 }
+    public static let serviceUUIDs = nuimoServiceUUIDs
+
     open override class var connectionRetryCount:          Int           { return 5 }
     open override class var maxAdvertisingPackageInterval: TimeInterval? { return 10.0 }
 
@@ -22,7 +23,7 @@ open class NuimoBluetoothController: BLEDevice, NuimoController {
     public var matrixBrightness: Float = 1.0 { didSet { matrixWriter?.brightness = self.matrixBrightness } }
 
     public private(set) var hardwareVersion: String?
-    public private(set) var firmwareVersion: String? { didSet { setConnectionState(.connected) } }
+    public private(set) var firmwareVersion: String? { didSet { didUpdateState() } }
     public private(set) var color:           String?
 
     open override var serviceUUIDs:                    [CBUUID]            { return nuimoServiceUUIDs }
@@ -35,47 +36,28 @@ open class NuimoBluetoothController: BLEDevice, NuimoController {
 
     private var matrixWriter: LEDMatrixWriter?
     private var connectTimeoutTimer: Timer?
-    private var rebootToDFUModeCharacteristic: CBCharacteristic? { return peripheral.service(with: kSensorServiceUUID)?.characteristic(with: kRebootToDFUModeCharacteristicUUID) }
-    private var flySensorCalibrationCharacteristic: CBCharacteristic? { return peripheral.service(with: kSensorServiceUUID)?.characteristic(with: kFlySensorCalibrationCharacteristicUUID) }
+    private var rebootToDFUModeCharacteristic: CBCharacteristic? { return peripheral?.service(with: kSensorServiceUUID)?.characteristic(with: kRebootToDFUModeCharacteristicUUID) }
+    private var flySensorCalibrationCharacteristic: CBCharacteristic? { return peripheral?.service(with: kSensorServiceUUID)?.characteristic(with: kFlySensorCalibrationCharacteristicUUID) }
 
-    open override func connect() -> Bool {
-        guard super.connect() else { return false }
-        setConnectionState(.connecting)
-        return true
-    }
-
-    open override func didConnect() {
-        matrixWriter = nil
-        super.didConnect()
-        //TODO: When the matrix characteristic is being found, didConnect() is fired. But if matrix characteristic is not found, didFailToConnect() should be fired instead!
-    }
-
-    open override func didFailToConnect(error: Error?) {
-        super.didFailToConnect(error: error)
-        setConnectionState(.disconnected, withError: error)
-    }
-
-    open override func disconnect() -> Bool {
-        guard super.disconnect() else { return false }
-        setConnectionState(.disconnecting)
-        return true
-    }
-
-    open override func didDisconnect(error: Error?) {
-        super.didDisconnect(error: error)
-        matrixWriter = nil
-        setConnectionState(.disconnected, withError: error)
-    }
-
-    open override func didInvalidate() {
-        super.didInvalidate()
-        setConnectionState(.invalidated)
-    }
-
-    private func setConnectionState(_ state: NuimoConnectionState, withError error: Error? = nil) {
-        guard state != connectionState else { return }
-        connectionState = state
+    open override func didUpdateState(error: Error? = nil) {
+        super.didUpdateState()
+        let newState: NuimoConnectionState =  {
+            guard isReachable, let peripheral = peripheral else { return .invalidated }
+            switch peripheral.state {
+            case .connected:     return  firmwareVersion == nil ? .connecting : .connected
+            case .connecting:    return .connecting
+            case .disconnected:  return .disconnected
+            case .disconnecting: return .disconnecting
+            }
+        }()
+        guard newState != connectionState else { return }
+        connectionState = newState
         delegate?.nuimoController(self, didChangeConnectionState: connectionState, withError: error)
+    }
+
+    open override func willDiscoverServices() {
+        super.willDiscoverServices()
+        matrixWriter = nil
     }
 
     public func display(matrix: NuimoLEDMatrix, interval: TimeInterval, options: Int) {
@@ -83,14 +65,14 @@ open class NuimoBluetoothController: BLEDevice, NuimoController {
     }
 
     @discardableResult public func rebootToDFUMode() -> Bool {
-        guard peripheral.state == .connected else { return false }
+        guard let peripheral = peripheral, peripheral.state == .connected else { return false }
         guard let rebootToDFUModeCharacteristic = rebootToDFUModeCharacteristic else { return false }
         peripheral.writeValue(Data(bytes: UnsafePointer<UInt8>([UInt8(1)]), count: 1), for: rebootToDFUModeCharacteristic, type: .withResponse)
         return true
     }
 
     @discardableResult public func calibrateFlySensor() -> Bool {
-        guard peripheral.state == .connected else { return false }
+        guard let peripheral = peripheral, peripheral.state == .connected else { return false }
         guard let flySensorCalibrationCharacteristic = flySensorCalibrationCharacteristic else { return false }
         peripheral.writeValue(Data(bytes: UnsafePointer<UInt8>([UInt8(1)]), count: 1), for: flySensorCalibrationCharacteristic, type: .withResponse)
         return true
@@ -98,6 +80,7 @@ open class NuimoBluetoothController: BLEDevice, NuimoController {
 
     fileprivate func writeHeartBeatInterval() {
         guard
+            let peripheral = peripheral,
             peripheral.state == .connected,
             let service = peripheral.services?.filter({ $0.uuid == kSensorServiceUUID }).first,
             let characteristic = service.characteristics?.filter({ $0.uuid == kHeartBeatCharacteristicUUID }).first
@@ -143,13 +126,9 @@ open class NuimoBluetoothController: BLEDevice, NuimoController {
 
     open override func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
         super.peripheral(peripheral, didWriteValueFor: characteristic, error: error)
-        switch characteristic.uuid {
-        case kLEDMatrixCharacteristicUUID:
+        if characteristic.uuid == kLEDMatrixCharacteristicUUID {
             matrixWriter?.didRetrieveMatrixWriteResponse()
             delegate?.nuimoControllerDidDisplayLEDMatrix(self)
-        case kRebootToDFUModeCharacteristicUUID:
-            disconnect()
-        default: break
         }
     }
 }
