@@ -119,10 +119,12 @@ extension BLEDiscoveryManager: CBCentralManagerDelegate {
     }
 
     public func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
+        alreadyDiscoveredUUIDs.remove(peripheral.identifier)
         deviceForUUID[peripheral.identifier]?.didFailToConnect(error: error)
     }
 
     public func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
+        alreadyDiscoveredUUIDs.remove(peripheral.identifier)
         deviceForUUID[peripheral.identifier]?.didDisconnect(error: error)
     }
 }
