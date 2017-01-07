@@ -36,8 +36,7 @@ open class BLEDevice: NSObject {
     public var isReachable: Bool {
         if centralManager.state != .poweredOn { return false }
         if peripheral?.state == .connected { return true }
-        if let lastAdvertisingDate = lastAdvertisingDate, let maxAdvertisingPackageInterval = type(of: self).maxAdvertisingPackageInterval, -lastAdvertisingDate.timeIntervalSinceNow < maxAdvertisingPackageInterval { return true }
-        return false
+        return advertisingTimeoutTimer?.isValid ?? false
     }
 
     private var lastAdvertisingDate: Date?
@@ -57,7 +56,7 @@ open class BLEDevice: NSObject {
         self.peripheral = peripheral
         peripheral.delegate = self
         defer { didUpdateState() }
-        invalidateAdvertisingState()
+        advertisingTimeoutTimer?.invalidate()
         guard centralManager.state == .poweredOn, peripheral.state == .connected else { return }
         discoverServices()
     }
@@ -66,8 +65,12 @@ open class BLEDevice: NSObject {
         guard let peripheral = peripheral else { return }
         guard willReceiveSuccessiveAdvertisingData, let maxAdvertisingPackageInterval = type(of: self).maxAdvertisingPackageInterval else { return }
         advertisingTimeoutTimer?.invalidate()
-        advertisingTimeoutTimer = Timer.scheduledTimer(timeInterval: maxAdvertisingPackageInterval, target: self, selector: #selector(didUpdateState), userInfo: nil, repeats: false)
-        lastAdvertisingDate = Date()
+        advertisingTimeoutTimer = Timer.scheduledTimer(timeInterval: maxAdvertisingPackageInterval, target: self, selector: #selector(didStopAdvertising), userInfo: nil, repeats: false)
+        didUpdateState()
+    }
+
+    open func didStopAdvertising() {
+        advertisingTimeoutTimer = nil
         didUpdateState()
     }
 
@@ -81,8 +84,8 @@ open class BLEDevice: NSObject {
 
     open func didConnect() {
         guard let peripheral = peripheral else { return }
+        advertisingTimeoutTimer?.invalidate()
         discoverServices()
-        invalidateAdvertisingState()
         didUpdateState()
     }
 
@@ -92,7 +95,7 @@ open class BLEDevice: NSObject {
             connectionAttempt += 1
             centralManager.connect(peripheral, options: nil)
         }
-        invalidateAdvertisingState()
+        advertisingTimeoutTimer?.invalidate()
         didUpdateState(error: error)
     }
 
@@ -124,11 +127,6 @@ open class BLEDevice: NSObject {
         }
         // Discover not yet discovered services and characteristics
         peripheral.discoverServices(serviceUUIDs.filter{ !peripheral.serviceUUIDs.contains($0) })
-    }
-
-    private func invalidateAdvertisingState() {
-        advertisingTimeoutTimer?.invalidate()
-        lastAdvertisingDate = nil
     }
 
     open func didUpdateState(error: Error? = nil) {
