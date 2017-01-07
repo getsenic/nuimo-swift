@@ -126,13 +126,9 @@ open class NuimoBluetoothController: BLEDevice, NuimoController {
 
     open override func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
         super.peripheral(peripheral, didWriteValueFor: characteristic, error: error)
-        switch characteristic.uuid {
-        case kLEDMatrixCharacteristicUUID:
+        if characteristic.uuid == kLEDMatrixCharacteristicUUID {
             matrixWriter?.didRetrieveMatrixWriteResponse()
             delegate?.nuimoControllerDidDisplayLEDMatrix(self)
-        case kRebootToDFUModeCharacteristicUUID:
-            disconnect()
-        default: break
         }
     }
 }
