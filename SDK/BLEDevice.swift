@@ -16,6 +16,8 @@ import CoreBluetooth
     - Automatically discovers its services when connected
     - Automatically discovers its characteristics
     - Automatically subscribes for characteristic change notifications
+    - Automatically updates its reachability
+    - Automatically reconnects if peripheral becomes reachable again (if `autoReconnect` was set to true)
 */
 open class BLEDevice: NSObject {
     /// Maximum interval between two advertising packages. If the OS doesn't receive a successive advertisement package after that interval the device is assumed to be unreachable. If not overridden, this interval defaults to `nil`, meaning that the device will never be assumed unreachable, even in case the OS doesn't receive any more advertising packages.
