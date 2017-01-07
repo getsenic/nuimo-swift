@@ -18,12 +18,12 @@ public class BLEDiscoveryManager: NSObject {
     public weak var delegate: BLEDiscoveryManagerDelegate?
     public private(set) var centralManager: CBCentralManager!
 
-    fileprivate var knownPeripheralUUIDs:    [UUID]
-    fileprivate var deviceForUUID:           [UUID : BLEDevice] = [:]
-    fileprivate var alreadyDiscoveredUUIDs:  Set<UUID> = []
-    fileprivate var serviceUUIDs: [CBUUID] = []
-    fileprivate var updateReachability =     false
-    fileprivate var shouldDiscover =         false
+    fileprivate var knownPeripheralUUIDs:   [UUID]
+    fileprivate var deviceForUUID:          [UUID : BLEDevice] = [:]
+    fileprivate var alreadyDiscoveredUUIDs: Set<UUID> = []
+    fileprivate var serviceUUIDs:           [CBUUID] = []
+    fileprivate var updateReachability =    false
+    fileprivate var shouldDiscover =        false
 
     public init(delegate: BLEDiscoveryManagerDelegate? = nil, restoreIdentifier: String? = nil, knownPeripheralUUIDs: [UUID] = []) {
         self.delegate = delegate
