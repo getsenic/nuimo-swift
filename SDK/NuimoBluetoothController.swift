@@ -23,7 +23,7 @@ open class NuimoBluetoothController: BLEDevice, NuimoController {
     public var matrixBrightness: Float = 1.0 { didSet { matrixWriter?.brightness = self.matrixBrightness } }
 
     public private(set) var hardwareVersion: String?
-    public private(set) var firmwareVersion: String? { didSet { didChangeState() } }
+    public private(set) var firmwareVersion: String? { didSet { didUpdateState() } }
     public private(set) var color:           String?
 
     open override var serviceUUIDs:                    [CBUUID]            { return nuimoServiceUUIDs }
@@ -39,8 +39,8 @@ open class NuimoBluetoothController: BLEDevice, NuimoController {
     private var rebootToDFUModeCharacteristic: CBCharacteristic? { return peripheral?.service(with: kSensorServiceUUID)?.characteristic(with: kRebootToDFUModeCharacteristicUUID) }
     private var flySensorCalibrationCharacteristic: CBCharacteristic? { return peripheral?.service(with: kSensorServiceUUID)?.characteristic(with: kFlySensorCalibrationCharacteristicUUID) }
 
-    open override func didChangeState(error: Error? = nil) {
-        super.didChangeState()
+    open override func didUpdateState(error: Error? = nil) {
+        super.didUpdateState()
         let newState: NuimoConnectionState =  {
             guard isReachable, let peripheral = peripheral else { return .invalidated }
             switch peripheral.state {
@@ -50,7 +50,6 @@ open class NuimoBluetoothController: BLEDevice, NuimoController {
             case .disconnecting: return .disconnecting
             }
         }()
-        print("CONNECTION STATE", connectionState, "->", newState)
         guard newState != connectionState else { return }
         connectionState = newState
         delegate?.nuimoController(self, didChangeConnectionState: connectionState, withError: error)

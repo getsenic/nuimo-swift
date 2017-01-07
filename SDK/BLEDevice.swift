@@ -54,7 +54,7 @@ open class BLEDevice: NSObject {
     internal func restore(from peripheral: CBPeripheral) {
         self.peripheral = peripheral
         peripheral.delegate = self
-        defer { didChangeState() }
+        defer { didUpdateState() }
         invalidateAdvertisingState()
         guard peripheral.state == .connected else { return }
         discoverServices()
@@ -64,9 +64,9 @@ open class BLEDevice: NSObject {
         guard let peripheral = peripheral else { return }
         guard willReceiveSuccessiveAdvertisingData, let maxAdvertisingPackageInterval = type(of: self).maxAdvertisingPackageInterval else { return }
         advertisingTimeoutTimer?.invalidate()
-        advertisingTimeoutTimer = Timer.scheduledTimer(timeInterval: maxAdvertisingPackageInterval, target: self, selector: #selector(didChangeState), userInfo: nil, repeats: false)
+        advertisingTimeoutTimer = Timer.scheduledTimer(timeInterval: maxAdvertisingPackageInterval, target: self, selector: #selector(didUpdateState), userInfo: nil, repeats: false)
         lastAdvertisingDate = Date()
-        didChangeState()
+        didUpdateState()
     }
 
     open func connect(autoReconnect: Bool = false) {
@@ -80,7 +80,7 @@ open class BLEDevice: NSObject {
         guard let peripheral = peripheral else { return }
         discoverServices()
         invalidateAdvertisingState()
-        didChangeState()
+        didUpdateState()
     }
 
     open func didFailToConnect(error: Error?) {
@@ -90,7 +90,7 @@ open class BLEDevice: NSObject {
             centralManager.connect(peripheral, options: nil)
         }
         invalidateAdvertisingState()
-        didChangeState(error: error)
+        didUpdateState(error: error)
     }
 
     open func disconnect() {
@@ -103,7 +103,7 @@ open class BLEDevice: NSObject {
         if autoReconnect {
             connect(autoReconnect: true)
         }
-        didChangeState(error: error)
+        didUpdateState(error: error)
     }
 
     open func discoverServices() {
@@ -124,7 +124,7 @@ open class BLEDevice: NSObject {
         lastAdvertisingDate = nil
     }
 
-    open func didChangeState(error: Error? = nil) {
+    open func didUpdateState(error: Error? = nil) {
     }
 
     internal func centralManagerDidUpdateState() {
@@ -139,7 +139,7 @@ open class BLEDevice: NSObject {
         default:
             peripheral = nil
         }
-        didChangeState()
+        didUpdateState()
     }
 }
 
