@@ -61,28 +61,30 @@ public class BLEDiscoveryManager: NSObject {
 
 extension BLEDiscoveryManager: CBCentralManagerDelegate {
     public func centralManager(_ central: CBCentralManager, willRestoreState state: [String : Any]) {
-        print("RETRIEVING KNOWN PERIPHERALS")
-        centralManager.retrievePeripherals(withIdentifiers: knownPeripheralUUIDs).forEach {
-            guard let device = delegate?.bleDiscoveryManager(self, deviceFor: $0, advertisementData: [:]) else { return }
-            self.deviceForUUID[device.uuid] = device
-            delegate?.bleDiscoveryManager(self, didRestore: device)
-        }
-        knownPeripheralUUIDs = []
+        print("CENTRAL WILL RESTORE STATE")
+
+        var restorablePeripherals: [CBPeripheral] = []
 
         #if os(iOS) || os(tvOS)
-        (state[CBCentralManagerRestoredStatePeripheralsKey] as? [CBPeripheral])?.forEach {
-            guard let device = self.deviceForUUID[$0.identifier] else { return }
-            device.restore(from: $0)
-            delegate?.bleDiscoveryManager(self, didRestore: device)
-        }
+        restorablePeripherals += state[CBCentralManagerRestoredStatePeripheralsKey] as? [CBPeripheral] ?? []
         #endif
+
+        restorablePeripherals += centralManager.retrievePeripherals(withIdentifiers: knownPeripheralUUIDs).filter {
+            peripheral in !restorablePeripherals.contains(where: { $0.identifier == peripheral.identifier })
+        }
+
+        restorablePeripherals
+            .flatMap { delegate?.bleDiscoveryManager(self, deviceFor: $0, advertisementData: [:]) }
+            .forEach {
+                deviceForUUID[$0.uuid] = $0
+                delegate?.bleDiscoveryManager(self, didRestore: $0)
+            }
+
+        deviceForUUID.keys.forEach { print("RESTORED", $0) }
     }
 
     public func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        // Restore known peripherals by manually calling `willRestoreState` (if it wasn't called until now, it won't be called at all)
-        if knownPeripheralUUIDs.count > 0 {
-            centralManager(central, willRestoreState: [:])
-        }
+        //TODO: Is this method started on every app start into foreground? Currently we assume yes, but what if bluetooth was already on? Do wo then still restore all peripherals?
 
         print("CENTRAL DID UPDATE STATE", central.state.rawValue)
 
