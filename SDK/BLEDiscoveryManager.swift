@@ -18,6 +18,8 @@ public class BLEDiscoveryManager: NSObject {
     public weak var delegate: BLEDiscoveryManagerDelegate?
     public private(set) var centralManager: CBCentralManager!
 
+    internal var queue: DispatchQueue
+
     fileprivate var knownPeripheralUUIDs:   [UUID]
     fileprivate var deviceForUUID:          [UUID : BLEDevice] = [:]
     fileprivate var alreadyDiscoveredUUIDs: Set<UUID> = []
@@ -27,6 +29,7 @@ public class BLEDiscoveryManager: NSObject {
 
     public init(delegate: BLEDiscoveryManagerDelegate? = nil, queue: DispatchQueue? = nil, restoreIdentifier: String? = nil, knownPeripheralUUIDs: [UUID] = []) {
         self.delegate = delegate
+        self.queue = queue ?? DispatchQueue.main
         self.knownPeripheralUUIDs = knownPeripheralUUIDs
         super.init()
 
@@ -36,7 +39,7 @@ public class BLEDiscoveryManager: NSObject {
             centralManagerOptions[CBCentralManagerOptionRestoreIdentifierKey] = restoreIdentifier
             #endif
         }
-        self.centralManager = CBCentralManager(delegate: self, queue: queue, options: centralManagerOptions)
+        self.centralManager = CBCentralManager(delegate: self, queue: self.queue, options: centralManagerOptions)
     }
 
     /// If detectUnreachableDevices is set to true, it will invalidate devices if they stop advertising. Consumes more energy since `CBCentralManagerScanOptionAllowDuplicatesKey` is set to true.

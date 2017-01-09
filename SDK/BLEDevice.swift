@@ -33,18 +33,17 @@ open class BLEDevice: NSObject {
     public let uuid: UUID
     public private(set) var peripheral: CBPeripheral?
     public var centralManager: CBCentralManager { return discoveryManager.centralManager }
+    public var isAdvertising: Bool { return !(advertisingTimeoutDispatchWorkItem?.isCancelled ?? true) }
     public var isReachable: Bool {
         if centralManager.state != .poweredOn { return false }
         if peripheral?.state == .connected { return true }
-        return advertisingTimeoutTimer?.isValid ?? false
+        return isAdvertising
     }
 
-    private var lastAdvertisingDate: Date?
-    private var advertisingTimeoutTimer: Timer?
+    private var advertisingTimeoutDispatchWorkItem: DispatchWorkItem?
     private var connectionAttempt = 0
     private var autoReconnect = false
 
-    /// Convenience initializer that takes a BLEDiscoveryManager instead of a CBCentralManager. This initializer allows to detect that the device has disappeared by checking if the OS didn't receive any more advertising packages.
     public required init(discoveryManager: BLEDiscoveryManager, peripheral: CBPeripheral) {
         self.discoveryManager = discoveryManager
         self.uuid = peripheral.identifier
@@ -56,7 +55,7 @@ open class BLEDevice: NSObject {
         self.peripheral = peripheral
         peripheral.delegate = self
         defer { didUpdateState() }
-        advertisingTimeoutTimer?.invalidate()
+        assumeNotAdvertising()
         guard centralManager.state == .poweredOn, peripheral.state == .connected else { return }
         discoverServices()
     }
@@ -64,13 +63,14 @@ open class BLEDevice: NSObject {
     open func didAdvertise(_ advertisementData: [String: Any], RSSI: NSNumber, willReceiveSuccessiveAdvertisingData: Bool) {
         guard let peripheral = peripheral else { return }
         guard willReceiveSuccessiveAdvertisingData, let maxAdvertisingPackageInterval = type(of: self).maxAdvertisingPackageInterval else { return }
-        advertisingTimeoutTimer?.invalidate()
-        advertisingTimeoutTimer = Timer.scheduledTimer(timeInterval: maxAdvertisingPackageInterval, target: self, selector: #selector(didStopAdvertising), userInfo: nil, repeats: false)
+        advertisingTimeoutDispatchWorkItem?.cancel()
+        advertisingTimeoutDispatchWorkItem = DispatchWorkItem() { [weak self] in self?.didStopAdvertising() }
+        discoveryManager.queue.asyncAfter(deadline: .now() + maxAdvertisingPackageInterval, execute: advertisingTimeoutDispatchWorkItem!)
         didUpdateState()
     }
 
     open func didStopAdvertising() {
-        advertisingTimeoutTimer = nil
+        advertisingTimeoutDispatchWorkItem?.cancel()
         discoveryManager.deviceDidStopAdvertising(self)
         didUpdateState()
     }
@@ -85,18 +85,18 @@ open class BLEDevice: NSObject {
 
     open func didConnect() {
         guard let peripheral = peripheral else { return }
-        advertisingTimeoutTimer?.invalidate()
+        assumeNotAdvertising()
         discoverServices()
         didUpdateState()
     }
 
     open func didFailToConnect(error: Error?) {
         guard let peripheral = peripheral else { return }
+        assumeNotAdvertising()
         if connectionAttempt < type(of: self).connectionRetryCount {
             connectionAttempt += 1
             centralManager.connect(peripheral, options: nil)
         }
-        advertisingTimeoutTimer?.invalidate()
         didUpdateState(error: error)
     }
 
@@ -146,6 +146,10 @@ open class BLEDevice: NSObject {
             peripheral = nil
         }
         didUpdateState()
+    }
+
+    private func assumeNotAdvertising() {
+        advertisingTimeoutDispatchWorkItem?.cancel()
     }
 }
 
