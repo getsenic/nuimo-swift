@@ -21,10 +21,10 @@ public class NuimoDiscoveryManager {
 
     private var bleDiscoveryDelegate: NuimoDiscoveryManagerPrivate!
 
-    public init(delegate: NuimoDiscoveryDelegate? = nil, restoreIdentifier: String? = nil, knownNuimoUUIDs: [UUID] = []) {
+    public init(delegate: NuimoDiscoveryDelegate? = nil, queue: DispatchQueue? = nil, restoreIdentifier: String? = nil, knownNuimoUUIDs: [UUID] = []) {
         self.delegate = delegate
         self.bleDiscoveryDelegate = NuimoDiscoveryManagerPrivate(nuimoDiscoveryManager: self)
-        self.bleDiscoveryManager = BLEDiscoveryManager(delegate: self.bleDiscoveryDelegate, restoreIdentifier: restoreIdentifier, knownPeripheralUUIDs: knownNuimoUUIDs)
+        self.bleDiscoveryManager = BLEDiscoveryManager(delegate: self.bleDiscoveryDelegate, queue: queue, restoreIdentifier: restoreIdentifier, knownPeripheralUUIDs: knownNuimoUUIDs)
     }
     
     public func startDiscovery(serviceUUIDs: [CBUUID] = nuimoServiceUUIDs, updateReachability: Bool = false) {
