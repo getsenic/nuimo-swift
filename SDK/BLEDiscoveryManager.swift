@@ -18,7 +18,7 @@ public class BLEDiscoveryManager: NSObject {
     public weak var delegate: BLEDiscoveryManagerDelegate?
     public private(set) var centralManager: CBCentralManager!
 
-    internal var queue: DispatchQueue
+    internal let queue: DispatchQueue
 
     fileprivate var knownPeripheralUUIDs:   [UUID]
     fileprivate var deviceForUUID:          [UUID : BLEDevice] = [:]
