@@ -151,4 +151,11 @@ public protocol BLEDiscoveryManagerDelegate: class {
 
 internal extension DispatchQueue {
     static var currentQueueLabel: String { return String(cString: __dispatch_queue_get_label(nil), encoding: .utf8)! }
+
+    func assertIsDispatching() {
+        if DispatchQueue.currentQueueLabel != label {
+            DDLogError("Dispatching should take place on queue '\(label)' but is taking place on queue '\(DispatchQueue.currentQueueLabel)'")
+            Thread.callStackSymbols.forEach{ DDLogError($0) }
+        }
+    }
 }
