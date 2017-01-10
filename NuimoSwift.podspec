@@ -20,5 +20,15 @@ Pod::Spec.new do |s|
 
   s.source       = { :git => "https://github.com/getSenic/nuimo-swift.git", :tag => "#{s.version}" }
   s.framework    = 'CoreBluetooth'
-  s.source_files = "SDK/*.swift"
+
+  s.subspec 'Core' do |c|
+    c.source_files = "SDK/*.swift", "SDK/WithoutLogging/*.swift"
+  end
+
+  s.subspec 'Logging' do |d|
+    d.source_files = "SDK/*.swift", "SDK/WithLogging/*.swift"
+    d.dependency 'CocoaLumberjack/Swift'
+  end
+
+  s.default_subspec = 'Core'
 end

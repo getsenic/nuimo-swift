@@ -12,7 +12,7 @@ import Foundation
 import CoreBluetooth
 
 /**
-    Represents a bluetooth low energy (BLE) device.
+    Represents a Bluetooth Low Energy (BLE) device.
     - Automatically discovers its services when connected
     - Automatically discovers its characteristics
     - Automatically subscribes for characteristic change notifications
@@ -79,6 +79,7 @@ open class BLEDevice: NSObject {
         discoveryManager.queue.async {
             self.autoReconnect = autoReconnect
             guard let peripheral = self.peripheral, self.centralManager.state == .poweredOn else { return }
+            DDLogDebug("BLEDevice \(peripheral.identifier.uuidString) connect(auto connect = \(autoReconnect))")
             self.connectionAttempt = 0
             self.centralManager.connect(peripheral, options: nil)
             self.didUpdateState()
@@ -106,6 +107,7 @@ open class BLEDevice: NSObject {
         discoveryManager.queue.async {
             self.autoReconnect = false
             guard let peripheral = self.peripheral else { return }
+            DDLogDebug("BLEDevice \(peripheral.identifier.uuidString) disconnect()")
             self.centralManager.cancelPeripheralConnection(peripheral)
         }
     }

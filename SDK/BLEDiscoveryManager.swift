@@ -69,6 +69,8 @@ public class BLEDiscoveryManager: NSObject {
 
 extension BLEDiscoveryManager: CBCentralManagerDelegate {
     public func centralManager(_ central: CBCentralManager, willRestoreState state: [String : Any]) {
+        DDLogDebug("BLEDiscoveryManager willRestoreState with state \(central.state.rawValue) on queue \(DispatchQueue.currentQueueLabel)")
+
         var restorablePeripherals: [CBPeripheral] = []
 
         #if os(iOS) || os(tvOS)
@@ -85,14 +87,20 @@ extension BLEDiscoveryManager: CBCentralManagerDelegate {
                 deviceForUUID[$0.uuid] = $0
                 delegate?.bleDiscoveryManager(self, didRestore: $0)
             }
+
+        restorablePeripherals.forEach {
+            DDLogDebug("Restored/retrieved \($0.identifier.uuidString) with state \($0.state.rawValue)")
+        }
     }
 
     public func centralManagerDidUpdateState(_ central: CBCentralManager) {
+        DDLogDebug("BLEDiscoveryManager didUpdateState: \(central.state.rawValue)")
         if centralManager.state.rawValue >= CBCentralManagerState.poweredOff.rawValue {
             // Update all devices with a freshly retrieved peripheral from central manager for those which have an invalidated peripheral
             centralManager.retrievePeripherals(withIdentifiers: Array(deviceForUUID.keys)).forEach {
                 guard let device = self.deviceForUUID[$0.identifier], device.peripheral == nil else { return }
                 device.restore(from: $0)
+                DDLogDebug("Restored/retrieved \($0.identifier.uuidString) with state \($0.state.rawValue)")
                 self.delegate?.bleDiscoveryManager(self, didRestore: device)
             }
         }
@@ -139,4 +147,8 @@ public protocol BLEDiscoveryManagerDelegate: class {
     func bleDiscoveryManager(_ discovery: BLEDiscoveryManager, didDiscover device: BLEDevice)
     func bleDiscoveryManager(_ discovery: BLEDiscoveryManager, didRestore device: BLEDevice)
     func bleDiscoveryManager(_ discovery: BLEDiscoveryManager, didStopAdvertising device: BLEDevice)
+}
+
+internal extension DispatchQueue {
+    static var currentQueueLabel: String { return String(cString: __dispatch_queue_get_label(nil), encoding: .utf8)! }
 }
