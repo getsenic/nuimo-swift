@@ -76,11 +76,13 @@ open class BLEDevice: NSObject {
     }
 
     open func connect(autoReconnect: Bool = false) {
-        self.autoReconnect = autoReconnect
-        guard let peripheral = peripheral, centralManager.state == .poweredOn else { return }
-        connectionAttempt = 0
-        centralManager.connect(peripheral, options: nil)
-        didUpdateState()
+        discoveryManager.queue.async {
+            self.autoReconnect = autoReconnect
+            guard let peripheral = self.peripheral, self.centralManager.state == .poweredOn else { return }
+            self.connectionAttempt = 0
+            self.centralManager.connect(peripheral, options: nil)
+            self.didUpdateState()
+        }
     }
 
     open func didConnect() {
@@ -101,9 +103,11 @@ open class BLEDevice: NSObject {
     }
 
     open func disconnect() {
-        autoReconnect = false
-        guard let peripheral = peripheral else { return }
-        centralManager.cancelPeripheralConnection(peripheral)
+        discoveryManager.queue.async {
+            self.autoReconnect = false
+            guard let peripheral = self.peripheral else { return }
+            self.centralManager.cancelPeripheralConnection(peripheral)
+        }
     }
 
     open func didDisconnect(error: Error?) {
