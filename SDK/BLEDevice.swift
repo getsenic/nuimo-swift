@@ -171,12 +171,14 @@ open class BLEDevice: NSObject {
 
 extension BLEDevice: CBPeripheralDelegate {
     open func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
+        discoveryManager.queue.assertIsDispatching()
         peripheral.services?
             .flatMap{ service in (service, charactericUUIDsForServiceUUID[service.uuid]?.filter { !service.characteristicUUIDs.contains($0) } ?? [] ) }
             .forEach{ peripheral.discoverCharacteristics($0.1, for: $0.0) }
     }
 
     open func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
+        discoveryManager.queue.assertIsDispatching()
         service.characteristics?.forEach{ characteristic in
             if notificationCharacteristicUUIDs.contains(characteristic.uuid) {
                 peripheral.setNotifyValue(true, for: characteristic)
@@ -185,12 +187,15 @@ extension BLEDevice: CBPeripheralDelegate {
     }
 
     open func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
+        discoveryManager.queue.assertIsDispatching()
     }
 
     open func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
+        discoveryManager.queue.assertIsDispatching()
     }
 
     open func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
+        discoveryManager.queue.assertIsDispatching()
     }
 }
 
