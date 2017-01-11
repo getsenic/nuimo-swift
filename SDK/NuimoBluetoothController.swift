@@ -61,7 +61,9 @@ open class NuimoBluetoothController: BLEDevice, NuimoController {
     }
 
     public func display(matrix: NuimoLEDMatrix, interval: TimeInterval, options: Int) {
-        matrixWriter?.write(matrix: matrix, interval: interval, options: options)
+        queue.async {
+            self.matrixWriter?.write(matrix: matrix, interval: interval, options: options)
+        }
     }
 
     @discardableResult public func rebootToDFUMode() -> Bool {
@@ -71,7 +73,9 @@ open class NuimoBluetoothController: BLEDevice, NuimoController {
         else {
             return false
         }
-        peripheral.writeValue(Data(bytes: UnsafePointer<UInt8>([UInt8(1)]), count: 1), for: rebootToDFUModeCharacteristic, type: .withResponse)
+        queue.async {
+            peripheral.writeValue(Data(bytes: UnsafePointer<UInt8>([UInt8(1)]), count: 1), for: rebootToDFUModeCharacteristic, type: .withResponse)
+        }
         return true
     }
 
@@ -82,7 +86,9 @@ open class NuimoBluetoothController: BLEDevice, NuimoController {
         else {
             return false
         }
-        peripheral.writeValue(Data(bytes: UnsafePointer<UInt8>([UInt8(1)]), count: 1), for: flySensorCalibrationCharacteristic, type: .withResponse)
+        queue.async {
+            peripheral.writeValue(Data(bytes: UnsafePointer<UInt8>([UInt8(1)]), count: 1), for: flySensorCalibrationCharacteristic, type: .withResponse)
+        }
         return true
     }
 
@@ -95,7 +101,9 @@ open class NuimoBluetoothController: BLEDevice, NuimoController {
             return
         }
         let interval = UInt8(max(0, min(255, heartBeatInterval)))
-        peripheral.writeValue(Data(bytes: UnsafePointer<UInt8>([interval]), count: 1), for: characteristic, type: .withResponse)
+        queue.async {
+            peripheral.writeValue(Data(bytes: UnsafePointer<UInt8>([interval]), count: 1), for: characteristic, type: .withResponse)
+        }
     }
 
     //MARK: CBPeripheralDelegate
