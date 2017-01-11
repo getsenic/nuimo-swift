@@ -65,23 +65,30 @@ open class NuimoBluetoothController: BLEDevice, NuimoController {
     }
 
     @discardableResult public func rebootToDFUMode() -> Bool {
-        guard let peripheral = peripheral, peripheral.state == .connected else { return false }
-        guard let rebootToDFUModeCharacteristic = rebootToDFUModeCharacteristic else { return false }
+        guard
+            let peripheral = peripheral, peripheral.state == .connected,
+            let rebootToDFUModeCharacteristic = rebootToDFUModeCharacteristic
+        else {
+            return false
+        }
         peripheral.writeValue(Data(bytes: UnsafePointer<UInt8>([UInt8(1)]), count: 1), for: rebootToDFUModeCharacteristic, type: .withResponse)
         return true
     }
 
     @discardableResult public func calibrateFlySensor() -> Bool {
-        guard let peripheral = peripheral, peripheral.state == .connected else { return false }
-        guard let flySensorCalibrationCharacteristic = flySensorCalibrationCharacteristic else { return false }
+        guard
+            let peripheral = peripheral, peripheral.state == .connected,
+            let flySensorCalibrationCharacteristic = flySensorCalibrationCharacteristic
+        else {
+            return false
+        }
         peripheral.writeValue(Data(bytes: UnsafePointer<UInt8>([UInt8(1)]), count: 1), for: flySensorCalibrationCharacteristic, type: .withResponse)
         return true
     }
 
     fileprivate func writeHeartBeatInterval() {
         guard
-            let peripheral = peripheral,
-            peripheral.state == .connected,
+            let peripheral = peripheral, peripheral.state == .connected,
             let service = peripheral.services?.filter({ $0.uuid == kSensorServiceUUID }).first,
             let characteristic = service.characteristics?.filter({ $0.uuid == kHeartBeatCharacteristicUUID }).first
         else {
