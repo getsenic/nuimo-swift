@@ -153,14 +153,14 @@ private class LEDMatrixWriter {
     var brightness: Float
 
     private var currentMatrix: NuimoLEDMatrix?
-    private var currentMatrixDisplayInterval: TimeInterval = 0.0
-    private var currentMatrixWithFadeTransition = false
+    private var currentDisplayInterval: TimeInterval = 0.0
+    private var currentWithFadeTransition = false
     private var lastWrittenMatrix = NuimoLEDMatrix(string: "")
     private var lastWrittenMatrixDate = Date(timeIntervalSince1970: 0.0)
     private var lastWrittenMatrixDisplayInterval: TimeInterval = 0.0
-    private var isWaitingForMatrixWriteResponse = false
-    private var writeMatrixOnWriteResponseReceived = false
-    private var writeMatrixResponseTimeoutTimer: Timer?
+    private var isWaitingForWriteResponse = false
+    private var writeOnResponseReceived = false
+    private var writeResponseTimeoutTimer: Timer?
 
     init(peripheral: CBPeripheral, matrixCharacteristic: CBCharacteristic, brightness: Float) {
         self.peripheral = peripheral
@@ -181,12 +181,12 @@ private class LEDMatrixWriter {
             return
         }
 
-        currentMatrix                   = matrix
-        currentMatrixDisplayInterval    = interval
-        currentMatrixWithFadeTransition = withFadeTransition
+        currentMatrix             = matrix
+        currentDisplayInterval    = interval
+        currentWithFadeTransition = withFadeTransition
 
-        if withWriteResponse && isWaitingForMatrixWriteResponse {
-            writeMatrixOnWriteResponseReceived = true
+        if withWriteResponse && isWaitingForWriteResponse {
+            writeOnResponseReceived = true
         }
         else {
             writeMatrixNow(withWriteResponse: withWriteResponse)
@@ -196,38 +196,38 @@ private class LEDMatrixWriter {
     private func writeMatrixNow(withWriteResponse: Bool) {
         guard let currentMatrix = currentMatrix else { fatalError("Invalid matrix write request") }
         var matrixBytes = currentMatrix.matrixBytes
-        guard currentMatrix.matrixBytes.count == 11 && !(withWriteResponse && isWaitingForMatrixWriteResponse) else { fatalError("Invalid matrix write request") }
+        guard currentMatrix.matrixBytes.count == 11 && !(withWriteResponse && isWaitingForWriteResponse) else { fatalError("Invalid matrix write request") }
 
         matrixBytes[10] = matrixBytes[10] +
-            (currentMatrixWithFadeTransition        ? UInt8(1 << 4) : 0) +
+            (currentWithFadeTransition              ? UInt8(1 << 4) : 0) +
             (currentMatrix is NuimoBuiltInLEDMatrix ? UInt8(1 << 5) : 0)
-        matrixBytes += [UInt8(min(max(brightness, 0.0), 1.0) * 255), UInt8(currentMatrixDisplayInterval * 10.0)]
+        matrixBytes += [UInt8(min(max(brightness, 0.0), 1.0) * 255), UInt8(currentDisplayInterval * 10.0)]
         peripheral.writeValue(Data(bytes: UnsafePointer<UInt8>(matrixBytes), count: matrixBytes.count), for: matrixCharacteristic, type: withWriteResponse ? .withResponse : .withoutResponse)
 
-        isWaitingForMatrixWriteResponse  = withWriteResponse
+        isWaitingForWriteResponse        = withWriteResponse
         lastWrittenMatrix                = currentMatrix
         lastWrittenMatrixDate            = Date()
-        lastWrittenMatrixDisplayInterval = currentMatrixDisplayInterval
+        lastWrittenMatrixDisplayInterval = currentDisplayInterval
 
         if withWriteResponse {
             // When the matrix write response is not retrieved within 500ms we assume the response to have timed out
             DispatchQueue.main.async {
-                self.writeMatrixResponseTimeoutTimer?.invalidate()
-                self.writeMatrixResponseTimeoutTimer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(self.didRetrieveMatrixWriteResponse), userInfo: nil, repeats: false)
+                self.writeResponseTimeoutTimer?.invalidate()
+                self.writeResponseTimeoutTimer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(self.didRetrieveMatrixWriteResponse), userInfo: nil, repeats: false)
             }
         }
     }
 
     dynamic func didRetrieveMatrixWriteResponse() {
-        guard isWaitingForMatrixWriteResponse else { return }
-        isWaitingForMatrixWriteResponse = false
+        guard isWaitingForWriteResponse else { return }
+        isWaitingForWriteResponse = false
         DispatchQueue.main.async {
-            self.writeMatrixResponseTimeoutTimer?.invalidate()
+            self.writeResponseTimeoutTimer?.invalidate()
         }
 
         // Write next matrix if any
-        if writeMatrixOnWriteResponseReceived {
-            writeMatrixOnWriteResponseReceived = false
+        if writeOnResponseReceived {
+            writeOnResponseReceived = false
             writeMatrixNow(withWriteResponse: true)
         }
     }
