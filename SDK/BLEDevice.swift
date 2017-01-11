@@ -83,7 +83,7 @@ open class BLEDevice: NSObject {
         queue.async {
             self.autoReconnect = autoReconnect
             guard let peripheral = self.peripheral, self.centralManager.state == .poweredOn else { return }
-            DDLogDebug("BLEDevice \(peripheral.identifier.uuidString) connect(auto connect = \(autoReconnect))")
+            NuimoSwift.DDLogDebug("BLEDevice \(peripheral.identifier.uuidString) connect(auto connect = \(autoReconnect))")
             self.connectionAttempt = 0
             self.centralManager.connect(peripheral, options: nil)
             self.didUpdateState()
@@ -113,7 +113,7 @@ open class BLEDevice: NSObject {
         queue.async {
             self.autoReconnect = false
             guard let peripheral = self.peripheral else { return }
-            DDLogDebug("BLEDevice \(peripheral.identifier.uuidString) disconnect()")
+            NuimoSwift.DDLogDebug("BLEDevice \(peripheral.identifier.uuidString) disconnect()")
             self.centralManager.cancelPeripheralConnection(peripheral)
         }
     }

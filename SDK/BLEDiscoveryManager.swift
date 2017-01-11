@@ -69,7 +69,7 @@ public class BLEDiscoveryManager: NSObject {
 
 extension BLEDiscoveryManager: CBCentralManagerDelegate {
     public func centralManager(_ central: CBCentralManager, willRestoreState state: [String : Any]) {
-        DDLogDebug("BLEDiscoveryManager willRestoreState with state \(central.state.rawValue) on queue \(DispatchQueue.currentQueueLabel)")
+        NuimoSwift.DDLogDebug("BLEDiscoveryManager willRestoreState with state \(central.state.rawValue) on queue \(DispatchQueue.currentQueueLabel)")
 
         var restorablePeripherals: [CBPeripheral] = []
 
@@ -89,18 +89,18 @@ extension BLEDiscoveryManager: CBCentralManagerDelegate {
             }
 
         restorablePeripherals.forEach {
-            DDLogDebug("Restored/retrieved \($0.identifier.uuidString) with state \($0.state.rawValue)")
+            NuimoSwift.DDLogDebug("Restored/retrieved \($0.identifier.uuidString) with state \($0.state.rawValue)")
         }
     }
 
     public func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        DDLogDebug("BLEDiscoveryManager didUpdateState: \(central.state.rawValue)")
+        NuimoSwift.DDLogDebug("BLEDiscoveryManager didUpdateState: \(central.state.rawValue)")
         if centralManager.state.rawValue >= CBCentralManagerState.poweredOff.rawValue {
             // Update all devices with a freshly retrieved peripheral from central manager for those which have an invalidated peripheral
             centralManager.retrievePeripherals(withIdentifiers: Array(deviceForUUID.keys)).forEach {
                 guard let device = self.deviceForUUID[$0.identifier], device.peripheral == nil else { return }
                 device.restore(from: $0)
-                DDLogDebug("Restored/retrieved \($0.identifier.uuidString) with state \($0.state.rawValue)")
+                NuimoSwift.DDLogDebug("Restored/retrieved \($0.identifier.uuidString) with state \($0.state.rawValue)")
                 self.delegate?.bleDiscoveryManager(self, didRestore: device)
             }
         }
@@ -154,8 +154,8 @@ internal extension DispatchQueue {
 
     func assertIsDispatching() {
         if DispatchQueue.currentQueueLabel != label {
-            DDLogError("Dispatching should take place on queue '\(label)' but is taking place on queue '\(DispatchQueue.currentQueueLabel)'")
-            Thread.callStackSymbols.forEach{ DDLogError($0) }
+            NuimoSwift.DDLogError("Dispatching should take place on queue '\(label)' but is taking place on queue '\(DispatchQueue.currentQueueLabel)'")
+            Thread.callStackSymbols.forEach{ NuimoSwift.DDLogError($0) }
         }
     }
 }

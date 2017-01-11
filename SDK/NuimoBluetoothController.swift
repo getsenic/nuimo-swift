@@ -156,9 +156,9 @@ public extension Notification.Name {
 //MARK: - LED matrix writing
 
 private class LEDMatrixWriter {
-    let peripheral: CBPeripheral
-    let matrixCharacteristic: CBCharacteristic
-    let queue: DispatchQueue
+    unowned let peripheral: CBPeripheral
+    unowned let matrixCharacteristic: CBCharacteristic
+    unowned let queue: DispatchQueue
     var brightness: Float
 
     private var currentMatrix: NuimoLEDMatrix?
