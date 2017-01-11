@@ -33,6 +33,7 @@ open class BLEDevice: NSObject {
     public let uuid: UUID
     public private(set) var peripheral: CBPeripheral?
     public var centralManager: CBCentralManager { return discoveryManager.centralManager }
+    public var queue: DispatchQueue { return discoveryManager.queue }
     public var isAdvertising: Bool { return !(advertisingTimeoutDispatchWorkItem?.isCancelled ?? true) }
     public var isReachable: Bool {
         if centralManager.state != .poweredOn { return false }

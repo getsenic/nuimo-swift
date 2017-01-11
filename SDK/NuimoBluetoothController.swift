@@ -108,7 +108,7 @@ open class NuimoBluetoothController: BLEDevice, NuimoController {
             case kFirmwareVersionCharacteristicUUID: fallthrough
             case kModelNumberCharacteristicUUID:     fallthrough
             case kBatteryCharacteristicUUID:         peripheral.readValue(for: characteristic)
-            case kLEDMatrixCharacteristicUUID:       matrixWriter = LEDMatrixWriter(peripheral: peripheral, matrixCharacteristic: characteristic, brightness: matrixBrightness)
+            case kLEDMatrixCharacteristicUUID:       matrixWriter = LEDMatrixWriter(peripheral: peripheral, matrixCharacteristic: characteristic, queue: queue, brightness: matrixBrightness)
             case kHeartBeatCharacteristicUUID:       writeHeartBeatInterval()
             default:
                 break
@@ -150,6 +150,7 @@ public extension Notification.Name {
 private class LEDMatrixWriter {
     let peripheral: CBPeripheral
     let matrixCharacteristic: CBCharacteristic
+    let queue: DispatchQueue
     var brightness: Float
 
     private var currentMatrix: NuimoLEDMatrix?
@@ -160,11 +161,12 @@ private class LEDMatrixWriter {
     private var lastWrittenMatrixDisplayInterval: TimeInterval = 0.0
     private var isWaitingForWriteResponse = false
     private var writeOnResponseReceived = false
-    private var writeResponseTimeoutTimer: Timer?
+    private var writeResponseTimeoutDispatchWorkItem: DispatchWorkItem?
 
-    init(peripheral: CBPeripheral, matrixCharacteristic: CBCharacteristic, brightness: Float) {
+    init(peripheral: CBPeripheral, matrixCharacteristic: CBCharacteristic, queue: DispatchQueue, brightness: Float) {
         self.peripheral = peripheral
         self.matrixCharacteristic = matrixCharacteristic
+        self.queue = queue
         self.brightness = brightness
     }
 
@@ -211,19 +213,16 @@ private class LEDMatrixWriter {
 
         if withWriteResponse {
             // When the matrix write response is not retrieved within 500ms we assume the response to have timed out
-            DispatchQueue.main.async {
-                self.writeResponseTimeoutTimer?.invalidate()
-                self.writeResponseTimeoutTimer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(self.didRetrieveMatrixWriteResponse), userInfo: nil, repeats: false)
-            }
+            writeResponseTimeoutDispatchWorkItem?.cancel()
+            writeResponseTimeoutDispatchWorkItem = DispatchWorkItem() { [weak self] in self?.didRetrieveMatrixWriteResponse() }
+            queue.asyncAfter(deadline: .now() + 0.5, execute: writeResponseTimeoutDispatchWorkItem!)
         }
     }
 
     dynamic func didRetrieveMatrixWriteResponse() {
         guard isWaitingForWriteResponse else { return }
         isWaitingForWriteResponse = false
-        DispatchQueue.main.async {
-            self.writeResponseTimeoutTimer?.invalidate()
-        }
+        writeResponseTimeoutDispatchWorkItem?.cancel()
 
         // Write next matrix if any
         if writeOnResponseReceived {
