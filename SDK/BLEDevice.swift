@@ -46,7 +46,6 @@ open class BLEDevice: NSObject {
     private var autoReconnect = false
 
     public required init(discoveryManager: BLEDiscoveryManager, peripheral: CBPeripheral) {
-        discoveryManager.queue.assertIsDispatching()
         self.discoveryManager = discoveryManager
         self.uuid = peripheral.identifier
         super.init()
@@ -54,7 +53,7 @@ open class BLEDevice: NSObject {
     }
 
     internal func restore(from peripheral: CBPeripheral) {
-        discoveryManager.queue.assertIsDispatching()
+        queue.assertIsDispatching()
         self.peripheral = peripheral
         peripheral.delegate = self
         defer { didUpdateState() }
@@ -64,24 +63,24 @@ open class BLEDevice: NSObject {
     }
 
     open func didAdvertise(_ advertisementData: [String: Any], RSSI: NSNumber, willReceiveSuccessiveAdvertisingData: Bool) {
-        discoveryManager.queue.assertIsDispatching()
+        queue.assertIsDispatching()
         guard let peripheral = peripheral else { return }
         guard willReceiveSuccessiveAdvertisingData, let maxAdvertisingPackageInterval = type(of: self).maxAdvertisingPackageInterval else { return }
         advertisingTimeoutDispatchWorkItem?.cancel()
         advertisingTimeoutDispatchWorkItem = DispatchWorkItem() { [weak self] in self?.didStopAdvertising() }
-        discoveryManager.queue.asyncAfter(deadline: .now() + maxAdvertisingPackageInterval, execute: advertisingTimeoutDispatchWorkItem!)
+        queue.asyncAfter(deadline: .now() + maxAdvertisingPackageInterval, execute: advertisingTimeoutDispatchWorkItem!)
         didUpdateState()
     }
 
     open func didStopAdvertising() {
-        discoveryManager.queue.assertIsDispatching()
+        queue.assertIsDispatching()
         advertisingTimeoutDispatchWorkItem?.cancel()
         discoveryManager.deviceDidStopAdvertising(self)
         didUpdateState()
     }
 
     open func connect(autoReconnect: Bool = false) {
-        discoveryManager.queue.async {
+        queue.async {
             self.autoReconnect = autoReconnect
             guard let peripheral = self.peripheral, self.centralManager.state == .poweredOn else { return }
             DDLogDebug("BLEDevice \(peripheral.identifier.uuidString) connect(auto connect = \(autoReconnect))")
@@ -92,7 +91,7 @@ open class BLEDevice: NSObject {
     }
 
     open func didConnect() {
-        discoveryManager.queue.assertIsDispatching()
+        queue.assertIsDispatching()
         guard let peripheral = peripheral else { return }
         assumeNotAdvertising()
         discoverServices()
@@ -100,7 +99,7 @@ open class BLEDevice: NSObject {
     }
 
     open func didFailToConnect(error: Error?) {
-        discoveryManager.queue.assertIsDispatching()
+        queue.assertIsDispatching()
         guard let peripheral = peripheral else { return }
         assumeNotAdvertising()
         if connectionAttempt < type(of: self).connectionRetryCount {
@@ -111,7 +110,7 @@ open class BLEDevice: NSObject {
     }
 
     open func disconnect() {
-        discoveryManager.queue.async {
+        queue.async {
             self.autoReconnect = false
             guard let peripheral = self.peripheral else { return }
             DDLogDebug("BLEDevice \(peripheral.identifier.uuidString) disconnect()")
@@ -120,7 +119,7 @@ open class BLEDevice: NSObject {
     }
 
     open func didDisconnect(error: Error?) {
-        discoveryManager.queue.assertIsDispatching()
+        queue.assertIsDispatching()
         if autoReconnect {
             connect(autoReconnect: true)
         }
@@ -131,7 +130,7 @@ open class BLEDevice: NSObject {
     }
 
     private func discoverServices() {
-        discoveryManager.queue.assertIsDispatching()
+        queue.assertIsDispatching()
         guard let peripheral = peripheral else { return }
         willDiscoverServices()
         // Collect any already known service and characterstic (i.e. from device restoring)
@@ -149,7 +148,7 @@ open class BLEDevice: NSObject {
     }
 
     internal func centralManagerDidUpdateState() {
-        discoveryManager.queue.assertIsDispatching()
+        queue.assertIsDispatching()
         switch centralManager.state {
         case .poweredOn:
             if autoReconnect {
@@ -171,14 +170,14 @@ open class BLEDevice: NSObject {
 
 extension BLEDevice: CBPeripheralDelegate {
     open func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
-        discoveryManager.queue.assertIsDispatching()
+        queue.assertIsDispatching()
         peripheral.services?
             .flatMap{ service in (service, charactericUUIDsForServiceUUID[service.uuid]?.filter { !service.characteristicUUIDs.contains($0) } ?? [] ) }
             .forEach{ peripheral.discoverCharacteristics($0.1, for: $0.0) }
     }
 
     open func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
-        discoveryManager.queue.assertIsDispatching()
+        queue.assertIsDispatching()
         service.characteristics?.forEach{ characteristic in
             if notificationCharacteristicUUIDs.contains(characteristic.uuid) {
                 peripheral.setNotifyValue(true, for: characteristic)
@@ -187,15 +186,15 @@ extension BLEDevice: CBPeripheralDelegate {
     }
 
     open func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
-        discoveryManager.queue.assertIsDispatching()
+        queue.assertIsDispatching()
     }
 
     open func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
-        discoveryManager.queue.assertIsDispatching()
+        queue.assertIsDispatching()
     }
 
     open func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
-        discoveryManager.queue.assertIsDispatching()
+        queue.assertIsDispatching()
     }
 }
 
