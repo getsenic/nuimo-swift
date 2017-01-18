@@ -16,7 +16,13 @@ import CoreBluetooth
 */
 public class BLEDiscoveryManager: NSObject {
     public weak var delegate: BLEDiscoveryManagerDelegate?
-    public private(set) var centralManager: CBCentralManager!
+    public var centralManager: CBCentralManager! {
+        guard let centralManager = _centralManager else {
+            print("BLEDiscoveryManager.centralManager is accessed while it is not yet set. This happens when CBCentralManager() calls a delegate function while still instantiating BLEDiscoveryManager. If BLEDiscoveryManager.centralManager is accessed without checking for `nil` the program will consequently crash.")
+            return nil
+        }
+        return centralManager
+    }
 
     internal let queue: DispatchQueue
 
@@ -26,6 +32,8 @@ public class BLEDiscoveryManager: NSObject {
     fileprivate var serviceUUIDs:           [CBUUID] = []
     fileprivate var updateReachability =    false
     fileprivate var shouldDiscover =        false
+
+    private var _centralManager: CBCentralManager?
 
     public init(delegate: BLEDiscoveryManagerDelegate? = nil, queue: DispatchQueue? = nil, restoreIdentifier: String? = nil, knownPeripheralUUIDs: [UUID] = []) {
         self.delegate = delegate
@@ -39,7 +47,7 @@ public class BLEDiscoveryManager: NSObject {
             centralManagerOptions[CBCentralManagerOptionRestoreIdentifierKey] = restoreIdentifier
             #endif
         }
-        self.centralManager = CBCentralManager(delegate: self, queue: self.queue, options: centralManagerOptions)
+        self._centralManager = CBCentralManager(delegate: self, queue: self.queue, options: centralManagerOptions)
     }
 
     /// If detectUnreachableDevices is set to true, it will invalidate devices if they stop advertising. Consumes more energy since `CBCentralManagerScanOptionAllowDuplicatesKey` is set to true.
@@ -70,6 +78,10 @@ public class BLEDiscoveryManager: NSObject {
 extension BLEDiscoveryManager: CBCentralManagerDelegate {
     public func centralManager(_ central: CBCentralManager, willRestoreState state: [String : Any]) {
         NuimoSwift.DDLogDebug("BLEDiscoveryManager willRestoreState with state \(central.state.rawValue) on queue \(DispatchQueue.currentQueueLabel)")
+        guard let centralManager = centralManager else {
+            queue.async { self.centralManager(central, willRestoreState: state) }
+            return
+        }
 
         var restorablePeripherals: [CBPeripheral] = []
 
@@ -95,6 +107,11 @@ extension BLEDiscoveryManager: CBCentralManagerDelegate {
 
     public func centralManagerDidUpdateState(_ central: CBCentralManager) {
         NuimoSwift.DDLogDebug("BLEDiscoveryManager didUpdateState: \(central.state.rawValue)")
+        guard let centralManager = centralManager else {
+            queue.async { self.centralManagerDidUpdateState(central) }
+            return
+        }
+
         if centralManager.state.rawValue >= CBCentralManagerState.poweredOff.rawValue {
             // Update all devices with a freshly retrieved peripheral from central manager for those which have an invalidated peripheral
             centralManager.retrievePeripherals(withIdentifiers: Array(deviceForUUID.keys)).forEach {
