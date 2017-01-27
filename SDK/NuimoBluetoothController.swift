@@ -20,7 +20,7 @@ open class NuimoBluetoothController: BLEDevice, NuimoController {
     public weak var delegate: NuimoControllerDelegate?
     public private(set) var connectionState = NuimoConnectionState.disconnected
     public var defaultMatrixDisplayInterval: TimeInterval = 2.0
-    public var matrixBrightness: Float = 1.0 { didSet { matrixWriter?.brightness = self.matrixBrightness } }
+    public var matrixBrightness: Float = 1.0
 
     public private(set) var hardwareVersion: String?
     public private(set) var firmwareVersion: String? { didSet { didUpdateState() } }
@@ -34,13 +34,16 @@ open class NuimoBluetoothController: BLEDevice, NuimoController {
     public var supportsFlySensorCalibration: Bool { return flySensorCalibrationCharacteristic != nil }
     public var heartBeatInterval: TimeInterval = 0.0 { didSet { writeHeartBeatInterval() } }
 
-    private var matrixWriter: LEDMatrixWriter?
+    private lazy var matrixWriter: LEDMatrixWriter = LEDMatrixWriter(controller: self)
     private var connectTimeoutTimer: Timer?
     private var rebootToDFUModeCharacteristic: CBCharacteristic? { return peripheral?.service(with: kSensorServiceUUID)?.characteristic(with: kRebootToDFUModeCharacteristicUUID) }
     private var flySensorCalibrationCharacteristic: CBCharacteristic? { return peripheral?.service(with: kSensorServiceUUID)?.characteristic(with: kFlySensorCalibrationCharacteristicUUID) }
 
     open override func didUpdateState(error: Error? = nil) {
         super.didUpdateState()
+        if peripheral?.state != .connected {
+            matrixWriter.matrixCharacteristic = nil
+        }
         let newState: NuimoConnectionState =  {
             guard isReachable, let peripheral = peripheral else { return .invalidated }
             switch peripheral.state {
@@ -55,14 +58,9 @@ open class NuimoBluetoothController: BLEDevice, NuimoController {
         delegate?.nuimoController(self, didChangeConnectionState: connectionState, withError: error)
     }
 
-    open override func willDiscoverServices() {
-        super.willDiscoverServices()
-        matrixWriter = nil
-    }
-
     public func display(matrix: NuimoLEDMatrix, interval: TimeInterval, options: Int) {
         queue.async {
-            self.matrixWriter?.write(matrix: matrix, interval: interval, options: options)
+            self.matrixWriter.write(matrix: matrix, interval: interval, options: options)
         }
     }
 
@@ -116,7 +114,7 @@ open class NuimoBluetoothController: BLEDevice, NuimoController {
             case kFirmwareVersionCharacteristicUUID: fallthrough
             case kModelNumberCharacteristicUUID:     fallthrough
             case kBatteryCharacteristicUUID:         peripheral.readValue(for: characteristic)
-            case kLEDMatrixCharacteristicUUID:       matrixWriter = LEDMatrixWriter(peripheral: peripheral, matrixCharacteristic: characteristic, queue: queue, brightness: matrixBrightness)
+            case kLEDMatrixCharacteristicUUID:       matrixWriter.matrixCharacteristic = characteristic
             case kHeartBeatCharacteristicUUID:       writeHeartBeatInterval()
             default:
                 break
@@ -142,7 +140,7 @@ open class NuimoBluetoothController: BLEDevice, NuimoController {
     open override func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
         super.peripheral(peripheral, didWriteValueFor: characteristic, error: error)
         if characteristic.uuid == kLEDMatrixCharacteristicUUID {
-            matrixWriter?.didRetrieveMatrixWriteResponse()
+            matrixWriter.didRetrieveMatrixWriteResponse()
             delegate?.nuimoControllerDidDisplayLEDMatrix(self)
         }
     }
@@ -156,10 +154,8 @@ public extension Notification.Name {
 //MARK: - LED matrix writing
 
 private class LEDMatrixWriter {
-    unowned let peripheral: CBPeripheral
-    unowned let matrixCharacteristic: CBCharacteristic
-    unowned let queue: DispatchQueue
-    var brightness: Float
+    unowned let controller: NuimoBluetoothController
+    var matrixCharacteristic: CBCharacteristic?
 
     private var currentMatrix: NuimoLEDMatrix?
     private var currentDisplayInterval: TimeInterval = 0.0
@@ -171,11 +167,8 @@ private class LEDMatrixWriter {
     private var writeOnResponseReceived = false
     private var writeResponseTimeoutDispatchWorkItem: DispatchWorkItem?
 
-    init(peripheral: CBPeripheral, matrixCharacteristic: CBCharacteristic, queue: DispatchQueue, brightness: Float) {
-        self.peripheral = peripheral
-        self.matrixCharacteristic = matrixCharacteristic
-        self.queue = queue
-        self.brightness = brightness
+    init(controller: NuimoBluetoothController) {
+        self.controller = controller
     }
 
     func write(matrix: NuimoLEDMatrix, interval: TimeInterval, options: Int) {
@@ -204,6 +197,13 @@ private class LEDMatrixWriter {
     }
 
     private func writeMatrixNow(withWriteResponse: Bool) {
+        guard
+            let peripheral = controller.peripheral,
+            peripheral.state == .connected,
+            let matrixCharacteristic = matrixCharacteristic
+        else {
+            return
+        }
         guard let currentMatrix = currentMatrix else { fatalError("Invalid matrix write request") }
         var matrixBytes = currentMatrix.matrixBytes
         guard currentMatrix.matrixBytes.count == 11 && !(withWriteResponse && isWaitingForWriteResponse) else { fatalError("Invalid matrix write request") }
@@ -211,7 +211,7 @@ private class LEDMatrixWriter {
         matrixBytes[10] = matrixBytes[10] +
             (currentWithFadeTransition              ? UInt8(1 << 4) : 0) +
             (currentMatrix is NuimoBuiltInLEDMatrix ? UInt8(1 << 5) : 0)
-        matrixBytes += [UInt8(min(max(brightness, 0.0), 1.0) * 255), UInt8(currentDisplayInterval * 10.0)]
+        matrixBytes += [UInt8(min(max(controller.matrixBrightness, 0.0), 1.0) * 255), UInt8(currentDisplayInterval * 10.0)]
         peripheral.writeValue(Data(bytes: UnsafePointer<UInt8>(matrixBytes), count: matrixBytes.count), for: matrixCharacteristic, type: withWriteResponse ? .withResponse : .withoutResponse)
 
         isWaitingForWriteResponse        = withWriteResponse
@@ -223,7 +223,7 @@ private class LEDMatrixWriter {
             // When the matrix write response is not retrieved within 500ms we assume the response to have timed out
             writeResponseTimeoutDispatchWorkItem?.cancel()
             writeResponseTimeoutDispatchWorkItem = DispatchWorkItem() { [weak self] in self?.didRetrieveMatrixWriteResponse() }
-            queue.asyncAfter(deadline: .now() + 0.5, execute: writeResponseTimeoutDispatchWorkItem!)
+            controller.queue.asyncAfter(deadline: .now() + 0.5, execute: writeResponseTimeoutDispatchWorkItem!)
         }
     }
 
