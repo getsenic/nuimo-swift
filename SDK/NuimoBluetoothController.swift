@@ -51,9 +51,9 @@ open class NuimoBluetoothController: BLEDevice, NuimoController {
             case .connecting:    return .connecting
             case .disconnected:  return .disconnected
             default:
-                #if os(iOS) || os(tvOS)
-                if peripheral.state == .disconnecting { return .disconnecting }
-                #endif
+                if #available(iOS 9.0, tvOS 9.0, *) {
+                    if peripheral.state == .disconnecting { return .disconnecting }
+                }
                 fatalError("Unexpected peripheral state: \(peripheral.state.rawValue)")
             }
         }()

@@ -133,7 +133,7 @@ open class BLEDevice: NSObject {
         queue.assertIsDispatching()
         guard let peripheral = peripheral else { return }
         willDiscoverServices()
-        // Collect any already known service and characterstic (i.e. from device restoring)
+        // Collect any already known service and characteristic (i.e. from device restoring)
         peripheral.services?.forEach {
             // Notify already discovered services, it will discover their characteristics if not already discovered
             self.peripheral(peripheral, didDiscoverServices: nil)
