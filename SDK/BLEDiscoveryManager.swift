@@ -26,6 +26,7 @@ public class BLEDiscoveryManager: NSObject {
 
     internal let queue: DispatchQueue
 
+    fileprivate var didRestoreState =       false
     fileprivate var knownPeripheralUUIDs:   [UUID]
     fileprivate var deviceForUUID:          [UUID : BLEDevice] = [:]
     fileprivate var alreadyDiscoveredUUIDs: Set<UUID> = []
@@ -77,6 +78,8 @@ public class BLEDiscoveryManager: NSObject {
 
 extension BLEDiscoveryManager: CBCentralManagerDelegate {
     public func centralManager(_ central: CBCentralManager, willRestoreState state: [String : Any]) {
+        didRestoreState = true
+
         NuimoSwift.DDLogDebug("BLEDiscoveryManager willRestoreState with state \(central.state.rawValue) on queue \(DispatchQueue.currentQueueLabel)")
         guard let centralManager = centralManager else {
             queue.async { self.centralManager(central, willRestoreState: state) }
@@ -113,6 +116,10 @@ extension BLEDiscoveryManager: CBCentralManagerDelegate {
         }
 
         if centralManager.state.rawValue >= CBCentralManagerState.poweredOff.rawValue {
+            if !didRestoreState {
+                self.centralManager(central, willRestoreState: [:])
+            }
+
             // Update all devices with a freshly retrieved peripheral from central manager for those which have an invalidated peripheral
             centralManager.retrievePeripherals(withIdentifiers: Array(deviceForUUID.keys)).forEach {
                 guard let device = self.deviceForUUID[$0.identifier], device.peripheral == nil else { return }
@@ -130,7 +137,7 @@ extension BLEDiscoveryManager: CBCentralManagerDelegate {
     }
 
     public func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
-        var device = deviceForUUID[peripheral.identifier]
+        let device = deviceForUUID[peripheral.identifier]
 
         if !alreadyDiscoveredUUIDs.contains(peripheral.identifier) {
             alreadyDiscoveredUUIDs.insert(peripheral.identifier)
