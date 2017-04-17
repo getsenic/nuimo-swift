@@ -64,7 +64,7 @@ open class BLEDevice: NSObject {
 
     open func didAdvertise(_ advertisementData: [String: Any], RSSI: NSNumber, willReceiveSuccessiveAdvertisingData: Bool) {
         queue.assertIsDispatching()
-        guard let peripheral = peripheral else { return }
+        guard peripheral != nil else { return }
         guard willReceiveSuccessiveAdvertisingData, let maxAdvertisingPackageInterval = type(of: self).maxAdvertisingPackageInterval else { return }
         advertisingTimeoutDispatchWorkItem?.cancel()
         advertisingTimeoutDispatchWorkItem = DispatchWorkItem() { [weak self] in self?.didStopAdvertising() }
@@ -92,7 +92,7 @@ open class BLEDevice: NSObject {
 
     open func didConnect() {
         queue.assertIsDispatching()
-        guard let peripheral = peripheral else { return }
+        guard peripheral != nil else { return }
         assumeNotAdvertising()
         discoverServices()
         didUpdateState()
